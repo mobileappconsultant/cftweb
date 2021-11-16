@@ -9,16 +9,17 @@ import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
 import FormGroupSelect from 'utilComponents/FormGroupSelect';
+import Map from 'utilComponents/MapComponent';
 
 
 const CreateBranch = (props: any):JSX.Element => {
     const initialState = {
         formData: {
-            email: '',
-            password: '',
-            full_name: '',
-            phone:'',
-            role: '',
+            name: '',
+            branch_president:'',
+            lat: 18.5204,
+            lng: 73.8567,
+            address: '',
         },
         errors:{},
         isLoading: false,
@@ -43,6 +44,24 @@ const CreateBranch = (props: any):JSX.Element => {
         });
     };
 
+   
+    const onMapChange = (values:[], index= null, address: string) => {
+        let values_2: Array<number> = values;
+        setState({
+            formData: {
+                ...state.formData,
+                lat: values_2[0],
+                lng: values_2[1],
+                address: address,
+            },
+            errors: {
+                ...state.errors,
+                address: '',
+            },
+        });
+    }
+   
+
     const handleSelectChange = (e:{label?: string, value?: string|null|number}, name = '') :void  => {
         if (e) {
             setState({
@@ -66,28 +85,22 @@ const CreateBranch = (props: any):JSX.Element => {
 
     const validateFormData = async () => {
         const rules = {
-            'full_name': 'required',
-            'email': 'required|email|validemail',
-            'password' : 'required',
-            'phone': 'required',
-            'role': 'required',
-            
+            'name': 'required',
+            'branch_president' : 'required',
+            'address': 'required',    
         };
 
         const messages = {
-            'email.email': 'Enter valid email address',
-            'email.required': 'Enter email address',
-            'email.validemail': 'Enter valid email address',
-            'password.required': 'Password required',
-            'full_name.required': 'Full name is required',
-            'phone.required': 'Phone number is required',
-            'role.required': 'Select a role',
+            'address.required': 'Address required',
+            'name.required': 'Branch name is required',
+            'branch_president.required': 'Branch president is required',
         };
         const validate = await validateData(formData, rules, messages);
         if (isObjectEmpty(validate)) {
             return true;
         } else {
             setState({
+                ...state,
                 errors: validate,
             });
             return false;
@@ -99,11 +112,11 @@ const CreateBranch = (props: any):JSX.Element => {
     const refreshForm = () => {
         setState({
             formData: {
-                email: '',
-                password: '',
-                full_name: '',
-                phone:'',
-                role: '',
+                name: '',
+                branch_president:'',
+                lat: 18.5204,
+                lng: 73.8567,
+                address: '',
             },
             errors:{},
         })
@@ -116,11 +129,20 @@ const CreateBranch = (props: any):JSX.Element => {
         })
         try {
             const validate = await validateFormData();
+            const payload = {
+                name: formData?.name,
+                branch_president: formData?.branch_president,
+                geo_point:{
+                    lat: formData?.lat,
+                    long: formData?.lng,
+                },
+                address: formData?.address,
+            };
             if(validate){
-                await ApiRequestClient.post(apiRoutes.CREATE_ADMIN, formData);  
+                await ApiRequestClient.post(apiRoutes.CREATE_BRANCH, payload);  
                 
                 refreshForm();
-                props.addAlert(processAlertSuccess('Admin added successfully'));
+                props.addAlert(processAlertSuccess('Branch added successfully'));
                 handleModalToggle();
             };
             setState({
@@ -140,7 +162,7 @@ const CreateBranch = (props: any):JSX.Element => {
             alertMessage:{},
         });
     };
-
+    console.log(formData);
     return(
         <>
         <Modal
@@ -180,8 +202,25 @@ const CreateBranch = (props: any):JSX.Element => {
                             errorMessage={errors.branch_president}
                         />
                     </div>
+                    <div className="col-md-12 mb-3">
+                        <Map 
+                            google={props.google}
+                            center={{lat: 18.5204, lng: 73.8567}}
+                            height='300px'
+                            zoom={15}
+                            onMapChange={(value?:any,index?:any, address ?:any)=>onMapChange(value,index, address)}
+                           
+                            lat={formData.lat}
+                            lng={formData.lng}
+                        />
+                        {errors.address && (
+                            <div className="small w-100 mt-5 text-left text-danger">
+                                {errors.address}
+                            </div>
+                        )}
+                    </div>
                     
-                    <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
+                    <div className="col-md-12 mt-5 mb-3 d-flex justify-content-end">
                     <CreateButton
                         text={'Submit'}
                         actionEvent={(e)=>{submit(e)}}

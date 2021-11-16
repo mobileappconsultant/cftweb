@@ -6,6 +6,11 @@ export const apiRoutes = {
     CREATE_ADMIN: '/reg/create',
     GET_ALL_ADMINS:'/admin/all',
     // Groups
+   
+
     // Branches
+    CREATE_BRANCH: '/branch/create',
+    GET_ALL_BRANCHES: '/branch/all',
+    GET_SINGLE_BRANCH: '/branch/get',
 
 };

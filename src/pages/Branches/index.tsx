@@ -57,7 +57,7 @@ const Branches = ():JSX.Element => {
         });
 
         try {
-            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_ADMINS);
+            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_BRANCHES);
     
             setState({
                 data: response?.data?.data,

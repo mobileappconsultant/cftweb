@@ -1,4 +1,6 @@
 .modal {
+ 
+    
     .modal-content {
         .modal-header {
             background: #f7f9fc;
@@ -44,4 +46,11 @@
             border-top: 0px solid;
         }
     }
+};
+.pac-container {
+    background-color: #FFF;
+    z-index: 2000;
+    position: fixed;
+    display: inline-block;
+    float: left;
 }
