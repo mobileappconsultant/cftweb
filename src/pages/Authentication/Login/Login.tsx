@@ -1,0 +1,170 @@
+import React, {useReducer} from 'react';
+import WelcomeHeader from 'components/Auth/WelcomeHeader/index';
+import AuthButton from 'components/Auth/AuthButton';
+import OrComponent from 'components/Auth/OrComponent';
+import AuthFormInput from 'components/Auth/AuthFormInputs';
+import mailIcon from 'assets/images/mail.svg';
+import { Link } from 'react-router-dom';
+import { ApiRequestClient } from 'apiClient';
+import { apiRoutes } from 'constants/index';
+import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
+import AlertComponent from 'components/AlertComponent';
+import { validateData } from 'helpers';
+
+const Login = ():JSX.Element => {
+    const initialState = {
+        formData: {
+            email: '',
+            password: '',
+        },
+        errors:{},
+        isLoading: false,
+        alertMessage:{},
+
+    };
+    const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
+    const {formData, isLoading, alertMessage, errors} = state;
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
+        const {name, value} = e.target;
+        setState({
+            formData:{
+                ...formData,
+                [name]: value,
+            },
+            errors:{
+                [name]: '',
+            }
+        });
+    };
+
+    const validateFormData = async () => {
+        const rules = {
+            'email': 'required|email|validemail',
+            'password' : 'required',
+            
+        };
+
+        const messages = {
+            'email.email': 'Enter valid email address',
+            'email.required': 'Enter email address',
+            'email.validemail': 'Enter valid email address',
+            'password.required': 'Password required',
+        };
+        const validate = await validateData(formData, rules, messages);
+        if (isObjectEmpty(validate)) {
+            return true;
+        } else {
+            setState({
+                errors: validate,
+            });
+            return false;
+        }
+
+
+    };
+
+    const submit = async (e : React.SyntheticEvent<Element, Event>) => {
+        e.preventDefault();
+        setState({
+            isLoading: true,
+        })
+        try {
+          const validate = await validateFormData();
+          if(validate){
+            await ApiRequestClient.post(apiRoutes.LOGIN, formData);    
+          };
+          
+          setState({
+            isLoading: false,
+          });
+        } catch (error) {
+            console.log(error, 'me');
+            const errorMsg = extractErrorMessage(error);
+            setState({
+                alertMessage:  processAlertError(errorMsg),
+                isLoading: false,
+            });
+        }
+        
+    };
+    const handleAlertClose = () => {
+        setState({
+            alertMessage:{},
+        });
+    };
+   
+    // console.log(process.env.REACT_APP_API_BASE_URL);
+    return(
+        <>
+            <WelcomeHeader 
+                secondaryText="Sign into your account"
+            />
+            {alertMessage?.text && (
+                <>
+                    <AlertComponent
+                        text={alertMessage.text}
+                        type={alertMessage.type}
+                        onClose={handleAlertClose}
+                    />
+                </>
+            )}
+            <div className="mb-4"> 
+                <AuthButton 
+                    className="google-sign-in-button"
+                    text="SIGN IN WITH GOOGLE"
+                    actionEvent={(e)=> console.log(e)}
+                />
+            </div>
+            <div className="mb-4">
+                <AuthButton 
+                    className="facebook-sign-in-button"
+                    text="SIGN IN WITH FACEBOOK"
+                    actionEvent={(e)=> console.log(e)}
+                />
+            </div>
+            <div className="mb-4">
+                <OrComponent text="OR" />
+            </div>
+            <div className="mb-3">
+                <AuthFormInput
+                    icon={mailIcon}
+                    placeholder={'Email Address'}
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    showError={errors.email}
+                    errorMessage={errors.email}
+                />
+            </div>
+            <div className="mb-3">
+                <AuthFormInput
+                    icon={mailIcon}
+                    placeholder={'Password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    type="password"
+                    showError={errors.password}
+                    errorMessage={errors.password}
+                />
+            </div>
+            <div className="mb-4 w-100 d-flex justify-content-end ">
+                <Link to="/forgotpassword" className="text-right">  
+                    Forgot Password
+                </Link>
+            </div>
+            <div className="mb-4">
+                <AuthButton 
+                    className="facebook-sign-in-button"
+                    text="SIGN IN"
+                    disabled={isLoading}
+                    loading={isLoading}
+                    actionEvent={(e)=> submit(e)}
+                />
+            </div>
+        </>
+    )
+
+};
+export default Login;
