@@ -348,7 +348,9 @@ export const scrollDown = () => {
 };
 
 export const formatInitialDateValue = (data: Date) => {
-        return moment(data, 'YYYY-MM-DD');
+    return moment(data).fromNow();
+   
+        // return moment(data, 'YYYY-MM-DD');
         
 }
 

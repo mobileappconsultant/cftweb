@@ -5,9 +5,11 @@ export const apiRoutes = {
     CONFIRM_PASSWORD: '/auth/confirm/password',
     CREATE_ADMIN: '/reg/create',
     GET_ALL_ADMINS:'/admin/all',
+    GET_ALL_MEMBERS:'/admin/users',
     // Groups
-   
-
+    CREATE_GROUP:'/group/create',
+    GET_ALL_GROUPS: '/group/all',
+    GET_SINGLE_GROUP: '/group/get',
     // Branches
     CREATE_BRANCH: '/branch/create',
     GET_ALL_BRANCHES: '/branch/all',

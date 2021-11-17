@@ -8,17 +8,13 @@ import AlertComponent from 'components/AlertComponent';
 import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
-import Map from 'utilComponents/MapComponent';
 
 
-const CreateBranch = (props: any):JSX.Element => {
+const EditGroup = (props: any):JSX.Element => {
     const initialState = {
         formData: {
-            name: '',
-            branch_president:'',
-            lat: 18.5204,
-            lng: 73.8567,
-            address: '',
+            name:  props?.group?.name || '',
+            group_head:props?.group?.group_head || '',
         },
         errors:{},
         isLoading: false,
@@ -28,6 +24,7 @@ const CreateBranch = (props: any):JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage, errors, showModal} = state;
+    const {show, toggleModal} = props;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -43,39 +40,6 @@ const CreateBranch = (props: any):JSX.Element => {
         });
     };
 
-   
-    const onMapChange = (values:[], index= null, address: string) => {
-        let values_2: Array<number> = values;
-        setState({
-            formData: {
-                ...state.formData,
-                lat: values_2[0],
-                lng: values_2[1],
-                address: address,
-            },
-            errors: {
-                ...state.errors,
-                address: '',
-            },
-        });
-    }
-   
-
-    const handleSelectChange = (e:{label?: string, value?: string|null|number}, name = '') :void  => {
-        if (e) {
-            setState({
-                formData: {
-                    ...state.formData,
-                    [name]: e.value,
-                },
-                errors: {
-                    ...state.errors,
-                    [name]: '',
-                },
-            });
-        }
-
-    }
 
     const handleModalToggle = () => {
         setState({showModal: !showModal});
@@ -85,14 +49,12 @@ const CreateBranch = (props: any):JSX.Element => {
     const validateFormData = async () => {
         const rules = {
             'name': 'required',
-            'branch_president' : 'required',
-            'address': 'required',    
+            'group_head' : 'required',   
         };
 
         const messages = {
-            'address.required': 'Address required',
-            'name.required': 'Branch name is required',
-            'branch_president.required': 'Branch president is required',
+            'name.required': 'Group name is required',
+            'group_head.required': 'Group head is required',
         };
         const validate = await validateData(formData, rules, messages);
         if (isObjectEmpty(validate)) {
@@ -112,10 +74,7 @@ const CreateBranch = (props: any):JSX.Element => {
         setState({
             formData: {
                 name: '',
-                branch_president:'',
-                lat: 18.5204,
-                lng: 73.8567,
-                address: '',
+                group_head:'',
             },
             errors:{},
         })
@@ -128,20 +87,11 @@ const CreateBranch = (props: any):JSX.Element => {
         })
         try {
             const validate = await validateFormData();
-            const payload = {
-                name: formData?.name,
-                branch_president: formData?.branch_president,
-                geo_point:{
-                    lat: formData?.lat,
-                    long: formData?.lng,
-                },
-                address: formData?.address,
-            };
+           
             if(validate){
-                await ApiRequestClient.post(apiRoutes.CREATE_BRANCH, payload);  
-                
+                await ApiRequestClient.post(apiRoutes.CREATE_GROUP, formData);  
                 refreshForm();
-                props.addAlert(processAlertSuccess('Branch added successfully'));
+                props.addAlert(processAlertSuccess('Group added successfully'));
                 handleModalToggle();
             };
             setState({
@@ -165,9 +115,9 @@ const CreateBranch = (props: any):JSX.Element => {
     return(
         <>
         <Modal
-            title="Create Branch"
-            show={showModal} 
-            toggle={handleModalToggle}
+            title="Update Group"
+            show={show} 
+            toggle={toggleModal}
         >
             <>
                 {alertMessage?.text && (
@@ -183,7 +133,7 @@ const CreateBranch = (props: any):JSX.Element => {
                 <div className="row">
                     <div className="col-md-12 mb-3">
                         <FormGroupInput
-                            placeholder="Branch name"
+                            placeholder="Group name"
                             value={formData?.name}
                             onChange={handleChange}
                             name="name"
@@ -193,35 +143,19 @@ const CreateBranch = (props: any):JSX.Element => {
                     </div>
                     <div className="col-md-12 mb-3">
                         <FormGroupInput
-                            placeholder="Branch president"
-                            value={formData?.branch_president}
+                            placeholder="Group head"
+                            value={formData?.group_head}
                             onChange={handleChange}
-                            name="branch_president"
-                            showError={errors.branch_president}
-                            errorMessage={errors.branch_president}
+                            name="group_head"
+                            showError={errors.group_head}
+                            errorMessage={errors.group_head}
                         />
-                    </div>
-                    <div className="col-md-12 mb-3">
-                        <Map 
-                            google={props.google}
-                            center={{lat: 18.5204, lng: 73.8567}}
-                            height='300px'
-                            zoom={15}
-                            onMapChange={(value?:any,index?:any, address ?:any)=>onMapChange(value,index, address)}
-                           
-                            lat={formData.lat}
-                            lng={formData.lng}
-                        />
-                        {errors.address && (
-                            <div className="small w-100 mt-5 text-left text-danger">
-                                {errors.address}
-                            </div>
-                        )}
                     </div>
                     
-                    <div className="col-md-12 mt-5 mb-3 d-flex justify-content-end">
+                    
+                    <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
                     <CreateButton
-                        text={'Submit'}
+                        text={'Update'}
                         actionEvent={(e)=>{submit(e)}}
                         disabled={isLoading}
                         loading={isLoading}
@@ -230,13 +164,9 @@ const CreateBranch = (props: any):JSX.Element => {
                 </div>
             </>
         </Modal>
-        <CreateButton
-            text={'Create Branch'}
-            float
-            actionEvent={()=>{handleModalToggle()}}
-        />
+        
         </>
     )
 
 };
-export default CreateBranch;
+export default EditGroup;

@@ -8,10 +8,13 @@ import Pagination from 'utilComponents/TablePagination';
 import { ApiRequestClient } from 'apiClient';
 import { apiRoutes } from 'constants/index';
 import Filter from 'components/Filter';
-import churchIcon from 'assets/images/church.png';
 import branchIcon from 'assets/images/branch.png';
 import InfoDivHeader from 'utilComponents/InfoDivHeader';
 import CreateBranch from './CreateBranch';
+import EditBranch from './EditBranch';
+import MakeSelection from 'utilComponents/MakeSelectionIcon';
+import ViewBranch from './ViewBranch';
+import { formatInitialDateValue } from 'utils';
 
 
 const Branches = ():JSX.Element => {
@@ -21,10 +24,12 @@ const Branches = ():JSX.Element => {
         page:0,
         alertMessage:{},
         data:[],
+        activeDataObj:{},
+        showEditModal: false,
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, alertMessage, data} = state;
+    const {listView, page, activeDataObj, alertMessage, data, showEditModal} = state;
 
     const changeListView = () => {
         setState({
@@ -81,7 +86,13 @@ const Branches = ():JSX.Element => {
             });
         };
     }, []);
-    console.log(data);
+
+    const toggleEditModal = () => {
+        setState({
+            showEditModal: !showEditModal,
+        });
+    };
+
 
     return(
         <>
@@ -114,63 +125,39 @@ const Branches = ():JSX.Element => {
                     />
                     
                 </div>
-                <div className="d-flex pointer justify-content-between align-items-start px-3 py-2 border-top border-bottom active-list" >
+                {data.map((datum:any,_i:number) =>{
+                    return(
+                        <>
+                            <div 
+                                className={`
+                                    d-flex pointer justify-content-between 
+                                    align-items-start px-3 py-2 border-top border-bottom 
+                                    ${activeDataObj?._id === datum?._id? 'active-list':''}`
+                                }
+                                onClick={()=> setState({...state, activeDataObj: datum})}
+                            >
                 
-                    <div className="user-account pb-2 d-flex align-items-center pr-3">
-                        <div className="avatar">
-                            
-                            <img src={churchIcon} />
-                        </div>
-                        <div className="user-name px-2">
-                            <h6 className="m-0 name">New Branch</h6>
-                            <span className="small email">03/04/2021</span>
-                        </div>
-                    </div>
-                    <div className="justify-content-end py-0 my-0 pt-1 ">
-                        <span className="border-success px-2  email text-success border-radius small">
-                            active
-                        </span>
-                    </div>
-                    
-                </div>
-                <div className="pointer d-flex justify-content-between align-items-start px-3 py-2 border-top border-bottom">
+                                <div className="user-account pb-2 d-flex align-items-center pr-3">
+                                    <div className="avatar">
+                                        
+                                        <img src={branchIcon} />
+                                    </div>
+                                    <div className="user-name px-2">
+                                        <h6 className="m-0 name">{datum?.name}</h6>
+                                        <span className="small email">{formatInitialDateValue(datum?.createdAt)}</span>
+                                    </div>
+                                </div>
+                                <div className="justify-content-end py-0 my-0 pt-1 ">
+                                    <span className="border-success px-2  email text-success border-radius small">
+                                        active
+                                    </span>
+                                </div>
+                                
+                            </div>
+                        </>
+                    )
+                })}
                 
-                    <div className="user-account pb-2 d-flex align-items-center pr-3">
-                        <div className="avatar">
-                            
-                            <img src={churchIcon} />
-                        </div>
-                        <div className="user-name px-2">
-                            <h6 className="m-0 name">New Branch</h6>
-                            <span className="small email">03/04/2021</span>
-                        </div>
-                    </div>
-                    <div className="justify-content-end py-0 my-0 pt-1 ">
-                        <span className="border-success px-2 text-success border-radius small">
-                            active
-                        </span>
-                    </div>
-                    
-                </div>
-                <div className="d-flex justify-content-between align-items-start px-3 py-2 border-top border-bottom">
-                
-                    <div className="user-account pb-2 d-flex align-items-center pr-3">
-                        <div className="avatar">
-                            
-                            <img src={churchIcon} />
-                        </div>
-                        <div className="user-name px-2">
-                            <h6 className="m-0 name">New Branch</h6>
-                            <span className="small email">03/04/2021</span>
-                        </div>
-                    </div>
-                    <div className="justify-content-end py-0 my-0 pt-1 ">
-                        <span className="border-success px-2 text-success border-radius small">
-                            active
-                        </span>
-                    </div>
-                    
-                </div>
                 <div>
                 <Pagination
                     count={data.length?? 0}
@@ -183,34 +170,55 @@ const Branches = ():JSX.Element => {
 
             </div>
             <div className="col-md-8 pl-0">
-                <div className="d-flex justify-content-between align-items-center border-bottom w-100">
-                    <div className=" py-3 px-3">
-                    <div className="user-account pb-1 d-flex align-items-center">
-                        <div className="avatar">
+                {activeDataObj?._id? (
+                    <>
+                    <div className="d-flex justify-content-between align-items-center border-bottom w-100">
+                        <div className=" py-3 px-3">
+                        <div className="user-account pb-1 d-flex align-items-center">
+                            <div className="avatar">
+                                
+                                <img src={branchIcon} />
+                            </div>
+                            <div className="user-name px-2">
+                                <h6 className="m-0 name">{activeDataObj?.name}&nbsp;&nbsp;<span className="small font-weight-light text-success">active</span> </h6>
+                                <span className="small email">{formatInitialDateValue(activeDataObj?.createdAt)}</span>
+                            </div>
+                        </div>
+                        </div>
+                        <div className="px-3">
+                            <div className="view-component-right-header m-0 p-0">
+                                100,000
+                            </div>
+                            <div className="user-name">
+                                <span className="small email">Branch members</span>
+                            </div>
                             
-                            <img src={branchIcon} />
                         </div>
-                        <div className="user-name px-2">
-                            <h6 className="m-0 name">New Branch&nbsp;&nbsp;<span className="small font-weight-light text-success">active</span> </h6>
-                            <span className="small email">03/04/2021</span>
-                        </div>
-                    </div>
-                    </div>
-                    <div className="px-3">
-                        <div className="view-component-right-header m-0 p-0">
-                            100,000
-                        </div>
-                        <div className="user-name">
-                            <span className="small email">Branch members</span>
-                        </div>
-                        
-                    </div>
                 </div>
-                <div className=" py-4 px-3">
+                <div className="pt-2 pb-4 px-3 mt-2">
+                    <div className="d-flex justify-content-between align-items-center mb-2 w-100">
+                            <div className="user-account  d-flex align-items-center">
+                                <div className="avatar">
+                                    <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20(3).jpg" />
+                                </div>
+                                <div className="user-name px-2">
+                                    <h6 className="m-0 name">{activeDataObj?.branch_president}</h6>
+                                    <span className="small email">Senior pastor</span>
+                                </div>
+                            </div>
+                            <div className="">
+                                
+                                <div className="user-name">
+                                    <span className="small email pointer text-primary">View profile</span>
+                                </div>
+                                
+                            </div>
+                    </div>
                     <div className="record-info-header">
                         BRANCH DETAILS 
                             <span 
                                 className={` pointer edit-button mx-3`}  
+                                onClick={toggleEditModal}
                             >   
                                 <EditCircle
                                     className="button-icon"
@@ -235,12 +243,20 @@ const Branches = ():JSX.Element => {
                     <div className="my-3">
                         <InfoDivHeader
                             label="BRANCH HEAD"
-                            text="@Meteor"
+                            text={activeDataObj?.branch_president}
                         />
                     </div>
 
-
+                    <ViewBranch
+                        branch={activeDataObj}
+                    />
                 </div>
+                    </>
+                ):(
+                    <div className="mt-5 mb-3">
+                        <MakeSelection />
+                    </div>
+                )}
                 
             </div>
         </div>
@@ -251,6 +267,13 @@ const Branches = ():JSX.Element => {
            
             <CreateBranch
             />
+            {activeDataObj?._id && (
+                <EditBranch 
+                    branch={activeDataObj}
+                    show={showEditModal}
+                    toggleModal={toggleEditModal}
+                />
+            )}
                 
         </div>
        

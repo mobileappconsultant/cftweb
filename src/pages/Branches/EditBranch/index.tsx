@@ -1,4 +1,4 @@
-import React, {useReducer} from 'react';
+import React, {useReducer, useEffect} from 'react';
 import Modal from 'utilComponents/Modal';
 import { Link } from 'react-router-dom';
 import { ApiRequestClient } from 'apiClient';
@@ -11,24 +11,25 @@ import FormGroupInput from 'utilComponents/FormGroupInput';
 import Map from 'utilComponents/MapComponent';
 
 
-const CreateBranch = (props: any):JSX.Element => {
+const EditBranch = (props: any):JSX.Element => {
+    
     const initialState = {
         formData: {
-            name: '',
-            branch_president:'',
+            name: props?.branch?.name || '',
+            branch_president: props?.branch?.branch_president || '',
             lat: 18.5204,
             lng: 73.8567,
-            address: '',
+            address: props?.branch?.address || '',
         },
         errors:{},
-        isLoading: false,
+        isLoading: true,
         alertMessage:{},
-        showModal: false,
+       
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {formData, isLoading, alertMessage, errors, showModal} = state;
-
+    const {formData, isLoading, alertMessage, errors} = state;
+    const {show, toggleModal} = props;
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
         setState({
@@ -59,26 +60,10 @@ const CreateBranch = (props: any):JSX.Element => {
             },
         });
     }
-   
 
-    const handleSelectChange = (e:{label?: string, value?: string|null|number}, name = '') :void  => {
-        if (e) {
-            setState({
-                formData: {
-                    ...state.formData,
-                    [name]: e.value,
-                },
-                errors: {
-                    ...state.errors,
-                    [name]: '',
-                },
-            });
-        }
-
-    }
 
     const handleModalToggle = () => {
-        setState({showModal: !showModal});
+        // setState({showModal: !showModal});
         refreshForm();
     }
 
@@ -141,7 +126,7 @@ const CreateBranch = (props: any):JSX.Element => {
                 await ApiRequestClient.post(apiRoutes.CREATE_BRANCH, payload);  
                 
                 refreshForm();
-                props.addAlert(processAlertSuccess('Branch added successfully'));
+                props.addAlert(processAlertSuccess('Branch updated successfully'));
                 handleModalToggle();
             };
             setState({
@@ -161,13 +146,40 @@ const CreateBranch = (props: any):JSX.Element => {
             alertMessage:{},
         });
     };
-  
+
+    const fetchData = () => {
+        const {branch} = props;
+        setState({
+            ...state,
+            formData:{
+                ...formData,
+                name: branch?.name || '',
+                branch_president: branch?.branch_president || '',
+                lat: 18.5204,
+                lng: 73.8567,
+                address: branch?.address || '',
+            },
+            isLoading: false,
+        });
+    };
+    
+    useEffect(() => {
+        fetchData();
+
+        // Cleanup method
+        return () => {
+            setState({
+                ...initialState,
+            });
+        };
+    }, []);
+
     return(
         <>
         <Modal
-            title="Create Branch"
-            show={showModal} 
-            toggle={handleModalToggle}
+            title="Update Branch"
+            show={show} 
+            toggle={toggleModal}
         >
             <>
                 {alertMessage?.text && (
@@ -221,7 +233,7 @@ const CreateBranch = (props: any):JSX.Element => {
                     
                     <div className="col-md-12 mt-5 mb-3 d-flex justify-content-end">
                     <CreateButton
-                        text={'Submit'}
+                        text={'Update'}
                         actionEvent={(e)=>{submit(e)}}
                         disabled={isLoading}
                         loading={isLoading}
@@ -230,13 +242,13 @@ const CreateBranch = (props: any):JSX.Element => {
                 </div>
             </>
         </Modal>
-        <CreateButton
+        {/* <CreateButton
             text={'Create Branch'}
             float
             actionEvent={()=>{handleModalToggle()}}
-        />
+        /> */}
         </>
     )
 
 };
-export default CreateBranch;
+export default EditBranch;
