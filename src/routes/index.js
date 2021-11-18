@@ -10,6 +10,7 @@ import Requests from 'pages/Requests';
 import Administrators from 'pages/Administrators';
 import Branches from 'pages/Branches';
 import Groups from 'pages/Groups';
+import Settings from 'pages/Settings';
 export const publicRoutes = [
 	{ path: "/login", component: Login },
 	{ path: "/forgotpassword", component: ForgotPassword },
@@ -27,4 +28,5 @@ export const privateRoutes = [
 	{path: "/administrators", component: Administrators},
 	{path: "/branches", component: Branches},
 	{path: "/groups", component: Groups},
+	{path: "/settings", component: Settings},
 ];

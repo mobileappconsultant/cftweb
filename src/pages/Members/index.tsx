@@ -8,6 +8,7 @@ import TableListView from 'utilComponents/TableListView';
 import Pagination from 'utilComponents/TablePagination';
 import { ApiRequestClient } from 'apiClient';
 import { apiRoutes } from 'constants/index';
+import { formatInitialDateValue } from 'utils';
 
 const Administrators = ():JSX.Element => {
     const initialState = {
@@ -111,7 +112,7 @@ const Administrators = ():JSX.Element => {
                                 name={datum?.full_name}
                                 // userName={'Xi jiping'}
                                 role={datum?.role}
-                                time={'22/03/2022'}
+                                time={formatInitialDateValue(datum?.createdAt)}
                                 avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
                                 id="2"
                             />

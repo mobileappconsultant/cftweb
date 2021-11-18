@@ -2,6 +2,8 @@ import React, {useReducer} from 'react';
 import './formgroupinput.scss';
 interface propInterface {
     icon?: any,
+    label?:string,
+    disabled?: boolean,
     placeholder?: string,
     value?: string | number,
     onChange?: any,

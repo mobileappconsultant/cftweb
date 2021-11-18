@@ -21,7 +21,7 @@ const UserCard = (props: propsObject):JSX.Element => {
                     <div className="name mb-1">{name}</div>
                     {userName && (<div className="user-name">username:&nbsp;{userName}</div>)}
                     {role && (<div className="user-name">role:&nbsp;{role}</div>)}
-                    <div className="small user-name text-muted mt-2">Registered just now</div>
+                    <div className="small user-name text-muted mt-2">{time}</div>
                 </div>
             </div>
             <div className="d-flex justify-content-end">
