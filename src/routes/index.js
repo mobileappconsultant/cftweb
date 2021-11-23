@@ -11,6 +11,7 @@ import Administrators from 'pages/Administrators';
 import Branches from 'pages/Branches';
 import Groups from 'pages/Groups';
 import Settings from 'pages/Settings';
+import Announcement from 'pages/Announcement';
 export const publicRoutes = [
 	{ path: "/login", component: Login },
 	{ path: "/forgotpassword", component: ForgotPassword },
@@ -29,4 +30,5 @@ export const privateRoutes = [
 	{path: "/branches", component: Branches},
 	{path: "/groups", component: Groups},
 	{path: "/settings", component: Settings},
+	{path:"/announcements", component: Announcement}
 ];

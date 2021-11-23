@@ -2,7 +2,7 @@ import React, {useReducer} from 'react';
 import './createbutton.scss';
 
 interface propsObject {
-    text: string,
+    text: string | JSX.Element,
     actionEvent?: (e: React.SyntheticEvent) => any;
     className?: string;
     float?: boolean;

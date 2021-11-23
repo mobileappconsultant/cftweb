@@ -7,10 +7,13 @@ import mailIcon from 'assets/images/mail.svg';
 import { Link } from 'react-router-dom';
 import { ApiRequestClient } from 'apiClient';
 import { apiRoutes } from 'constants/index';
-import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
+import { extractErrorMessage, isObjectEmpty, processAlertError } from 'utils';
 import AlertComponent from 'components/AlertComponent';
-import { validateData } from 'helpers';
-
+import { history, validateData } from 'helpers';
+import { useDispatch } from "react-redux";
+import Cookies from 'js-cookie';
+import { addUser } from "store/actionCreators";
+import { Dispatch } from "redux";
 const Login = ():JSX.Element => {
     const initialState = {
         formData: {
@@ -24,6 +27,7 @@ const Login = ():JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage, errors} = state;
+    const dispatch: Dispatch<any> = useDispatch();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -63,7 +67,7 @@ const Login = ():JSX.Element => {
 
 
     };
-
+    
     const submit = async (e : React.SyntheticEvent<Element, Event>) => {
         e.preventDefault();
         setState({
@@ -72,14 +76,18 @@ const Login = ():JSX.Element => {
         try {
           const validate = await validateFormData();
           if(validate){
-            await ApiRequestClient.post(apiRoutes.LOGIN, formData);    
+            const response = await ApiRequestClient.post(apiRoutes.LOGIN, formData); 
+            const loginData = response?.data?.data;   
+            dispatch(addUser(loginData?.admin));
+            Cookies.set('access-token', response?.data?.data?.token)
+            history.push('/home');
           };
           
           setState({
             isLoading: false,
           });
         } catch (error) {
-            console.log(error, 'me');
+            console.log(error);
             const errorMsg = extractErrorMessage(error);
             setState({
                 alertMessage:  processAlertError(errorMsg),
@@ -88,6 +96,7 @@ const Login = ():JSX.Element => {
         }
         
     };
+  
     const handleAlertClose = () => {
         setState({
             alertMessage:{},

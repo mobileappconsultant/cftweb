@@ -9,7 +9,7 @@ const PinInput = (props: propInterface): JSX.Element => {
     const{name, actionEvent, ...rest} = props;
     return(
         <>
-            <div className="w-100 ">
+            <div className="w-100 pin-input-wrapper">
                 <input
                   name={name}
                   onChange={actionEvent}

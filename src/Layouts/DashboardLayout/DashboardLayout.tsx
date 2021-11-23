@@ -2,12 +2,61 @@ import React, {useReducer} from 'react';
 import logo from 'assets/images/logo.png';
 import './dashboardLayout.scss';
 import { sideBarRoutes } from './sidebarLinks';
-import { BellRinging } from 'tabler-icons-react';
+import { BellRinging, Logout, X } from 'tabler-icons-react';
 import { Link } from 'react-router-dom';
+import Modal from 'utilComponents/Modal';
+import {Animated} from "react-animated-css";
+import { history } from 'helpers';
+import { connect } from 'react-redux';
+
 const DashboardLayout = (props: any): JSX.Element => {
+    const initialState = {
+        showModal: false,
+    };
+    const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
+    const {showModal} = state;
+    const {user} = props;
     
+    const handleModalToggle = () => {
+        setState({showModal: !showModal});
+    };
+
+    const handleLogout = ( ) => {
+        history.push('/login');
+    };
+
     return(
         <>
+
+        <Modal
+            title="Logout"
+            show={showModal} 
+            toggle={handleModalToggle}
+        >
+            <>
+                <div className="text-center">
+                    <Animated animationIn="rotateIn" animationOut="zoomOutDown" animationInDuration={1400} animationOutDuration={1400} isVisible={true}>
+                        <div>
+                            <X
+                                size={70}
+                                strokeWidth={3}
+                                color={'#bc1d2c'}
+                            />
+                        </div>
+                    </Animated>
+                    <h4 className="my-3">Are you sure you want to Logout?</h4>
+                    <hr/>
+                    <button 
+                        type="button" 
+                        className="btn w-100" 
+                        style={{'background': '#0654DF', 'color': 'white'}}
+                        onClick={()=> handleLogout()}
+                    >
+                        Logout
+                    </button>
+                </div>
+            </>
+        </Modal>
         <div className="sidebar">
         <div className="logo-details">
             <div className="px-2">
@@ -20,8 +69,8 @@ const DashboardLayout = (props: any): JSX.Element => {
                 <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20(3).jpg" />
             </div>
             <div className="user-name px-2">
-                <h6 className="m-0 name">Sierra Ferguson</h6>
-                <span className="small email">s.ferguson@gmail.com</span>
+                <h6 className="m-0 name">{user?.full_name}</h6>
+                <span className="small email">{user?.email}</span>
             </div>
         </div>
         {sideBarRoutes.map((route, index) =>{
@@ -44,7 +93,12 @@ const DashboardLayout = (props: any): JSX.Element => {
                 </>
             );
         })}
-      
+        <div className="w-100 sidebar-section-link py-2 px-2 ">
+            <span className="pointer sidebar-navlink" onClick={()=> handleModalToggle()}>
+                <Logout /> Logout
+            </span>
+        </div>
+
         </div>
 
     
@@ -67,5 +121,11 @@ const DashboardLayout = (props: any): JSX.Element => {
         </>
     )
 };
+function mapStateToProps(appState:any) {
 
-export default DashboardLayout;
+    return {
+       user: appState?.reducer?.userObject,
+    };
+ }
+ export default connect(mapStateToProps)(DashboardLayout);
+ 

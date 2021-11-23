@@ -9,7 +9,6 @@ import {
     Calendar,
     Archive,
     Settings,
-    Logout,
     User,
     GitBranch,
     ArrowsMinimize
@@ -93,11 +92,11 @@ export const sideBarRoutes = [
                 icon: <Settings />,
                 path:'/settings',
             },
-            {
-                text: 'Logout',
-                icon: <Logout />,
-                path:'/logout',
-            }
+            // {
+            //     text: 'Logout',
+            //     icon: <Logout />,
+            //     path:'/logout',
+            // }
         ],
     },
 ];

@@ -49,17 +49,18 @@ const Requests = ():JSX.Element => {
         <div className="col-md-12 px-0">
             <PageTitle text='Requests' />
         </div>
-        <div className="d-flex bg-white px-3 pt-3 tab">
+        <div className="d-flex bg-white px-3 pt-3  tab border-bottom">
             {tabs.map((tab, index)=> {
                 return (
                     <>
                         <div
-                            className={`tab-title ${index !==0? 'px-3': 'pr-3'} ${activeTab === index? 'active-tab-title': '' } pointer`}
+                            className={`tab-title  ${index !==0? 'px-3': 'pr-3'} ${activeTab === index? 'active-tab-title': 'text-muted' } pointer `}
                             onClick={()=>handleTabChange(index)}
                         > 
                             {tab.title}
-                            <span className="tab-count">{tab.count}</span>
+                            <span className="tab-count px-1">{tab.count}</span>
                         </div>
+                        
                     </>
                 )
             })}

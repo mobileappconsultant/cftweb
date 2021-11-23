@@ -91,7 +91,7 @@ const EditGroup = (props: any):JSX.Element => {
             if(validate){
                 await ApiRequestClient.post(apiRoutes.CREATE_GROUP, formData);  
                 refreshForm();
-                props.addAlert(processAlertSuccess('Group added successfully'));
+                props.addAlert(processAlertSuccess('Group updated successfully'));
                 handleModalToggle();
             };
             setState({

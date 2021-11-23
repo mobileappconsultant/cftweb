@@ -97,6 +97,7 @@ const CreateGroup = (props: any):JSX.Element => {
                 isLoading: false,
             }); 
         } catch (error) {
+          
             const errorMsg = extractErrorMessage(error);
             setState({
                 alertMessage:  processAlertError(errorMsg),

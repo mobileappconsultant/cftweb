@@ -49,11 +49,11 @@ const errorHandler = (error:any) => {
     if (status === 401) {
         
         
-        // removeTokens();
-        // clearLocalStorage();
+        removeTokens();
+        clearLocalStorage();
         // createBrowserHistory().push('/');
      
-        // history.push('/login');
+        history.push('/login');
         // window.location.reload();
         // store.dispatch(
         //     authActions.setLogoutSuccess()
@@ -62,8 +62,8 @@ const errorHandler = (error:any) => {
         //     alertActions.error(
         //         'Your session has expired! Kindly Login again'
         //     )
-        // );
-        // return {};
+        
+        return {};
     }
     return Promise.reject(error);
 };

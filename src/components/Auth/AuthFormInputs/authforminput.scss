@@ -29,6 +29,22 @@
         padding: 9px 12px;
         pointer-events: none;
     }
+    // Password Icon
+    .right-inner-addon-b .icon-tabler {
+        position: absolute;
+        right: 0px;
+        padding: 9px 12px;
+        pointer-events: none;
+        z-index: 5000;
+    }
+    // Passowrd Icon
+    .right-inner-addon .icon-tabler {
+        position: absolute;
+        right: 0px;
+        padding: 18px 12px;
+        pointer-events: none;
+        z-index: 5000;
+    }
 
     input {
         width: 100%;

@@ -261,10 +261,12 @@ const Branches = ():JSX.Element => {
         <div>
            
             <CreateGroup
+                addAlert={addAlert}
             />
             {activeDataObj?._id && (
                 <EditGroup
                     group={activeDataObj}
+                    addAlert={addAlert}
                     show={showEditModal}
                     toggleModal={toggleEditModal}
                 />

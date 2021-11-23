@@ -1,22 +1,19 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { render } from "react-dom"
 import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { Provider } from "react-redux";
+import App from "./App";
 import 'bootstrap/dist/css/bootstrap.min.css';
-const app = (
-   
-    // <Provider store={store}>
-    //         <PersistGate
-    //             loading={null}
-    //             persistor={persistor}
-    //         >
-                  // <MuiThemeProvider muiTheme={muiTheme}>
-                    <App />
-                  // </MuiThemeProvider>
-                
-        //     </PersistGate>
-        // </Provider>
-);
+import { PersistGate } from 'redux-persist/integration/react';
+import {store, persistor} from 'store/configureStore';
 
-ReactDOM.render(app, document.getElementById('root'));
+const rootElement = document.getElementById("root")
+render(
+  <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+ 
+    <App />
+    </PersistGate>
+  </Provider>,
+  rootElement
+)
