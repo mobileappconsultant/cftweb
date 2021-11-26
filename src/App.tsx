@@ -12,6 +12,16 @@ const App = () :JSX.Element => {
         <React.Fragment>
 				<Router history={history}>
 					<Switch>
+            {privateRoutes.map((route, idx) => (
+                  <AppRoute
+                    path={route.path}
+                    layout={DashboardLayout}
+                    component={route.component}
+                    key={idx}
+                    isAuthProtected={true}
+                    exact={true}
+                  />
+            ))}
 						{publicRoutes.map((route, idx) => (
 
                 <AppRoute
@@ -20,18 +30,11 @@ const App = () :JSX.Element => {
                   component={route.component}
                   key={idx}
                   isAuthProtected={false}
+                  exact={true}
                 />
             
 						))}
-            {privateRoutes.map((route, idx) => (
-              <AppRoute
-                path={route.path}
-                layout={DashboardLayout}
-                component={route.component}
-                key={idx}
-                isAuthProtected={false}
-              />
-            ))}
+            
 					</Switch>
 				</Router>
 			</React.Fragment>

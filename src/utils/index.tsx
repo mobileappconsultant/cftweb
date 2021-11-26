@@ -228,14 +228,14 @@ export const isObjectEmpty = (obj = {}) =>
 //     return _queryObj;
 // };
 
-// /**
-//  * Function that does nothing:
-//  * Useful as a default value for an optional Component prop
-//  * that's of type - function
-//  * Or for stubbing function calls in Tests and Storybook Docs
-//  * @returns {*} undefined
-//  */
-// export const noOp = () => { };
+/**
+ * Function that does nothing:
+ * Useful as a default value for an optional Component prop
+ * that's of type - function
+ * Or for stubbing function calls in Tests and Storybook Docs
+ * @returns {*} undefined
+ */
+export const noOp = () => { };
 
 // /**
 //  * Method to extract error message from error response object

@@ -1,0 +1,17 @@
+.custom-badge{
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 16px;
+    .badge-pending{
+        text-align: center;
+        /* Warning/Default */
+        color: #F3BB1C;
+        border: 1px solid #F3BB1C;
+    }
+    .badge-success{
+        text-align: center;
+        /* Warning/Default */
+        color: #3CC13B;
+        border: 1px solid #3CC13B;
+    }
+};

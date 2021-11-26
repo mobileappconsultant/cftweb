@@ -6,12 +6,11 @@ interface Props {
     layout?: any,
     isAuthProtected: boolean,
     path: string,
+	exact?: boolean,
     // any props that come into the component
 }
 const AppRoute: FC<Props> = ({component: Component, layout: Layout, isAuthProtected, ...rest }) => (
 		<Route
-            exact={true}
-			{...rest}
 			render={props  => {
 				if(Layout){
 					
@@ -31,6 +30,8 @@ const AppRoute: FC<Props> = ({component: Component, layout: Layout, isAuthProtec
 
 				
 			}}
+			{...rest}
+			exact={true}
 		/>
 	);
 

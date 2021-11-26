@@ -12,6 +12,11 @@ import Branches from 'pages/Branches';
 import Groups from 'pages/Groups';
 import Settings from 'pages/Settings';
 import Announcement from 'pages/Announcement';
+import SingleAnnouncement from 'pages/Announcement/ViewAnnouncement';
+import CreateAnnouncement from 'pages/Announcement/CreateAnnouncement';
+import Calendar from 'pages/Calendar';
+import CreateCalendarEvent from 'pages/Calendar/CreateCalendarEvent';
+
 export const publicRoutes = [
 	{ path: "/login", component: Login },
 	{ path: "/forgotpassword", component: ForgotPassword },
@@ -30,5 +35,9 @@ export const privateRoutes = [
 	{path: "/branches", component: Branches},
 	{path: "/groups", component: Groups},
 	{path: "/settings", component: Settings},
-	{path:"/announcements", component: Announcement}
+	{path:"/announcements", exact: true, component: Announcement},
+	{path:"/announcements/create", exact: true, component: CreateAnnouncement},
+	{path:"/announcements/:id", exact: true, component: SingleAnnouncement},
+	{path:"/calendar/event/:id", exact: true, component: CreateCalendarEvent},
+	{path:"/calendar", exact: true, component: Calendar},
 ];

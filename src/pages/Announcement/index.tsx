@@ -11,6 +11,7 @@ import { apiRoutes } from 'constants/index';
 import CreateButton from 'utilComponents/CreateButton';
 import { Plus } from 'tabler-icons-react';
 import { history } from 'helpers';
+import Badges from 'utilComponents/Badges';
 
 const Announcement = ():JSX.Element => {
     const initialState = {
@@ -18,14 +19,24 @@ const Announcement = ():JSX.Element => {
         rowsPerPage:5,
         page:0,
         alertMessage:{},
-        data:[{
-            name: 'Thanksgiving Service',
-            body: `Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-            quis nostrud exercitation ullamco laboris nisi ut......
-            `,
-            date: 'Sent on 22nd February',
-        }],
+        data:[
+            {
+                name: 'Thanksgiving Service',
+                body: `Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                quis nostrud exercitation ullamco laboris nisi ut......
+                `,
+                date: 'Sent on 22nd February',
+            },
+            {
+                name: 'Thanksgiving Service 2',
+                body: `Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                quis nostrud exercitation ullamco laboris nisi ut......
+                `,
+                date: 'Sent on 25th February',
+            },
+    ],
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
@@ -109,20 +120,35 @@ const Announcement = ():JSX.Element => {
                         />
                     </>
                 )}
-        <div className="">
+        <div className="bg-white">
         <div className="row  py-4 px-4"> 
             {data.map((datum: any, _i: number)=> {
                 return(
                     <>
                         <div className="col-md-12">
-                            <div className="my-2">
-                            <UserCard
-                                name={datum?.name}
-                                role={datum?.body}
-                                time={datum?.date}
-                                avatar="https://s7d9.scene7.com/is/image/LifeWayChristianResources/biblefallhero?wid=825&op_usm=2,.5,6,0&fmt=jpg"
-                                id="2"
-                            />
+                            <div className="my-2 pointer" onClick={()=> history.push(`/announcements/${1}`)}>
+                                <div className={`card user-card w-100 p-3 mb-3`}>   
+                                    <div className="d-flex align-items-center">
+                                        <div className="">
+                                            <img src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9w0saWFIE2jx_cm1gw3t6qTOaK5P9-IocLhNhsCiIwPQcBPCO_tGDHg7K_Ym79vkP4Is&usqp=CAU'} className="user-profile-img" />
+                                        </div>
+                                        <div className="user-details">
+                                            <div className="name mb-1">{datum?.name}</div>
+                                            <div className="d-flex justify-content-between">
+                                                <div className="user-name w-90">{datum?.body}</div>
+                                                <div>
+                                                    <Badges
+                                                        text="Pending"
+                                                        type="pending"
+                                                    />
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="small user-name text-muted mt-2">{datum?.date}</div>
+                                        </div>
+                                    </div>
+                                  
+                                </div>
                             </div>
                         </div>
                     </>
@@ -156,7 +182,7 @@ const Announcement = ():JSX.Element => {
                 </>
             }
             float
-            actionEvent={()=> history.push('/announcement/create')}
+            actionEvent={()=> history.push('/announcements/create')}
         />
            
         </div>

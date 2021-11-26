@@ -14,3 +14,6 @@ code {
 .pointer{
   cursor: pointer;
 }
+.w-90{
+  width: 90% !important;
+}
