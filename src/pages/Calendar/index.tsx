@@ -13,6 +13,7 @@ import { history } from 'helpers';
 import Badges from 'utilComponents/Badges';
 import { DateRangePicker } from 'react-date-range';
 import { addDays } from 'date-fns';
+import ActionButton from 'utilComponents/ActionButton';
 
 const Calendar = ():JSX.Element => {
     const initialState = {
@@ -130,18 +131,109 @@ const Calendar = ():JSX.Element => {
         </div>
         </div>
         {alertMessage?.text && (
-                    <>
-                        <AlertComponent
-                            text={alertMessage.text}
-                            type={alertMessage.type}
-                            onClose={handleAlertClose}
-                        />
-                    </>
-                )}
+            <>
+                <AlertComponent
+                    text={alertMessage.text}
+                    type={alertMessage.type}
+                    onClose={handleAlertClose}
+                />
+            </>
+        )}
         <div className="">
             <div className="row justify-content-between py-3 px-2">
-                <div className="col-md-8 bg-white">
+                <div className="col-md-8 bg-white py-3">
+                    <div className="w-100 shadow p-3 border-left my-2">
+                        <h6 className="font-weight-bold mb-3">Overcomers vigil</h6>
+                        <div className="small user-name text-muted mt-2">08, March 2021</div>
+                        <div className="d-flex justify-content-between">
+                        <div className="small user-name text-muted mt-3">9:00 PM - 01:00 AM</div>
+                        <div>
+                            <ActionButton
+                                text={
+                                    <>
+                                        Edit
+                                    </>
+                                }
+                                className="mx-2 edit-action"
+                
+                                actionEvent={()=> history.push('/announcements/create')}
+                            />
+                            <ActionButton
+                                text={
+                                    <>
+                                        Delete
+                                    </>
+                                }
+                                className="delete-action"
+                
+                                actionEvent={()=> history.push('/announcements/create')}
+                            />
+                        </div>
+                        </div>
+                       
+                    </div>
 
+                    <div className="w-100 shadow p-3 border-left my-4">
+                        <h6 className="font-weight-bold mb-3">Overcomers vigil</h6>
+                        <div className="small user-name text-muted mt-2">08, March 2021</div>
+                        <div className="d-flex justify-content-between">
+                        <div className="small user-name text-muted mt-3">9:00 PM - 01:00 AM</div>
+                        <div>
+                            <ActionButton
+                                text={
+                                    <>
+                                        Edit
+                                    </>
+                                }
+                                className="mx-2 edit-action"
+                
+                                actionEvent={()=> history.push('/announcements/create')}
+                            />
+                            <ActionButton
+                                text={
+                                    <>
+                                        Delete
+                                    </>
+                                }
+                                className="delete-action"
+                
+                                actionEvent={()=> history.push('/announcements/create')}
+                            />
+                        </div>
+                        </div>
+                       
+                    </div>
+
+                    <div className="w-100 shadow p-3 border-left my-4">
+                        <h6 className="font-weight-bold mb-3">Overcomers vigil</h6>
+                        <div className="small user-name text-muted mt-2">08, March 2021</div>
+                        <div className="d-flex justify-content-between">
+                        <div className="small user-name text-muted mt-3">9:00 PM - 01:00 AM</div>
+                        <div>
+                            <ActionButton
+                                text={
+                                    <>
+                                        Edit
+                                    </>
+                                }
+                                className="mx-2 edit-action"
+                
+                                actionEvent={()=> history.push('/announcements/create')}
+                            />
+                            <ActionButton
+                                text={
+                                    <>
+                                        Delete
+                                    </>
+                                }
+                                className="delete-action"
+                
+                                actionEvent={()=> history.push('/announcements/create')}
+                            />
+                        </div>
+                        </div>
+                       
+                    </div>
                 </div>
                 <div className="col-md-4">
                 <DateRangePicker

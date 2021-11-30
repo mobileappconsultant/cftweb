@@ -77,7 +77,7 @@ const Login = ():JSX.Element => {
           const validate = await validateFormData();
           if(validate){
             const response = await ApiRequestClient.post(apiRoutes.LOGIN, formData); 
-            const loginData = response?.data?.data;   
+            const loginData = response?.data?.data; 
             dispatch(addUser(loginData?.admin));
             Cookies.set('access-token', response?.data?.data?.token)
             history.push('/home');
@@ -87,7 +87,6 @@ const Login = ():JSX.Element => {
             isLoading: false,
           });
         } catch (error) {
-            console.log(error);
             const errorMsg = extractErrorMessage(error);
             setState({
                 alertMessage:  processAlertError(errorMsg),

@@ -54,11 +54,11 @@ const Requests = ():JSX.Element => {
                 return (
                     <>
                         <div
-                            className={`tab-title  ${index !==0? 'px-3': 'pr-3'} ${activeTab === index? 'active-tab-title': 'text-muted' } pointer `}
+                            className={`tab-title d-flex align-items-center  ${index !==0? 'px-3': 'pr-3'} ${activeTab === index? 'active-tab-title': 'text-muted' } pointer `}
                             onClick={()=>handleTabChange(index)}
                         > 
                             {tab.title}
-                            <span className="tab-count px-1">{tab.count}</span>
+                            <div className="tab-count text-center">{tab.count}</div>
                         </div>
                         
                     </>

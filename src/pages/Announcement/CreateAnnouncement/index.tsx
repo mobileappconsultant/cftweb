@@ -8,6 +8,7 @@ import FormGroupInput from 'utilComponents/FormGroupInput';
 import CustomDatePicker from 'utilComponents/DatePicker';
 import TextEditor from 'utilComponents/TextEditor';
 import CreateButton from 'utilComponents/CreateButton';
+import { formatDate } from 'utils';
 
 
 const CreateAnnouncement = ():JSX.Element => {
@@ -16,6 +17,7 @@ const CreateAnnouncement = ():JSX.Element => {
         formData:{
                 name: '',
                 body:'',
+                date: null,
         },
         errors:{},
     };
@@ -73,6 +75,25 @@ const CreateAnnouncement = ():JSX.Element => {
 
     };
 
+    const handleDateChange = (e:any):void => {
+        if(e){
+            const date = formatDate(e);
+            setState({
+                formData:{
+                    ...formData,
+                    date: date,
+                }
+            });
+        }else{
+            setState({
+                formData:{
+                    ...formData,
+                    date: null,
+                }
+            });
+        }
+    };
+
     useEffect(() => {
         //fetchData();
 
@@ -117,6 +138,9 @@ const CreateAnnouncement = ():JSX.Element => {
                     </div>
                     <div className="col-md-6 mb-3">
                         <CustomDatePicker
+                            value={formData?.date}
+                            //@ts-ignore
+                            onChange={(e:any)=>handleDateChange(e)}
                         />
                     </div>
                     <div className="col-md-12 mb-4">

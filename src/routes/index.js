@@ -16,8 +16,10 @@ import SingleAnnouncement from 'pages/Announcement/ViewAnnouncement';
 import CreateAnnouncement from 'pages/Announcement/CreateAnnouncement';
 import Calendar from 'pages/Calendar';
 import CreateCalendarEvent from 'pages/Calendar/CreateCalendarEvent';
+import { Redirect } from 'react-router-dom';
 
 export const publicRoutes = [
+	{path: '/', component: () => <Redirect to="/login" />},
 	{ path: "/login", component: Login },
 	{ path: "/forgotpassword", component: ForgotPassword },
 	{ path: "/enterpin", component: EnterPin},

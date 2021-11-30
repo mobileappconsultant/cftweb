@@ -103,7 +103,7 @@ const ChangePassword = ():JSX.Element => {
         <div className="bg-white">
            
             <div className="row mt-5">
-                <div className="col-md-6 mb-3">
+                <div className="col-md-12 mb-3">
                     <FormGroupInput
                         placeholder="Old password"
                         value={formData?.old_password}
@@ -111,9 +111,10 @@ const ChangePassword = ():JSX.Element => {
                         name="old_password"
                         showError={errors.old_password}
                         errorMessage={errors.old_password}
+                        type="password"
                     />
                 </div>
-                <div className="col-md-6 mb-3">
+                <div className="col-md-12 mb-3">
                     <FormGroupInput
                         placeholder="New password"
                         value={formData?.new_password}
@@ -121,9 +122,10 @@ const ChangePassword = ():JSX.Element => {
                         name="new_password"
                         showError={errors.new_password}
                         errorMessage={errors.new_password}
+                        type="password"
                     />
                 </div>
-                <div className="col-md-6 mb-3">
+                <div className="col-md-12 mb-3">
                     <FormGroupInput
                         placeholder="Confirm password"
                         value={formData?.confirm_password}
@@ -131,6 +133,7 @@ const ChangePassword = ():JSX.Element => {
                         name="confirm_password"
                         showError={errors.confirm_password}
                         errorMessage={errors.confirm_password}
+                        type="password"
                     />
                 </div>
                 

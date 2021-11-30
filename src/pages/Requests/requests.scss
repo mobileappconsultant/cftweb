@@ -3,9 +3,9 @@
 }
 .tab-count{
     margin-left: 10px;
-    width: 40px !important;
+    width: 30px !important;
     height: 30px;
-    padding: 2px;
+    padding: 5px;
     border-radius: 50%;
     border: 0.5px solid rgba(0, 0, 0, 0.7);
     box-sizing: border-box;
@@ -22,7 +22,7 @@
 .active-tab-title{
     font-weight: 600;
     font-size: 16px;
-    line-height: 24px;
+    // line-height: 24px;
     border-bottom: 1px solid #000000 !important;
     color: #000000;
 }

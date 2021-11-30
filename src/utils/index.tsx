@@ -347,6 +347,13 @@ export const scrollDown = () => {
     });
 };
 
+export const formatDate = (date: Date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const newDate = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    return newDate;
+};
+
 export const formatInitialDateValue = (data: Date) => {
     return moment(data).fromNow();
    

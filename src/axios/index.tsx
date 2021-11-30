@@ -46,11 +46,12 @@ const successHandler = (response:any) => {
  */
 const errorHandler = (error:any) => {
     const status = error.response.status;
+    console.log(status);
     if (status === 401) {
+    
         
-        
-        removeTokens();
-        clearLocalStorage();
+        // removeTokens();
+        // clearLocalStorage();
         // createBrowserHistory().push('/');
      
         history.push('/login');
@@ -63,7 +64,7 @@ const errorHandler = (error:any) => {
         //         'Your session has expired! Kindly Login again'
         //     )
         
-        return {};
+        // return {};
     }
     return Promise.reject(error);
 };
