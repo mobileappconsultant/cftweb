@@ -45,6 +45,7 @@ export const privateRoutes = [
 	{path:"/announcements/:id", exact: true, component: SingleAnnouncement},
 	{path:"/calendar/event/:id", exact: true, component: CreateCalendarEvent},
 	{path:"/calendar", exact: true, component: Calendar},
+	{path:"/calendar/create-event", exact: true, component: CreateCalendarEvent},
 	{path:"/apostle-desk", exact: true, component: ApostleDesk},
 	{path:"/apostle-desk/create", exact: true, component: CreateEvent},
 	{path:"/transactions", exact: true, component: Transactions},

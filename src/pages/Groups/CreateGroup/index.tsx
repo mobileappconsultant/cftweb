@@ -90,6 +90,7 @@ const CreateGroup = (props: any):JSX.Element => {
             if(validate){
                 await ApiRequestClient.post(apiRoutes.CREATE_GROUP, formData);  
                 refreshForm();
+                props.refresh();
                 props.addAlert(processAlertSuccess('Group added successfully'));
                 handleModalToggle();
             };

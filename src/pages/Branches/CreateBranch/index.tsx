@@ -142,6 +142,7 @@ const CreateBranch = (props: any):JSX.Element => {
                 
                 refreshForm();
                 props.addAlert(processAlertSuccess('Branch added successfully'));
+                props.refresh();
                 handleModalToggle();
             };
             setState({

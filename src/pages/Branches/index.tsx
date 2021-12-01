@@ -266,6 +266,8 @@ const Branches = ():JSX.Element => {
         <div>
            
             <CreateBranch
+                refresh={fetchData}
+                addAlert={addAlert}
             />
             {activeDataObj?._id && (
                 <EditBranch 

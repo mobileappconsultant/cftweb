@@ -275,7 +275,7 @@ const Calendar = ():JSX.Element => {
                 </>
             }
             float
-            actionEvent={()=> history.push('/announcements/create')}
+            actionEvent={()=> history.push('/calendar/create-event')}
         />
            
         </div>

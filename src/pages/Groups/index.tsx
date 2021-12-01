@@ -262,6 +262,7 @@ const Branches = ():JSX.Element => {
            
             <CreateGroup
                 addAlert={addAlert}
+                refresh={fetchData}
             />
             {activeDataObj?._id && (
                 <EditGroup
