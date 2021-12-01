@@ -17,6 +17,9 @@ import CreateAnnouncement from 'pages/Announcement/CreateAnnouncement';
 import Calendar from 'pages/Calendar';
 import CreateCalendarEvent from 'pages/Calendar/CreateCalendarEvent';
 import { Redirect } from 'react-router-dom';
+import ApostleDesk from 'pages/ApostleDesk';
+import CreateEvent from 'pages/ApostleDesk/CreateEvent';
+import Transactions from 'pages/Transactions';
 
 export const publicRoutes = [
 	{path: '/', component: () => <Redirect to="/login" />},
@@ -42,4 +45,7 @@ export const privateRoutes = [
 	{path:"/announcements/:id", exact: true, component: SingleAnnouncement},
 	{path:"/calendar/event/:id", exact: true, component: CreateCalendarEvent},
 	{path:"/calendar", exact: true, component: Calendar},
+	{path:"/apostle-desk", exact: true, component: ApostleDesk},
+	{path:"/apostle-desk/create", exact: true, component: CreateEvent},
+	{path:"/transactions", exact: true, component: Transactions},
 ];
