@@ -12,7 +12,7 @@ import Badges from 'utilComponents/Badges';
 import { Download, FileInvoice } from 'tabler-icons-react';
 import CreateButton from 'utilComponents/CreateButton';
 
-const FinancialSupport = ():JSX.Element => {
+const RideSharing = ():JSX.Element => {
     const initialState = {
         listView: true,
         rowsPerPage:5,
@@ -184,18 +184,12 @@ const FinancialSupport = ():JSX.Element => {
                            
                         </div>
                         </div>
-                        <div className="px-3">
-                            <div className="view-component-right-header m-0 p-0">
-                                £20.00
-                            </div>
-                            <div className="user-name">
-                                <span className="small email">Requested Amount</span>
-                            </div>
-                            
-                        </div>
+                        
                 </div>
                 <div className="pt-2 pb-4 px-3 mt-2">
-                    
+                    <div className="record-info-header">
+                        CONTACT DETAILS 
+                    </div>
                     <div className="my-3">
                         <InfoDivHeader
                             label="PHONE NUMBER"
@@ -208,15 +202,22 @@ const FinancialSupport = ():JSX.Element => {
                             text="32a Charlseton Close, off Priya Road"
                         />
                     </div>
-                    <div className="my-3 font-weight-light text-muted small">
-                        I am in dire need of accomodation funds as my family and II may become homeless at the end of this year. 
-                        Habitant felis in quis feugiat nulla adipiscing iaculis. Morbi enim porta elementum faucibus turpis tincidunt. 
-                        Sed adipiscing orci, consequat feugiat consectetur consequat nibh suscipit feugiat. Semper arcu phasellus 
-                        tincidunt consequat, lectus id. 
-
-                        Amet facilisis curabitur egestas in lectus. Fermentum, lectus eu mi commodo ultricies enim etiam.
+                    <div className="record-info-header">
+                        CAR DETAILS 
                     </div>
-
+                    <div className="my-3">
+                        <InfoDivHeader
+                            label="CAR MODEL"
+                            text="Lexus ES"
+                        />
+                    </div>
+                    <div className="my-3">
+                        <InfoDivHeader
+                            label="NUMBER OF SEATS"
+                            text="4"
+                        />
+                    </div>
+                    
                     <div className="my-4 d-flex">
                             <div className="attachment-div p-2 pointer">
                                 <div className="d-flex justify-content-between align-items-center">
@@ -227,7 +228,7 @@ const FinancialSupport = ():JSX.Element => {
                                             color={'#dadada'}
                                         />
                                         <span className="font-weight-bold small name px-3">
-                                            Bills.pdf
+                                            Selfportrait.png
                                         </span>
                                     </div>
                                     <div className="">
@@ -251,7 +252,7 @@ const FinancialSupport = ():JSX.Element => {
                                             color={'#dadada'}
                                         />
                                         <span className="font-weight-bold small name px-3">
-                                             House&nbsp;Mortgage.pdf
+                                            license.pdf
                                         </span>
                                     </div>
                                     <div className="">
@@ -292,4 +293,4 @@ const FinancialSupport = ():JSX.Element => {
     )
 
 };
-export default FinancialSupport;
+export default RideSharing;

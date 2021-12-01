@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ArrowBigDown } from 'tabler-icons-react';
 import FinancialSupport from './FinancialSupport';
 import './requests.scss';
+import RideSharing from './RideSharing';
 const Requests = ():JSX.Element => {
     const initialState = {
         activeTab: 0,
@@ -26,19 +27,19 @@ const Requests = ():JSX.Element => {
         },
         {
             path:'/requests',
-            component: <> </>,
+            component: <><RideSharing /> </>,
             title: 'Ride Sharing',
             count: 11
         },
         {
             path:'/requests',
-            component: <> </>,
+            component: <> <RideSharing /></>,
             title: 'Meeting appointment',
             count: 4
         },
         {
             path:'/requests',
-            component: <> </>,
+            component: <> <RideSharing /></>,
             title: 'Created Jobs',
             count: 10
         },
