@@ -20,6 +20,7 @@ import { Redirect } from 'react-router-dom';
 import ApostleDesk from 'pages/ApostleDesk';
 import CreateEvent from 'pages/ApostleDesk/CreateEvent';
 import Transactions from 'pages/Transactions';
+import Merchandise from 'pages/Merchandise';
 
 export const publicRoutes = [
 	{path: '/', component: () => <Redirect to="/login" />},
@@ -49,4 +50,5 @@ export const privateRoutes = [
 	{path:"/apostle-desk", exact: true, component: ApostleDesk},
 	{path:"/apostle-desk/create", exact: true, component: CreateEvent},
 	{path:"/transactions", exact: true, component: Transactions},
+	{path:"/merchandise", exact: true, component: Merchandise},
 ];

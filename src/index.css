@@ -17,3 +17,30 @@ code {
 .w-90{
   width: 90% !important;
 }
+.red-bg{
+  color: #FFFFFF;
+  background-color: #C8372D;
+}
+.light-purple-bg{
+  color: #FFFFFF;
+  background-color: #BAC5FF;
+}
+.green-bg{
+  color: #FFFFFF;
+  background-color: #37833B;
+}
+.orange-bg{
+  color: #FFFFFF;
+  background-color: #D1941A;
+}
+.grey-bg{
+  color: #000000;
+  background-color: #C4C4C4;
+}
+.blue-bg{
+  color: #FFFFFF;
+  background-color: #2264D1;
+}
+.radius-99{
+  border-radius: 99px;
+}

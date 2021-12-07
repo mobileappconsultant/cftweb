@@ -60,7 +60,6 @@ const Calendar = ():JSX.Element => {
     };
 
     const setDateState = (date :any) => {
-        console.log(date);
         setState({
                 ...state,
                 dateState: [date],

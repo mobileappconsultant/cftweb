@@ -113,7 +113,7 @@ const CreateBranch = (props: any):JSX.Element => {
             formData: {
                 name: '',
                 branch_president:'',
-                lat: 18.5204,
+                lat: 51.49126,
                 lng: 73.8567,
                 address: '',
             },
