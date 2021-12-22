@@ -142,7 +142,11 @@ const CreateApostleEvent = (props: any):JSX.Element => {
         try {
             const validate = await validateFormData();
             if(validate){
-                await ApiRequestClient.post(apiRoutes.CREATE_MESSAGE, formData);  
+                const payload = {
+                    ...formData,
+                    bible_verse: [formData.bible_verse],
+                };
+                await ApiRequestClient.post(apiRoutes.CREATE_MESSAGE, payload);  
                 
                 refreshForm();
                 

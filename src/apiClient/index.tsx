@@ -47,5 +47,15 @@ class ApiClient {
     patch(path: string, payload?: object) {
         return axios.patch(path, payload);
     }
+
+    /**
+     * ApiClient PATCH request helper
+     * @param {*} path Server API endpoint
+     * @param {*} params Server request params
+     * @return {*} promise
+     */
+     put(path: string, payload?: object) {
+        return axios.put(path, payload);
+    }
 }
 export const ApiRequestClient = new ApiClient();

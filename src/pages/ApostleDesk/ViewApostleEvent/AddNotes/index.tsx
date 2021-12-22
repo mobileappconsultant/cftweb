@@ -98,6 +98,7 @@ const AddNotes = (props: any):JSX.Element => {
                 
                 props.addAlert(processAlertSuccess('Note added successfully'));
                 handleModalToggle();
+                props?.refreshForm();
             };
             setState({
                 isLoading: false,

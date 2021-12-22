@@ -143,11 +143,12 @@ const EditApostleEvent = (props: any):JSX.Element => {
         try {
             const validate = await validateFormData();
             if(validate){
-                await ApiRequestClient.post(`${apiRoutes.UPDATE_MESSAGE}?id=${props?.messageId}`, formData);  
+                await ApiRequestClient.put(`${apiRoutes.UPDATE_MESSAGE}?id=${props?.messageId}`, formData);  
                 
                 refreshForm();
                 
                 props.addAlert(processAlertSuccess('Message updated successfully'));
+                props?.refreshForm();
                 handleModalToggle();
             };
             setState({

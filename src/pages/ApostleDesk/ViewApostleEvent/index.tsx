@@ -126,11 +126,13 @@ const ViewApostleEvent = (props:any):JSX.Element => {
                         <h5 className="">Message Notes 
                         {!messageNote? (
                             <AddNotes 
+                                addAlert={addAlert}
                                 messageId={props?.match?.params?.id}
                                 refreshForm= {fetchData}
                             />
                         ):(
                             <EditNotes
+                                addAlert={addAlert}
                                 messageId={props?.match?.params?.id}
                                 messageNote={messageNote}
                                 refreshForm= {fetchData}
@@ -155,6 +157,7 @@ const ViewApostleEvent = (props:any):JSX.Element => {
              addAlert={addAlert}
              data={data}
              messageId={props?.match?.params?.id}
+             refreshForm= {fetchData}
         />
         </>
             )

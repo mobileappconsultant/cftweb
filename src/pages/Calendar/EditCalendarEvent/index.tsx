@@ -32,6 +32,7 @@ const EditEvent = (props:any):JSX.Element => {
             title:'',
         },
         isLoading: false,
+        isSubmitting: false,
         activities:[
             {
                 item:'',
@@ -51,7 +52,7 @@ const EditEvent = (props:any):JSX.Element => {
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {errors, alertMessage, formData, branchData, adminData, activities, dateState, isLoading} = state;
+    const {errors, alertMessage, formData, branchData, adminData, activities, dateState, isLoading, isSubmitting} = state;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -174,7 +175,7 @@ const EditEvent = (props:any):JSX.Element => {
     const handleSubmit = async(e: React.SyntheticEvent<Element, Event>) => {
         e.preventDefault();
         setState({
-            isLoading: true,
+            isSubmitting: true,
         })
         try {
             const validate = await validateFormData();
@@ -187,13 +188,13 @@ const EditEvent = (props:any):JSX.Element => {
                     event_itenary: activities,
                 };
                 
-                await ApiRequestClient.post(`${apiRoutes.EDIT_CALENDAR_EVENT}?id=${props?.match?.params?.id}`, payload); 
+                await ApiRequestClient.put(`${apiRoutes.EDIT_CALENDAR_EVENT}?id=${props?.match?.params?.id}`, payload); 
                 setTimeout(function(){
                     history.push('/calendar');
                 }, 2000); 
                 setState({
-                    isLoading: false,
-                    alertMessage: processAlertSuccess('Event created successfully'),
+                    isSubmitting: false,
+                    alertMessage: processAlertSuccess('Event updated successfully'),
                 });
             };
             
@@ -202,7 +203,7 @@ const EditEvent = (props:any):JSX.Element => {
             const errorMsg = extractErrorMessage(error);
             setState({
                 alertMessage:  processAlertError(errorMsg),
-                isLoading: false,
+                isSubmitting: false,
             });
         }
     };
@@ -492,6 +493,7 @@ const EditEvent = (props:any):JSX.Element => {
                     text={'Update'}
                     float
                     actionEvent={(e)=>{handleSubmit(e)}}
+                    disabled={isSubmitting|| isLoading}
                 />
             </div>
 

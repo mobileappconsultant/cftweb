@@ -19,12 +19,13 @@ const EditNotes = (props: any):JSX.Element => {
         errors:{},
         adminData:[],
         isLoading: false,
+        isSubmitting: false,
         alertMessage:{},
         showModal: false,
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {formData, isLoading, alertMessage, errors, showModal, adminData} = state;
+    const {formData, isLoading, alertMessage, errors, showModal, isSubmitting} = state;
 
 
     const handleModalToggle = () => {
@@ -65,7 +66,7 @@ const EditNotes = (props: any):JSX.Element => {
     const submit = async (e : React.SyntheticEvent<Element, Event>) => {
         e.preventDefault();
         setState({
-            isLoading: true,
+            isSubmitting: true,
         })
         try {
             const validate = await validateFormData();
@@ -74,7 +75,7 @@ const EditNotes = (props: any):JSX.Element => {
                     subtitle: 'n/a',
                     paragraphs: [formData?.text],
                 };
-                await ApiRequestClient.post(`${apiRoutes.EDIT_MESSAGE_NOTE}?message=${props?.messageId}`, payload);  
+                await ApiRequestClient.put(`${apiRoutes.EDIT_MESSAGE_NOTE}?message=${props?.messageId}`, payload);  
                 
                 refreshForm();
                 
@@ -83,13 +84,13 @@ const EditNotes = (props: any):JSX.Element => {
                 handleModalToggle();
             };
             setState({
-                isLoading: false,
+                isSubmitting: false,
             }); 
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
             setState({
                 alertMessage:  processAlertError(errorMsg),
-                isLoading: false,
+                isSubmitting: false,
             });
         }
         
@@ -161,8 +162,8 @@ const EditNotes = (props: any):JSX.Element => {
                     <CreateButton
                         text={'Submit'}
                         actionEvent={(e)=>{submit(e)}}
-                        disabled={isLoading}
-                        loading={isLoading}
+                        disabled={isLoading|| isSubmitting}
+                        loading={isLoading || isSubmitting}
                     />
                     </div>
                 </div>
