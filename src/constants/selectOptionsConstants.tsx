@@ -8,3 +8,11 @@ export const roleOptions = [
     {value:'Minister', label: 'Minister'},
     {value:'General Pastor', label: 'General Pastor'},
 ];
+
+export const eventOptions = [
+    {value:'church_Service', label: 'Church service'},
+    {value:'group_event', label: 'Group event'},
+    {value:'prayer_session', label: 'Prayer session'},
+    {value:'crusade', label: 'Crusade'},
+   
+];

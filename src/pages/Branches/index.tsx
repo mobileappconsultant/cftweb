@@ -15,6 +15,8 @@ import EditBranch from './EditBranch';
 import MakeSelection from 'utilComponents/MakeSelectionIcon';
 import ViewBranch from './ViewBranch';
 import { formatInitialDateValue } from 'utils';
+import CircularLoader from 'utilComponents/Loader';
+import Badges from 'utilComponents/Badges';
 
 
 const Branches = ():JSX.Element => {
@@ -26,10 +28,11 @@ const Branches = ():JSX.Element => {
         data:[],
         activeDataObj:{},
         showEditModal: false,
+        isLoading: false,
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, activeDataObj, alertMessage, data, showEditModal} = state;
+    const {listView, page,isLoading, activeDataObj, alertMessage, data, showEditModal} = state;
 
     const changeListView = () => {
         setState({
@@ -116,6 +119,13 @@ const Branches = ():JSX.Element => {
                 />
             </>
         )}
+        {isLoading? (
+            <>
+            
+                <CircularLoader/>
+            </>
+        ):(
+            <>
         <div className="bg-white">
         <div className="row ">
             <div className="col-md-4 list-column border-right pr-0">
@@ -148,9 +158,11 @@ const Branches = ():JSX.Element => {
                                     </div>
                                 </div>
                                 <div className="justify-content-end py-0 my-0 pt-1 ">
-                                    <span className="border-success px-2  email text-success border-radius small">
-                                        active
-                                    </span>
+                                    <Badges
+                                        type="success"
+                                        text="Active"
+                                    />
+                                   
                                 </div>
                                 
                             </div>
@@ -278,7 +290,8 @@ const Branches = ():JSX.Element => {
             )}
                 
         </div>
-       
+        </>
+           )}
         </>
     )
 

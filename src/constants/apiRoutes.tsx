@@ -24,7 +24,11 @@ export const apiRoutes = {
     // MESSAGE
     CREATE_MESSAGE:'/admin/message/create',
     UPDATE_MESSAGE:'/admin/edit/message',
+
     // Calendar events
     CREATE_CALENDAR_EVENT:'/admin/event/create',
+    GET_ALL_CALENDAR_EVENT:'/admin/event/all',
+    GET_SINGLE_EVENT:'/admin/event',
+    EDIT_CALENDAR_EVENT:'/admin/edit/event',
 
 };

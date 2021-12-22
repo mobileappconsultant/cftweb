@@ -14,6 +14,8 @@ import Badges from 'utilComponents/Badges';
 import { DateRangePicker } from 'react-date-range';
 import { addDays } from 'date-fns';
 import ActionButton from 'utilComponents/ActionButton';
+import CircularLoader from 'utilComponents/Loader';
+import moment from 'moment';
 
 const Calendar = ():JSX.Element => {
     const initialState = {
@@ -46,12 +48,13 @@ const Calendar = ():JSX.Element => {
               key: 'selection'
             }
         ],
+        isLoading: false,
         
     };
    
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, dateState, alertMessage, data} = state;
+    const {listView,isLoading, page, rowsPerPage, dateState, alertMessage, data} = state;
 
     const changeListView = () => {
         setState({
@@ -91,8 +94,8 @@ const Calendar = ():JSX.Element => {
         });
 
         try {
-            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_ADMINS);
-    
+            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_CALENDAR_EVENT);
+          
             setState({
                 data: response?.data?.data,
                 isLoading: false,
@@ -106,7 +109,7 @@ const Calendar = ():JSX.Element => {
     };
 
     useEffect(() => {
-        //fetchData();
+        fetchData();
 
         // Cleanup method
         return () => {
@@ -115,7 +118,7 @@ const Calendar = ():JSX.Element => {
             });
         };
     }, []);
-   
+   console.log(data);
     return(
         <>
         <div className="row justify-content-between align-items-end">
@@ -138,117 +141,61 @@ const Calendar = ():JSX.Element => {
                 />
             </>
         )}
-        <div className="">
-            <div className="row justify-content-between py-3 px-2">
-                <div className="col-md-8 bg-white py-3">
-                    <div className="w-100 shadow p-3 border-left my-2">
-                        <h6 className="font-weight-bold mb-3">Overcomers vigil</h6>
-                        <div className="small user-name text-muted mt-2">08, March 2021</div>
-                        <div className="d-flex justify-content-between">
-                        <div className="small user-name text-muted mt-3">9:00 PM - 01:00 AM</div>
-                        <div>
-                            <ActionButton
-                                text={
-                                    <>
-                                        Edit
-                                    </>
-                                }
-                                className="mx-2 edit-action"
-                
-                                actionEvent={()=> history.push('/announcements/create')}
-                            />
-                            <ActionButton
-                                text={
-                                    <>
-                                        Delete
-                                    </>
-                                }
-                                className="delete-action"
-                
-                                actionEvent={()=> history.push('/announcements/create')}
-                            />
-                        </div>
-                        </div>
-                       
-                    </div>
+        {isLoading? (
+            <CircularLoader/>
+        ):(
+            <>
+                <div className="">
+                    <div className="row justify-content-between py-3 px-2">
+                        {data?.map((item: any, index: number) => {
+                            return(
 
-                    <div className="w-100 shadow p-3 border-left my-4">
-                        <h6 className="font-weight-bold mb-3">Overcomers vigil</h6>
-                        <div className="small user-name text-muted mt-2">08, March 2021</div>
-                        <div className="d-flex justify-content-between">
-                        <div className="small user-name text-muted mt-3">9:00 PM - 01:00 AM</div>
-                        <div>
-                            <ActionButton
-                                text={
-                                    <>
-                                        Edit
-                                    </>
-                                }
-                                className="mx-2 edit-action"
-                
-                                actionEvent={()=> history.push('/announcements/create')}
-                            />
-                            <ActionButton
-                                text={
-                                    <>
-                                        Delete
-                                    </>
-                                }
-                                className="delete-action"
-                
-                                actionEvent={()=> history.push('/announcements/create')}
-                            />
-                        </div>
-                        </div>
-                       
-                    </div>
-
-                    <div className="w-100 shadow p-3 border-left my-4">
-                        <h6 className="font-weight-bold mb-3">Overcomers vigil</h6>
-                        <div className="small user-name text-muted mt-2">08, March 2021</div>
-                        <div className="d-flex justify-content-between">
-                        <div className="small user-name text-muted mt-3">9:00 PM - 01:00 AM</div>
-                        <div>
-                            <ActionButton
-                                text={
-                                    <>
-                                        Edit
-                                    </>
-                                }
-                                className="mx-2 edit-action"
-                
-                                actionEvent={()=> history.push('/announcements/create')}
-                            />
-                            <ActionButton
-                                text={
-                                    <>
-                                        Delete
-                                    </>
-                                }
-                                className="delete-action"
-                
-                                actionEvent={()=> history.push('/announcements/create')}
-                            />
-                        </div>
-                        </div>
-                       
+                                    <div className="col-md-9 bg-white py-3" key={index}>
+                                        <div className="w-100 shadow p-3 border-left my-2">
+                                            <h6 className="font-weight-bold mb-3">{item?.title}</h6>
+                                            <div className="small user-name text-muted mt-2">
+                                              <span>Start time:</span>  {moment(item?.event_start_time).format('YYYY-MM-DD hh:mm:ss')}
+                                            </div>
+                                            <div className=" user-name text-muted mt-3">Church: {item?.church}</div>
+                                            <div className=" user-name text-muted mt-2">Branch: {item?.branch}</div>
+                                            <div className="d-flex justify-content-between">
+                                                <div className="small user-name text-muted mt-2">Event type:{item?.event_type}</div>
+                                           
+                                            <div>
+                                            
+                                                <ActionButton
+                                                    text={
+                                                        <>
+                                                            Edit
+                                                        </>
+                                                    }
+                                                    className="mx-2 edit-action"
+                                    
+                                                    actionEvent={()=> history.push('/calendar/edit-event/'+ item?._id)}
+                                                />
+                                                <ActionButton
+                                                    text={
+                                                        <>
+                                                            Delete
+                                                        </>
+                                                    }
+                                                    className="delete-action"
+                                    
+                                                    actionEvent={()=> history.push('/announcements/create')}
+                                                />
+                                            </div>
+                                            </div>
+                                        
+                                        </div>
+                                    </div>
+                            )
+                        })}
+                        
                     </div>
                 </div>
-                <div className="col-md-4">
-                <DateRangePicker
-                     editableDateInputs={true}
-                     //@ts-ignore
-                     onChange={item => setDateState(item.selection)}
-                     moveRangeOnFirstSelection={false}
-                     ranges={dateState}
-                    //onChange={item => setDateState([item.selection])}
-                    //@ts-ignore
-                   
-                    //direction="horizontal"
-                />
-                </div>
-            </div>
-        </div>
+            </>
+        )}
+
             <Pagination
                 count={data.length?? 0}
                 page={0}

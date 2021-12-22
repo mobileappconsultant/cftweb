@@ -18,18 +18,20 @@ import moment from 'moment';
 import { FormHelperText } from '@mui/material';
 import { DateRangePicker } from 'react-date-range';
 import { error } from 'console';
+import CircularLoader from 'utilComponents/Loader';
 
-const CreateEvent = ():JSX.Element => {
+const EditEvent = (props:any):JSX.Element => {
     const initialState = {
         alertMessage:{},
         formData:{
             church: '',
             branch:'',
             event_type:'',
-            date:  null,
+            date:  '',
             ministers:[],
             title:'',
         },
+        isLoading: false,
         activities:[
             {
                 item:'',
@@ -49,7 +51,7 @@ const CreateEvent = ():JSX.Element => {
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {errors, alertMessage, formData, branchData, adminData, activities, dateState} = state;
+    const {errors, alertMessage, formData, branchData, adminData, activities, dateState, isLoading} = state;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -95,7 +97,9 @@ const CreateEvent = ():JSX.Element => {
             const response = await Promise.all([
                 ApiRequestClient.get(apiRoutes.GET_ALL_ADMINS),
                 ApiRequestClient.get(apiRoutes.GET_ALL_BRANCHES),
+                ApiRequestClient.get(`${apiRoutes.GET_SINGLE_EVENT}?id=${props?.match?.params?.id}`),
             ]);
+            const data = response[2]?.data?.data;
             for (let index = 0; index < response[0]?.data?.data.length; index++) {
                 const element = response[0]?.data?.data[index];
                 element.text = element?.full_name;
@@ -107,10 +111,26 @@ const CreateEvent = ():JSX.Element => {
                 el.label = el?.name;
                 el.value = el?.name;
             };
-    
+            
             setState({
                 branchData: response[1]?.data?.data,
                 adminData: response[0]?.data?.data,
+                formData:{
+                    church: data?.church,
+                    branch: data?.branch,
+                    event_type: data?.event_type,
+                    date:  moment(data?.date).format('YYYY-MM-DD'),
+                    ministers: data?.ministers,
+                    title: data?.title,
+                },
+                activities: data?.event_itenary,
+                dateState: [
+                    {
+                      startDate: new Date(data?.event_start_time),
+                      endDate: new Date(data?.event_end_time),
+                      key: 'selection'
+                    }
+                ],
                 isLoading: false,
             });
         } catch (error) {
@@ -167,7 +187,7 @@ const CreateEvent = ():JSX.Element => {
                     event_itenary: activities,
                 };
                 
-                await ApiRequestClient.post(apiRoutes.CREATE_CALENDAR_EVENT, payload); 
+                await ApiRequestClient.post(`${apiRoutes.EDIT_CALENDAR_EVENT}?id=${props?.match?.params?.id}`, payload); 
                 setTimeout(function(){
                     history.push('/calendar');
                 }, 2000); 
@@ -241,7 +261,7 @@ const CreateEvent = ():JSX.Element => {
         <>
         <div className="row justify-content-between align-items-end">
         <div className="col-md-6">
-            <PageTitle text="Create Calendar Event" />
+            <PageTitle text="Edit Calendar Event" />
         </div>
         
         </div>
@@ -254,7 +274,11 @@ const CreateEvent = ():JSX.Element => {
                 />
             </>
         )}
+        {isLoading? (
+            <CircularLoader />
+        ): (
         <div className="row">
+
             <div className=" col-md-8">
                 <div className="pt-1"/>
                 <div className="mx-3 my-2 bg-white shadow">
@@ -274,7 +298,6 @@ const CreateEvent = ():JSX.Element => {
                             
                         </div>
                         <div className="col-md-6 mb-3">
-                            
                             <TextField  
                                 label="Date" 
                                 variant="outlined" 
@@ -282,7 +305,7 @@ const CreateEvent = ():JSX.Element => {
                                 name="date"
                                 type='date'
                                 InputLabelProps={{ shrink: true, required: true }}
-                                value={formData?.date}
+                                value={String(formData?.date)}
                                 onChange={handleChange}
                                 helperText={errors.date}
                                 error={errors.date}
@@ -369,6 +392,7 @@ const CreateEvent = ():JSX.Element => {
                                     handleAutoCompleteSelection(event, newValue)
                                     
                                 }}
+                                value={formData?.ministers}
                                 renderTags={(value, getTagProps) =>
                                 value.map((option, index) => (
                                     <Chip 
@@ -440,8 +464,7 @@ const CreateEvent = ():JSX.Element => {
                                             InputLabelProps={{ shrink: true, required: true }}
                                             value={activity?.item}
                                             onChange={(e)=>handleActivityChange(e, _i)}
-                                            // helperText={errors.church}
-                                            // error={errors.church}
+                                            
                                         />
                                     </div>
 
@@ -451,12 +474,10 @@ const CreateEvent = ():JSX.Element => {
                                             variant="outlined" 
                                             className='w-100'
                                             name="duration"
-                                            type="number"
                                             InputLabelProps={{ shrink: true, required: true }}
                                             value={activity?.duration}
                                             onChange={(e)=>handleActivityChange(e, _i)}
-                                            // helperText={errors.church}
-                                            // error={errors.church}
+                                            
                                         />
                                     </div>
 
@@ -468,7 +489,7 @@ const CreateEvent = ():JSX.Element => {
                 </div>
                 <div className="pb-2"/>
                 <CreateButton
-                    text={'Post now'}
+                    text={'Update'}
                     float
                     actionEvent={(e)=>{handleSubmit(e)}}
                 />
@@ -478,22 +499,19 @@ const CreateEvent = ():JSX.Element => {
                 <h6>Select start and end date </h6>
                 <div className=" mx-auto">
                     <DateRangePicker
-                            editableDateInputs={true}
-                            //@ts-ignore
-                            onChange={item => setDateState(item.selection)}
-                            moveRangeOnFirstSelection={false}
-                            ranges={dateState}
-                        //onChange={item => setDateState([item.selection])}
+                        editableDateInputs={true}
                         //@ts-ignore
-                        
-                        //direction="horizontal"
+                        onChange={item => setDateState(item.selection)}
+                        moveRangeOnFirstSelection={false}
+                        ranges={dateState}
+                       
                     />
                 </div>
             </div>
         </div>
-       
+        )}
         </>
     )
 
 };
-export default CreateEvent;
+export default EditEvent;
