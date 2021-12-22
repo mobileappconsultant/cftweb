@@ -17,7 +17,7 @@ import Select from '@mui/material/Select';
 import moment from 'moment';
 import { FormHelperText } from '@mui/material';
 import { DateRangePicker } from 'react-date-range';
-import { error } from 'console';
+
 
 const CreateEvent = ():JSX.Element => {
     const initialState = {
@@ -161,7 +161,7 @@ const CreateEvent = ():JSX.Element => {
             if(validate){
                 const payload = {
                     ...formData,
-                    date: formatDate2(formData?.date),
+                    date: moment(formData?.date).format('MM-DD-YYY'),
                     event_start_time: dateState[0]?.startDate,
                     event_end_time: dateState[0]?.endDate,
                     event_itenary: activities,
@@ -451,7 +451,7 @@ const CreateEvent = ():JSX.Element => {
                                             variant="outlined" 
                                             className='w-100'
                                             name="duration"
-                                            type="number"
+                                            // type="number"
                                             InputLabelProps={{ shrink: true, required: true }}
                                             value={activity?.duration}
                                             onChange={(e)=>handleActivityChange(e, _i)}
