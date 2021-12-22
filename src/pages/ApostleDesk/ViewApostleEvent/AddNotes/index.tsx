@@ -11,15 +11,13 @@ import FormGroupSelect from 'utilComponents/FormGroupSelect';
 import CustomDatePicker from 'utilComponents/DatePicker';
 import { history, validateData } from 'helpers';
 import FormGroupTextarea from 'utilComponents/FormGroupTextarea';
+import { EditCircle } from 'tabler-icons-react';
+import TextEditor from 'utilComponents/TextEditor';
 
-const CreateApostleEvent = (props: any):JSX.Element => {
+const AddNotes = (props: any):JSX.Element => {
     const initialState = {
         formData: {
-            topic: '',
-            release_date: null,
-            minister: '',
-            bible_verse:'',
-            description:'',
+            text: '',
         },
         errors:{},
         adminData:[],
@@ -46,48 +44,6 @@ const CreateApostleEvent = (props: any):JSX.Element => {
         });
     };
 
-    const handleDateChange = (e:any):void => {
-        if(e){
-            const date = formatDate(e);
-            setState({
-                formData:{
-                    ...formData,
-                    release_date: date,
-                },
-                errors: {
-                    ...state.errors,
-                    release_date: '',
-                },
-            });
-        }else{
-            setState({
-                formData:{
-                    ...formData,
-                    release_date: null,
-                },
-                errors: {
-                    ...state.errors,
-                    release_date: '',
-                },
-            });
-        }
-    };
-
-    const handleSelectChange = (e:{label?: string, value?: string|null|number}, name = '') :void  => {
-        if (e) {
-            setState({
-                formData: {
-                    ...state.formData,
-                    [name]: e.value,
-                },
-                errors: {
-                    ...state.errors,
-                    [name]: '',
-                },
-            });
-        }
-
-    }
 
     const handleModalToggle = () => {
         setState({showModal: !showModal});
@@ -96,19 +52,11 @@ const CreateApostleEvent = (props: any):JSX.Element => {
 
     const validateFormData = async () => {
         const rules = {
-            'topic': 'required',
-            'release_date' : 'required',
-            'minister': 'required',
-            'description':'required',
-            'bible_verse': 'required',
+            'text': 'required',
         };
 
         const messages = {
-            'topic.required': 'Enter a topic',
-            'release_date.required': 'Date required',
-            'minister.required': 'Select a minister',
-            'description.required': 'Description required',
-            'bible_verse.required': 'Bible verse required'
+            'text.required': 'Message body required',
         };
         const validate = await validateData(formData, rules, messages);
         if (isObjectEmpty(validate)) {
@@ -124,11 +72,7 @@ const CreateApostleEvent = (props: any):JSX.Element => {
     const refreshForm = () => {
         setState({
             formData: {
-                topic: '',
-                release_date: null,
-                minister: '',
-                bible_verse:'',
-                description:'',
+                text: '',
             },
             errors:{},
         })
@@ -142,11 +86,17 @@ const CreateApostleEvent = (props: any):JSX.Element => {
         try {
             const validate = await validateFormData();
             if(validate){
-                await ApiRequestClient.post(apiRoutes.CREATE_MESSAGE, formData);  
+                const payload = {
+                    subtitle: 'n/a',
+                    paragraphs: [formData?.text],
+                    message: props?.messageId,
+
+                };
+                await ApiRequestClient.post(apiRoutes.CREATE_MESSAGE_NOTE, payload);  
                 
                 refreshForm();
                 
-                props.addAlert(processAlertSuccess('Event added successfully'));
+                props.addAlert(processAlertSuccess('Note added successfully'));
                 handleModalToggle();
             };
             setState({
@@ -191,8 +141,21 @@ const CreateApostleEvent = (props: any):JSX.Element => {
 
     };
 
+    const handleEditorChange = (data:any) => {
+        setState({
+            formData:{
+                ...formData,
+                text: data,
+            },
+            errors:{
+                ...state.errors,
+                text: '',
+            }
+        });
+    };
+
     useEffect(() => {
-        fetchData();
+       // fetchData();
         // Cleanup method
         return () => {
             setState({
@@ -204,7 +167,9 @@ const CreateApostleEvent = (props: any):JSX.Element => {
     return(
         <>
         <Modal
-            title="Create Apostle's Message"
+            title="Add note to message"
+            //@ts-ignore
+            size="lg"
             show={showModal} 
             toggle={handleModalToggle}
         >
@@ -221,58 +186,14 @@ const CreateApostleEvent = (props: any):JSX.Element => {
 
                 <div className="row">
                     <div className="col-md-12 mb-3">
-                        <FormGroupInput
-                            placeholder="Topic of message"
-                            value={formData?.topic}
-                            onChange={handleChange}
-                            name="topic"
-                            showError={errors.topic}
-                            errorMessage={errors.topic}
-                        />
-                    </div>
-                    <div className="col-md-12 mb-3">
-                        <FormGroupInput
-                            placeholder="Bible verse"
-                            value={formData?.bible_verse}
-                            onChange={handleChange}
-                            name="bible_verse"
-                            showError={errors.bible_verse}
-                            errorMessage={errors.bible_verse}
-                        />
-                    </div>
-
-                    <div className="col-md-12 mb-3">
-                        <FormGroupTextarea
-                            placeholder="Short description"
-                            value={formData?.description}
-                            onChange={handleChange}
-                            name="description"
-                            showError={errors.description}
-                            errorMessage={errors.description}
-                        />
-                    </div>
-
-                    <div className="col-md-12 mb-4">
-                        <CustomDatePicker
-                             value={formData?.release_date}
+                       
+                        <TextEditor
                              //@ts-ignore
-                             onChange={(e:any)=>handleDateChange(e)}
-                             showError={errors.release_date}
-                             errorMessage={errors.release_date} 
+                            text={formData?.text}
+                            handleChange={handleEditorChange}
                         />
                     </div>
-                    
-                    
-                    <div className="col-md-12 mb-3">
-                        <FormGroupSelect
-                             placeholder="Select minister"
-                             onChange={(e: object)=>handleSelectChange(e, 'minister')}
-                             name="minister"
-                             showError={errors.minister}
-                             errorMessage={errors.minister} 
-                             selectOptions={adminData}
-                        />
-                    </div>
+                   
                     <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
                     <CreateButton
                         text={'Submit'}
@@ -284,13 +205,20 @@ const CreateApostleEvent = (props: any):JSX.Element => {
                 </div>
             </>
         </Modal>
-        <CreateButton
-            text={"Create Apostle's Message"}
-            float
-            actionEvent={()=>{handleModalToggle()}}
-        />
+        <button
+            className={`border-0 pointer edit-button mx-3 pb-1 px-1`}  
+            onClick={()=>{handleModalToggle()}}
+        >   
+            <EditCircle
+                className="button-icon "
+                size={20}
+                strokeWidth={1.5}
+                color={'#FFF'}
+            />
+        </button> 
+       
         </>
     )
 
 };
-export default CreateApostleEvent;
+export default AddNotes;

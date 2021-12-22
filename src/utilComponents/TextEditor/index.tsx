@@ -33,16 +33,26 @@ class TextEditor extends Component {
             'link',
             'image',
         ];
-            
+           //@ts-ignore
+          console.log(this.props.text); 
       return (
-        <ReactQuill 
-             //@ts-ignore
-            value={this.props.text}
-            onChange={this.handleChange} 
-            formats={formats}
-            modules={modules}
-
-        />
+        <>
+          <ReactQuill 
+              //@ts-ignore
+              value={this.props.text}
+              //@ts-ignore
+              onChange={this.props.handleChange} 
+              formats={formats}
+              modules={modules}
+          />
+          {//@ts-ignore
+          this.props?.error && (
+              <div className="text-danger">
+                {//@ts-ignore
+                this.props?.errorMessage}
+              </div>
+          )}
+        </>
       )
     }
   }

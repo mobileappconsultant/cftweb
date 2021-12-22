@@ -71,7 +71,6 @@ const CreateAdmin = (props: any):JSX.Element => {
             'password' : 'required',
             'phone': 'required',
             'role': 'required',
-            
         };
 
         const messages = {
@@ -92,8 +91,6 @@ const CreateAdmin = (props: any):JSX.Element => {
             });
             return false;
         }
-
-
     };
 
     const refreshForm = () => {

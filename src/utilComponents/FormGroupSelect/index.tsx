@@ -16,6 +16,7 @@ interface propInterface {
     name?: string;
     showError?: string | boolean;
     selectOptions?: { id?: number, name?: string, label?:string, value?: string|number, title?:string }[];
+    //defaultValue?: { id?: number, name?: string, label?:string, value?: string|number, title?:string },
     isMulti?: boolean;
     optionKey?: null | string;
 }

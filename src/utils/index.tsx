@@ -350,8 +350,13 @@ export const scrollDown = () => {
 export const formatDate = (date: Date) => {
     if (!date) return '';
     const d = new Date(date);
+    
     const newDate = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
     return newDate;
+};
+export const formatDate2 = (date: Date) => {
+    if (!date) return '';
+    return moment(date).format('DD-MM-YYYY');
 };
 
 export const formatInitialDateValue = (data: Date) => {

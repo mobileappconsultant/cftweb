@@ -14,5 +14,17 @@ export const apiRoutes = {
     CREATE_BRANCH: '/branch/create',
     GET_ALL_BRANCHES: '/branch/all',
     GET_SINGLE_BRANCH: '/branch/get',
+    // APOSTLE DESK
+    CREATE_APOSTLE_DESK_EVENT: '/admin/message/create',
+    GET_ALL_APOSTLE_EVENT:'/admin/message/all',
+    GET_SINGLE_APOSTLE_DESK_EVENT:'/admin/message',
+    CREATE_MESSAGE_NOTE: '/admin/content/create',
+    EDIT_MESSAGE_NOTE:'/admin/edit/content',
+    GET_ALL_MESSAGE_NOTES:'/admin/content',
+    // MESSAGE
+    CREATE_MESSAGE:'/admin/message/create',
+    UPDATE_MESSAGE:'/admin/edit/message',
+    // Calendar events
+    CREATE_CALENDAR_EVENT:'/admin/event/create',
 
 };

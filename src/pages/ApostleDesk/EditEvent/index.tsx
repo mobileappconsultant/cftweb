@@ -12,14 +12,15 @@ import CustomDatePicker from 'utilComponents/DatePicker';
 import { history, validateData } from 'helpers';
 import FormGroupTextarea from 'utilComponents/FormGroupTextarea';
 
-const CreateApostleEvent = (props: any):JSX.Element => {
+const EditApostleEvent = (props: any):JSX.Element => {
+
     const initialState = {
         formData: {
-            topic: '',
-            release_date: null,
-            minister: '',
-            bible_verse:'',
-            description:'',
+            topic: props?.data?.topic,
+            release_date: props?.data?.release_date,
+            minister: props?.data?.minister,
+            bible_verse: props?.data?.bible_verse,
+            description: props?.data?.description,
         },
         errors:{},
         adminData:[],
@@ -91,7 +92,7 @@ const CreateApostleEvent = (props: any):JSX.Element => {
 
     const handleModalToggle = () => {
         setState({showModal: !showModal});
-        refreshForm();
+       // refreshForm();
     }
 
     const validateFormData = async () => {
@@ -142,11 +143,11 @@ const CreateApostleEvent = (props: any):JSX.Element => {
         try {
             const validate = await validateFormData();
             if(validate){
-                await ApiRequestClient.post(apiRoutes.CREATE_MESSAGE, formData);  
+                await ApiRequestClient.post(`${apiRoutes.UPDATE_MESSAGE}?id=${props?.messageId}`, formData);  
                 
                 refreshForm();
                 
-                props.addAlert(processAlertSuccess('Event added successfully'));
+                props.addAlert(processAlertSuccess('Message updated successfully'));
                 handleModalToggle();
             };
             setState({
@@ -200,11 +201,11 @@ const CreateApostleEvent = (props: any):JSX.Element => {
             });
         };
     }, []);
-
+    console.log(formData);
     return(
         <>
         <Modal
-            title="Create Apostle's Message"
+            title="Update Apostle's Message"
             show={showModal} 
             toggle={handleModalToggle}
         >
@@ -266,11 +267,14 @@ const CreateApostleEvent = (props: any):JSX.Element => {
                     <div className="col-md-12 mb-3">
                         <FormGroupSelect
                              placeholder="Select minister"
+                             
                              onChange={(e: object)=>handleSelectChange(e, 'minister')}
                              name="minister"
                              showError={errors.minister}
                              errorMessage={errors.minister} 
                              selectOptions={adminData}
+                             //@ts-ignore
+                             defaultValue={{label:props?.data?.minister, value:props?.data?.minister}}
                         />
                     </div>
                     <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
@@ -285,7 +289,7 @@ const CreateApostleEvent = (props: any):JSX.Element => {
             </>
         </Modal>
         <CreateButton
-            text={"Create Apostle's Message"}
+            text={"Edit Apostle's Message"}
             float
             actionEvent={()=>{handleModalToggle()}}
         />
@@ -293,4 +297,4 @@ const CreateApostleEvent = (props: any):JSX.Element => {
     )
 
 };
-export default CreateApostleEvent;
+export default EditApostleEvent;

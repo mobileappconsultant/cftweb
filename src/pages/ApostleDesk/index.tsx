@@ -12,6 +12,8 @@ import CreateButton from 'utilComponents/CreateButton';
 import { Plus } from 'tabler-icons-react';
 import { history } from 'helpers';
 import Badges from 'utilComponents/Badges';
+import CreateApostleEvent from './CreateEvent';
+import CircularLoader from 'utilComponents/Loader';
 
 const ApostleDesk = ():JSX.Element => {
     const initialState = {
@@ -19,28 +21,12 @@ const ApostleDesk = ():JSX.Element => {
         rowsPerPage:5,
         page:0,
         alertMessage:{},
-        data:[
-            {
-                name: 'Thanksgiving Service',
-                body: `Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                quis nostrud exercitation ullamco laboris nisi ut......
-                `,
-                date: 'Sent on 22nd February',
-            },
-            {
-                name: 'Thanksgiving Service 2',
-                body: `Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                quis nostrud exercitation ullamco laboris nisi ut......
-                `,
-                date: 'Sent on 25th February',
-            },
-    ],
+        data:[],
+        isLoading:false,
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, alertMessage, data} = state;
+    const {listView, page, rowsPerPage, isLoading, alertMessage, data} = state;
 
     const changeListView = () => {
         setState({
@@ -73,7 +59,7 @@ const ApostleDesk = ():JSX.Element => {
         });
 
         try {
-            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_ADMINS);
+            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_APOSTLE_EVENT);
     
             setState({
                 data: response?.data?.data,
@@ -88,7 +74,7 @@ const ApostleDesk = ():JSX.Element => {
     };
 
     useEffect(() => {
-        //fetchData();
+        fetchData();
 
         // Cleanup method
         return () => {
@@ -112,80 +98,83 @@ const ApostleDesk = ():JSX.Element => {
         </div>
         </div>
         {alertMessage?.text && (
-                    <>
-                        <AlertComponent
-                            text={alertMessage.text}
-                            type={alertMessage.type}
-                            onClose={handleAlertClose}
-                        />
-                    </>
-                )}
-        <div className="bg-white">
-        <div className="row  py-4 px-4"> 
-            {data.map((datum: any, _i: number)=> {
-                return(
-                    <>
-                        <div className="col-md-12">
-                            <div className="my-2 pointer" onClick={()=> history.push(`/announcements/${1}`)}>
-                                <div className={`card user-card w-100 p-3 mb-3`}>   
-                                    <div className="d-flex align-items-center">
-                                        <div className="">
-                                            <img src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9w0saWFIE2jx_cm1gw3t6qTOaK5P9-IocLhNhsCiIwPQcBPCO_tGDHg7K_Ym79vkP4Is&usqp=CAU'} className="user-profile-img" />
-                                        </div>
-                                        <div className="user-details">
-                                            <div className="name mb-1">{datum?.name}</div>
-                                            <div className="d-flex justify-content-between">
-                                                <div className="user-name w-90">{datum?.body}</div>
-                                                <div>
-                                                    <Badges
-                                                        text="Pending"
-                                                        type="pending"
-                                                    />
+            <>
+                <AlertComponent
+                    text={alertMessage.text}
+                    type={alertMessage.type}
+                    onClose={handleAlertClose}
+                />
+            </>
+        )}
+        {isLoading? (
+            <CircularLoader />
+        ):(
+            <>
+                <div className="bg-white">
+                <div className="row  py-4 px-4"> 
+                    {data.map((datum: any, _i: number)=> {
+                        return(
+                            <>
+                                <div className="col-md-12">
+                                    <div className="my-2 pointer" onClick={()=> history.push(`/apostle-desk/${datum?._id}`)}>
+                                        <div className={`card user-card w-100 p-3 mb-3`}>   
+                                            <div className="d-flex align-items-center">
+                                                <div className="">
+                                                    {/* <img src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9w0saWFIE2jx_cm1gw3t6qTOaK5P9-IocLhNhsCiIwPQcBPCO_tGDHg7K_Ym79vkP4Is&usqp=CAU'} className="user-profile-img" /> */}
+                                                </div>
+                                                <div className="user-details w-100">
+                                                    <div className="name mb-1">{datum?.topic}</div>
+                                                    <div className="d-flex justify-content-between w-100">
+                                                        <div className="user-name w-90">{datum?.description}</div>
+                                                        <div>
+                                                            {datum?.status? (
+                                                                <Badges
+                                                                    text="Active"
+                                                                    type="success"
+                                                                />
+                                                            ):(
+                                                                <Badges
+                                                                    text="Not active"
+                                                                    type="pending"
+                                                                />
+                                                            )}
+                                                            
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className="small user-name text-muted mt-2">{datum?.release_date}</div>
                                                 </div>
                                             </div>
-                                            
-                                            <div className="small user-name text-muted mt-2">{datum?.date}</div>
+                                        
                                         </div>
                                     </div>
-                                  
                                 </div>
-                            </div>
-                        </div>
-                    </>
-                );
-            })}
-            
-        </div>
-        </div>
-            <Pagination
-                count={data.length?? 0}
-                page={0}
-                rowsPerPage={10}
-                onPageChange={handleChangePage}
-                handleChangeRowsPerPage={handleChangeRowsPerPage}
-            />
-        <div>
-            <ExportComponent
-                actionEvent={()=> console.log('me')}
-            />
-
-        <CreateButton
-            text={
-                <>
-                    <Plus
-                        size={20}
-                        strokeWidth={2}
-                        color={'white'}
+                            </>
+                        );
+                    })}
+                    
+                </div>
+                </div>
+                    <Pagination
+                        count={data.length?? 0}
+                        page={0}
+                        rowsPerPage={10}
+                        onPageChange={handleChangePage}
+                        handleChangeRowsPerPage={handleChangeRowsPerPage}
                     />
-                    &nbsp;
-                    Create New 
-                </>
-            }
-            float
-            actionEvent={()=> history.push('/apostle-desk/create')}
-        />
-           
-        </div>
+                <div>
+                    <ExportComponent
+                        actionEvent={()=> console.log('me')}
+                    />
+
+                <CreateApostleEvent
+                    addAlert={addAlert}
+                />
+                
+                </div>
+            </>
+        )}
+        
        
         </>
     )

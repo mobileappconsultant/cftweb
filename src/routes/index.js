@@ -18,6 +18,7 @@ import Calendar from 'pages/Calendar';
 import CreateCalendarEvent from 'pages/Calendar/CreateCalendarEvent';
 import { Redirect } from 'react-router-dom';
 import ApostleDesk from 'pages/ApostleDesk';
+import ViewApostleEvent from 'pages/ApostleDesk/ViewApostleEvent';
 import CreateEvent from 'pages/ApostleDesk/CreateEvent';
 import Transactions from 'pages/Transactions';
 import Merchandise from 'pages/Merchandise';
@@ -49,6 +50,7 @@ export const privateRoutes = [
 	{path:"/calendar/create-event", exact: true, component: CreateCalendarEvent},
 	{path:"/apostle-desk", exact: true, component: ApostleDesk},
 	{path:"/apostle-desk/create", exact: true, component: CreateEvent},
+	{path:"/apostle-desk/:id", exact: true, component: ViewApostleEvent},
 	{path:"/transactions", exact: true, component: Transactions},
 	{path:"/merchandise", exact: true, component: Merchandise},
 ];
