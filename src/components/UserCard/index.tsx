@@ -30,11 +30,7 @@ const UserCard = (props: propsObject):JSX.Element => {
                         View
                     </Link>
                 </div>
-                <div>
-                    <Link to="#">
-                        Update
-                    </Link>
-                </div>
+                
                 
             </div>
         </div>

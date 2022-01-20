@@ -6,6 +6,14 @@
   box-sizing: border-box;
   font-family: "Poppins" , sans-serif;
 }
+.overflow-y-auto{
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+.min-height-80{
+  min-height: 80vh;
+}
 .sidebar{
   position: fixed;
   left: 0;

@@ -5,8 +5,6 @@ import OrComponent from 'components/Auth/OrComponent';
 import AuthFormInput from 'components/Auth/AuthFormInputs';
 import mailIcon from 'assets/images/mail.svg';
 import { Link } from 'react-router-dom';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
 import { extractErrorMessage, isObjectEmpty, processAlertError } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import { history, validateData } from 'helpers';
@@ -14,6 +12,10 @@ import { useDispatch } from "react-redux";
 import Cookies from 'js-cookie';
 import { addUser } from "store/actionCreators";
 import { Dispatch } from "redux";
+import { useMutation } from '@apollo/client';
+import { LOGIN } from 'GraphQl/Mutations';
+
+
 const Login = ():JSX.Element => {
     const initialState = {
         formData: {
@@ -27,6 +29,7 @@ const Login = ():JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage, errors} = state;
+    const [attemptLogin, { data, loading, error }] = useMutation(LOGIN);
     const dispatch: Dispatch<any> = useDispatch();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
@@ -76,10 +79,11 @@ const Login = ():JSX.Element => {
         try {
           const validate = await validateFormData();
           if(validate){
-            const response = await ApiRequestClient.post(apiRoutes.LOGIN, formData); 
-            const loginData = response?.data?.data; 
-            dispatch(addUser(loginData?.admin));
-            Cookies.set('access-token', response?.data?.data?.token)
+           
+            const loginData = await attemptLogin({variables:{creds:{email: formData?.email, password: formData?.password }}});
+            const responseData = loginData?.data?.login;
+            dispatch(addUser(responseData?.admin));
+            Cookies.set('access-token', responseData?.token);
             history.push('/home');
           };
           
@@ -87,6 +91,7 @@ const Login = ():JSX.Element => {
             isLoading: false,
           });
         } catch (error) {
+           
             const errorMsg = extractErrorMessage(error);
             setState({
                 alertMessage:  processAlertError(errorMsg),

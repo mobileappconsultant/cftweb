@@ -5,8 +5,6 @@ import { Link } from 'react-router-dom';
 import AlertComponent from 'components/AlertComponent';
 import TableListView from 'utilComponents/TableListView';
 import Pagination from 'utilComponents/TablePagination';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
 import Filter from 'components/Filter';
 import branchIcon from 'assets/images/branch.png';
 import InfoDivHeader from 'utilComponents/InfoDivHeader';
@@ -14,9 +12,11 @@ import CreateBranch from './CreateBranch';
 import EditBranch from './EditBranch';
 import MakeSelection from 'utilComponents/MakeSelectionIcon';
 import ViewBranch from './ViewBranch';
-import { formatInitialDateValue } from 'utils';
+import { extractErrorMessage, formatInitialDateValue, processAlertError } from 'utils';
 import CircularLoader from 'utilComponents/Loader';
 import Badges from 'utilComponents/Badges';
+import { useQuery } from '@apollo/client';
+import { GET_ALL_BRANCHES } from 'GraphQl/Queries';
 
 
 const Branches = ():JSX.Element => {
@@ -25,15 +25,16 @@ const Branches = ():JSX.Element => {
         rowsPerPage:5,
         page:0,
         alertMessage:{},
-        data:[],
+        dataArr:[],
         activeDataObj:{},
         showEditModal: false,
-        isLoading: false,
+        isLoading: true,
     };
-
+   
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page,isLoading, activeDataObj, alertMessage, data, showEditModal} = state;
-
+    const {listView, page, isLoading, activeDataObj, alertMessage,  showEditModal, dataArr} = state;
+    const { data, loading, error } = useQuery(GET_ALL_BRANCHES);
+    
     const changeListView = () => {
         setState({
             listView: !listView,
@@ -59,43 +60,44 @@ const Branches = ():JSX.Element => {
         });
     };
 
-    const fetchData = async () => {
-        setState({
-            isLoading: true,
-        });
-
-        try {
-            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_BRANCHES);
-    
-            setState({
-                data: response?.data?.data,
-                isLoading: false,
-            });
-        } catch (error) {
-            setState({
-                isLoading: false,
-            });
-        }
-
-    };
+    const fetchData = async () => {};
 
     useEffect(() => {
-        fetchData();
+        if(data){
+            setState({
+                dataArr: data?.getAllBranch,
+                activeDataObj: data?.getAllBranch? data?.getAllBranch[0] : {},
+            });
+           
+        };
 
+        if(!loading){
+            setState({
+                isLoading: false,
+            });
+        };
+
+        if(error){
+            
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(error)),
+            })
+        }
+        
         // Cleanup method
         return () => {
             setState({
                 ...initialState,
             });
         };
-    }, []);
+    }, [data]);
+
 
     const toggleEditModal = () => {
         setState({
             showEditModal: !showEditModal,
         });
     };
-
 
     return(
         <>
@@ -135,14 +137,14 @@ const Branches = ():JSX.Element => {
                     />
                     
                 </div>
-                {data.map((datum:any,_i:number) =>{
+                {dataArr?.map((datum:any,_i:number) =>{
                     return(
                         <>
                             <div 
                                 className={`
                                     d-flex pointer justify-content-between 
                                     align-items-start px-3 py-2 border-top border-bottom 
-                                    ${activeDataObj?._id === datum?._id? 'active-list':''}`
+                                    ${activeDataObj?.id === datum?.id? 'active-list':''}`
                                 }
                                 onClick={()=> setState({...state, activeDataObj: datum})}
                             >
@@ -172,7 +174,7 @@ const Branches = ():JSX.Element => {
                 
                 <div>
                 <Pagination
-                    count={data.length?? 0}
+                    count={dataArr?.length?? 0}
                     page={0}
                     rowsPerPage={10}
                     onPageChange={handleChangePage}
@@ -182,7 +184,7 @@ const Branches = ():JSX.Element => {
 
             </div>
             <div className="col-md-8 pl-0">
-                {activeDataObj?._id? (
+                {activeDataObj?.id? (
                     <>
                     <div className="d-flex justify-content-between align-items-center border-bottom w-100">
                         <div className=" py-3 px-3">
@@ -259,9 +261,9 @@ const Branches = ():JSX.Element => {
                         />
                     </div>
 
-                    <ViewBranch
+                    {/* <ViewBranch
                         branch={activeDataObj}
-                    />
+                    /> */}
                 </div>
                     </>
                 ):(
@@ -281,7 +283,7 @@ const Branches = ():JSX.Element => {
                 refresh={fetchData}
                 addAlert={addAlert}
             />
-            {activeDataObj?._id && (
+            {activeDataObj?.id && (
                 <EditBranch 
                     branch={activeDataObj}
                     show={showEditModal}

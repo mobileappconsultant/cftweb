@@ -9,7 +9,9 @@ import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
 import Map from 'utilComponents/MapComponent';
-
+import Creatable, { useCreatable } from 'react-select/creatable';
+import { useMutation } from '@apollo/client';
+import { CREATE_BRANCH } from 'GraphQl/Mutations';
 
 const CreateBranch = (props: any):JSX.Element => {
     const initialState = {
@@ -28,7 +30,7 @@ const CreateBranch = (props: any):JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage, errors, showModal} = state;
-
+    const [createNewBranch, { data, loading, error }] = useMutation(CREATE_BRANCH);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
         setState({
@@ -132,13 +134,13 @@ const CreateBranch = (props: any):JSX.Element => {
                 name: formData?.name,
                 branch_president: formData?.branch_president,
                 geo_point:{
-                    lat: formData?.lat,
-                    long: formData?.lng,
+                    lat: `${formData?.lat}`,
+                    long: `${formData?.lng}`,
                 },
-                address: formData?.address,
+                branch_address: formData?.address,
             };
             if(validate){
-                await ApiRequestClient.post(apiRoutes.CREATE_BRANCH, payload);  
+                const branchData = await createNewBranch({variables:{input: payload}}); 
                 
                 refreshForm();
                 props.addAlert(processAlertSuccess('Branch added successfully'));

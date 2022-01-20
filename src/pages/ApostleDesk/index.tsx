@@ -1,32 +1,31 @@
 import PageTitle from 'components/PageTitle';
-import UserCard from 'components/UserCard';
 import React, {useReducer, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AlertComponent from 'components/AlertComponent';
-import ExportComponent from 'utilComponents/ExportComponent';
 import TableListView from 'utilComponents/TableListView';
 import Pagination from 'utilComponents/TablePagination';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
-import CreateButton from 'utilComponents/CreateButton';
-import { Plus } from 'tabler-icons-react';
 import { history } from 'helpers';
 import Badges from 'utilComponents/Badges';
 import CreateApostleEvent from './CreateEvent';
 import CircularLoader from 'utilComponents/Loader';
+import { useQuery } from '@apollo/client';
+import { GET_ALL_MESSAGES } from 'GraphQl/Queries';
+import { extractErrorMessage, processAlertError } from 'utils';
 
 const ApostleDesk = ():JSX.Element => {
     const initialState = {
         listView: true,
-        rowsPerPage:5,
+        rowsPerPage:10,
         page:0,
         alertMessage:{},
-        data:[],
+        dataArr:[],
         isLoading:false,
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, isLoading, alertMessage, data} = state;
+
+    const {listView, page, isLoading, rowsPerPage, alertMessage,  showEditModal, dataArr} = state;
+    const { data, loading, error } = useQuery(GET_ALL_MESSAGES);
 
     const changeListView = () => {
         setState({
@@ -35,11 +34,23 @@ const ApostleDesk = ():JSX.Element => {
     };
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-      
-      };
-    
-    const handleChangeRowsPerPage = (event: React.SyntheticEvent): void => {
+        setState({
+            page: newPage,
+        });
+    };
+  
+    const handleChangeRowsPerPage = (event: any): void => {
+
+        const splicedIndex = page * rowsPerPage;
+        let spilceStop = rowsPerPage+ splicedIndex;
         
+        if(spilceStop >= dataArr.length){
+            return;
+        }
+        setState({
+            rowsPerPage: event?.target?.value,
+        });
+      
     };
     const handleAlertClose = () => {
         setState({
@@ -53,28 +64,25 @@ const ApostleDesk = ():JSX.Element => {
         });
     };
 
-    const fetchData = async () => {
-        setState({
-            isLoading: true,
-        });
-
-        try {
-            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_APOSTLE_EVENT);
-    
-            setState({
-                data: response?.data?.data,
-                isLoading: false,
-            });
-        } catch (error) {
-            setState({
-                isLoading: false,
-            });
-        }
-
-    };
-
     useEffect(() => {
-        fetchData();
+        if(data){
+            setState({
+                dataArr: data?.getMessages,
+            });
+           
+        };
+        if(!loading){
+            setState({
+                isLoading: false,
+            });
+        };
+
+        if(error){
+            
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(error)),
+            })
+        }
 
         // Cleanup method
         return () => {
@@ -82,7 +90,18 @@ const ApostleDesk = ():JSX.Element => {
                 ...initialState,
             });
         };
-    }, []);
+    }, [data]);
+    
+    const paginatedData = (dataArr:any) => {
+        const splicedIndex = page * rowsPerPage;
+        let spilceStop = rowsPerPage+ splicedIndex;
+        const newArr = dataArr.slice(splicedIndex, spilceStop);
+        
+        return newArr;
+
+    };
+    const paginateData = paginatedData(dataArr);
+
    
     return(
         <>
@@ -112,7 +131,7 @@ const ApostleDesk = ():JSX.Element => {
             <>
                 <div className="bg-white">
                 <div className="row  py-4 px-4"> 
-                    {data.map((datum: any, _i: number)=> {
+                    {paginateData?.map((datum: any, _i: number)=> {
                         return(
                             <>
                                 <div className="col-md-12">
@@ -154,23 +173,20 @@ const ApostleDesk = ():JSX.Element => {
                     })}
                     
                 </div>
-                </div>
-                    <Pagination
-                        count={data.length?? 0}
-                        page={0}
-                        rowsPerPage={10}
-                        onPageChange={handleChangePage}
-                        handleChangeRowsPerPage={handleChangeRowsPerPage}
-                    />
-                <div>
-                    <ExportComponent
-                        actionEvent={()=> console.log('me')}
-                    />
 
-                <CreateApostleEvent
-                    addAlert={addAlert}
+                <Pagination
+                    count={dataArr.length?? 0}
+                    page={page}
+                    rowsPerPage={rowsPerPage}
+                    onPageChange={handleChangePage}
+                    handleChangeRowsPerPage={handleChangeRowsPerPage}
                 />
-                
+                </div>
+                    
+                <div>
+                    <CreateApostleEvent
+                        addAlert={addAlert}
+                    />
                 </div>
             </>
         )}

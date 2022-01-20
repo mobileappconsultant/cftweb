@@ -242,12 +242,14 @@ export const noOp = () => { };
 //  * @returns {*} The error messgae
 //  */
 export const extractErrorMessage = (err: any): string => {
-    const errResponse = err.response || null;
+    
+    const errResponse = err.response || err.toString();
+    console.log(err.toString());
     const errorMessage =
     errResponse === null ? 'Something went Wrong. Please try again' : 
         errResponse && errResponse.data && errResponse.data.message
             ? errResponse.data.message
-            : 'Something went Wrong. Please try again';
+            :  err.toString();
 
     return errorMessage;
 };

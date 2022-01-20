@@ -6,21 +6,27 @@ import AlertComponent from 'components/AlertComponent';
 import ExportComponent from 'utilComponents/ExportComponent';
 import TableListView from 'utilComponents/TableListView';
 import Pagination from 'utilComponents/TablePagination';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
-import { formatInitialDateValue } from 'utils';
+import { useQuery } from '@apollo/client';
+import { GET_ALL_MEMBERS } from 'GraphQl/Queries';
+import { extractErrorMessage, formatInitialDateValue, processAlertError } from 'utils';
+import Filter from 'components/Filter';
+import { Printer } from 'tabler-icons-react';
+import CircularLoader from 'utilComponents/Loader';
 
 const Administrators = ():JSX.Element => {
     const initialState = {
         listView: true,
-        rowsPerPage:5,
+        rowsPerPage:10,
         page:0,
         alertMessage:{},
-        data:[],
+        dataArr:[],
+        isLoading:true,
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, alertMessage, data} = state;
+    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr} = state;
+    const { data, loading, error } = useQuery(GET_ALL_MEMBERS);
+
 
     const changeListView = () => {
         setState({
@@ -29,12 +35,25 @@ const Administrators = ():JSX.Element => {
     };
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-      
-      };
-    
-    const handleChangeRowsPerPage = (event: React.SyntheticEvent): void => {
-        
+        setState({
+            page: newPage,
+        });
     };
+  
+    const handleChangeRowsPerPage = (event: any): void => {
+
+        const splicedIndex = page * rowsPerPage;
+        let spilceStop = rowsPerPage+ splicedIndex;
+        
+        if(spilceStop >= dataArr.length){
+            return;
+        }
+        setState({
+            rowsPerPage: event?.target?.value,
+        });
+      
+    };
+
     const handleAlertClose = () => {
         setState({
             alertMessage:{},
@@ -47,37 +66,40 @@ const Administrators = ():JSX.Element => {
         });
     };
 
-    const fetchData = async () => {
-        setState({
-            isLoading: true,
-        });
-
-        try {
-            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_MEMBERS);
-    
-            setState({
-                data: response?.data?.data,
-                isLoading: false,
-            });
-        } catch (error) {
-            setState({
-                isLoading: false,
-            });
-        }
-
-    };
-
     useEffect(() => {
-        fetchData();
-
+        if(data){
+            setState({
+                dataArr: data?.getAllMembers,
+            });
+        };
+        if(!loading){
+            setState({
+                isLoading: false,
+            });
+        };
+        if(error){
+            
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(error)),
+            })
+        }
         // Cleanup method
         return () => {
             setState({
                 ...initialState,
             });
         };
-    }, []);
-    console.log(data);
+    }, [data]);
+
+    const paginatedData = (dataArr:any) => {
+        const splicedIndex = page * rowsPerPage;
+        let spilceStop = rowsPerPage+ splicedIndex;
+        const newArr = dataArr.slice(splicedIndex, spilceStop);
+        
+        return newArr;
+
+    };
+    const paginateData = paginatedData(dataArr);
 
     return(
         <>
@@ -102,40 +124,57 @@ const Administrators = ():JSX.Element => {
                     </>
                 )}
         <div className="bg-white">
-        <div className="row  py-4 px-4"> 
-            {data.map((datum: any, _i: number)=> {
-                return(
-                    <>
-                        <div className="col-md-6">
-                            <div className="my-2">
-                            <UserCard
-                                name={datum?.full_name}
-                                // userName={'Xi jiping'}
-                                role={datum?.role}
-                                time={formatInitialDateValue(datum?.createdAt)}
-                                avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
-                                id="2"
-                            />
+            <div className="row  pt-4 px-4 justify-content-between"> 
+                <div className='col-md-3'>
+                    <Filter
+                        text="Status"
+                    />
+                </div>
+                <div className='col-md-1 text-right row justify-content-end'> 
+                    <Printer
+                        size={34}
+                        strokeWidth={2}
+                        color={'#000000'}
+                        className='pointer'
+                    />
+                </div>
+                <div className='col-md-12'>
+                    <PageTitle text='Members List' />
+                </div>
+                
+            </div>
+            <div className="row  py-4 px-4"> 
+                {dataArr.map((datum: any, _i: number)=> {
+                    return(
+                        <>
+                            <div className="col-md-6">
+                                <div className="my-2">
+                                <UserCard
+                                    name={datum?.full_name}
+                                    // userName={'Xi jiping'}
+                                    role={datum?.role}
+                                    time={formatInitialDateValue(datum?.createdAt)}
+                                    avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
+                                    id="2"
+                                />
+                                </div>
                             </div>
-                        </div>
-                    </>
-                );
-            })}
+                        </>
+                    );
+                })}
+                
+            </div>
+                <Pagination
+                    count={dataArr.length?? 0}
+                    page={page}
+                    rowsPerPage={rowsPerPage}
+                    onPageChange={handleChangePage}
+                    handleChangeRowsPerPage={handleChangeRowsPerPage}
+                />
+            </div>
+                
+            <div>
             
-        </div>
-        </div>
-            <Pagination
-                count={data.length?? 0}
-                page={0}
-                rowsPerPage={10}
-                onPageChange={handleChangePage}
-                handleChangeRowsPerPage={handleChangeRowsPerPage}
-            />
-        <div>
-            <ExportComponent
-                actionEvent={()=> console.log('me')}
-            />
-           
         </div>
        
         </>

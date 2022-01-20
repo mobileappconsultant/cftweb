@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@apollo/client": "^3.5.7",
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.4",
     "@emotion/react": "^11.7.0",
@@ -22,6 +23,7 @@
     "date-fns": "^2.26.0",
     "dotenv": "^10.0.0",
     "google-maps-react": "2.0.6",
+    "graphql": "^16.2.0",
     "indicative": "^7.4.4",
     "js-cookie": "^3.0.1",
     "moment": "^2.29.1",

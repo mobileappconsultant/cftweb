@@ -7,20 +7,26 @@ import ExportComponent from 'utilComponents/ExportComponent';
 import TableListView from 'utilComponents/TableListView';
 import Pagination from 'utilComponents/TablePagination';
 import CreateAdmin from './CreateAdmin';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
+import { useQuery } from '@apollo/client';
+import { GET_ALL_ADMINS } from 'GraphQl/Queries';
+import { extractErrorMessage, formatInitialDateValue, processAlertError } from 'utils';
+import Filter from 'components/Filter';
+import { Printer } from 'tabler-icons-react';
+import CircularLoader from 'utilComponents/Loader';
 
 const Administrators = ():JSX.Element => {
     const initialState = {
         listView: true,
-        rowsPerPage:5,
+        rowsPerPage:10,
         page:0,
         alertMessage:{},
-        data:[],
+        dataArr:[],
+        isLoading:true,
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, alertMessage, data} = state;
+    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr} = state;
+    const { data, loading, error } = useQuery(GET_ALL_ADMINS);
 
     const changeListView = () => {
         setState({
@@ -29,11 +35,23 @@ const Administrators = ():JSX.Element => {
     };
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-      
-      };
-    
-    const handleChangeRowsPerPage = (event: React.SyntheticEvent): void => {
+        setState({
+            page: newPage,
+        });
+    };
+  
+    const handleChangeRowsPerPage = (event: any): void => {
+
+        const splicedIndex = page * rowsPerPage;
+        let spilceStop = rowsPerPage+ splicedIndex;
         
+        if(spilceStop >= dataArr.length){
+            return;
+        }
+        setState({
+            rowsPerPage: event?.target?.value,
+        });
+      
     };
     const handleAlertClose = () => {
         setState({
@@ -47,28 +65,27 @@ const Administrators = ():JSX.Element => {
         });
     };
 
-    const fetchData = async () => {
-        setState({
-            isLoading: true,
-        });
-
-        try {
-            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_ADMINS);
     
-            setState({
-                data: response?.data?.data,
-                isLoading: false,
-            });
-        } catch (error) {
-            setState({
-                isLoading: false,
-            });
-        }
-
-    };
 
     useEffect(() => {
-        fetchData();
+        if(data){
+            setState({
+                dataArr: data?.getAllAdmin,
+            });
+           
+        };
+        if(!loading){
+            setState({
+                isLoading: false,
+            });
+        };
+
+        if(error){
+            
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(error)),
+            })
+        }
 
         // Cleanup method
         return () => {
@@ -76,8 +93,17 @@ const Administrators = ():JSX.Element => {
                 ...initialState,
             });
         };
-    }, []);
-    console.log(data);
+    }, [data]);
+    
+    const paginatedData = (dataArr:any) => {
+        const splicedIndex = page * rowsPerPage;
+        let spilceStop = rowsPerPage+ splicedIndex;
+        const newArr = dataArr.slice(splicedIndex, spilceStop);
+        
+        return newArr;
+
+    };
+    const paginateData = paginatedData(dataArr);
 
     return(
         <>
@@ -93,17 +119,44 @@ const Administrators = ():JSX.Element => {
         </div>
         </div>
         {alertMessage?.text && (
-                    <>
-                        <AlertComponent
-                            text={alertMessage.text}
-                            type={alertMessage.type}
-                            onClose={handleAlertClose}
-                        />
-                    </>
-                )}
+            <>
+                <AlertComponent
+                    text={alertMessage.text}
+                    type={alertMessage.type}
+                    onClose={handleAlertClose}
+                />
+            </>
+        )}
         <div className="bg-white">
-        <div className="row  py-4 px-4"> 
-            {data.map((datum: any, _i: number)=> {
+        <div className="row  pt-4 px-4 justify-content-between"> 
+            <div className='col-md-3'>
+                <Filter
+                    text="Status"
+                />
+            </div>
+            <div className='col-md-1 text-right row justify-content-end'> 
+                <Printer
+                    size={34}
+                    strokeWidth={2}
+                    color={'#000000'}
+                    className='pointer'
+                />
+            </div>
+            <div className='col-md-12'>
+                <PageTitle text='Administrators List' />
+            </div>
+            
+        </div>
+        
+        {isLoading? (
+            <>
+                <CircularLoader/>
+            </>
+        ):(
+            <>
+           
+        <div className="row  py-4 px-4 overflow-y-auto "> 
+            {paginateData.map((datum: any, _i: number)=> {
                 return(
                     <>
                         <div className="col-md-6">
@@ -123,18 +176,20 @@ const Administrators = ():JSX.Element => {
             })}
             
         </div>
-        </div>
+
+        </>
+        )}
             <Pagination
-                count={data.length?? 0}
-                page={0}
-                rowsPerPage={10}
+                count={dataArr.length?? 0}
+                page={page}
+                rowsPerPage={rowsPerPage}
                 onPageChange={handleChangePage}
                 handleChangeRowsPerPage={handleChangeRowsPerPage}
             />
+        </div>
+            
         <div>
-            <ExportComponent
-                actionEvent={()=> console.log('me')}
-            />
+            
            <CreateAdmin
                 addAlert={addAlert}
            />

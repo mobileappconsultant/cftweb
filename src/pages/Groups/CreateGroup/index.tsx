@@ -1,13 +1,12 @@
 import React, {useReducer} from 'react';
 import Modal from 'utilComponents/Modal';
-import { Link } from 'react-router-dom';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
 import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
+import { CREATE_GROUP } from 'GraphQl/Mutations';
+import { useMutation } from '@apollo/client';
 
 
 const CreateGroup = (props: any):JSX.Element => {
@@ -24,7 +23,7 @@ const CreateGroup = (props: any):JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage, errors, showModal} = state;
-
+    const [createNewGroup, { data, loading, error }] = useMutation(CREATE_GROUP);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
         setState({
@@ -88,9 +87,10 @@ const CreateGroup = (props: any):JSX.Element => {
             const validate = await validateFormData();
            
             if(validate){
-                await ApiRequestClient.post(apiRoutes.CREATE_GROUP, formData);  
+                const newGroup = await createNewGroup({variables:{input:formData}});
                 refreshForm();
-                props.refresh();
+
+                props.refresh(newGroup?.data?.createGroup);
                 props.addAlert(processAlertSuccess('Group added successfully'));
                 handleModalToggle();
             };

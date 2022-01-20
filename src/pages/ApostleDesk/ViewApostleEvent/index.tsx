@@ -8,11 +8,12 @@ import { history } from 'helpers';
 import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import AddNotes from './AddNotes';
-import { extractErrorMessage, processAlertError } from 'utils';
 import EditApostleEvent from '../EditEvent';
 import EditNotes from './EditNotes';
-import { Loader } from 'tabler-icons-react';
 import CircularLoader from 'utilComponents/Loader';
+import { useQuery } from '@apollo/client';
+import { GET_SINGLE_MESSAGE } from 'GraphQl/Queries';
+import { extractErrorMessage, formatInitialDateValue, processAlertError } from 'utils';
 const ViewApostleEvent = (props:any):JSX.Element => {
    
     const initialState = {
@@ -20,14 +21,16 @@ const ViewApostleEvent = (props:any):JSX.Element => {
         rowsPerPage:5,
         page:0,
         alertMessage:{},
-        data:{},
+        apostleData:{},
         messageNote: '',
         showAddNoteModal: false,
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {isLoading, messageNote, alertMessage, data, showAddNoteModal} = state;
-
+    const {isLoading, messageNote, alertMessage, apostleData, showAddNoteModal} = state;
+    const { data, loading, error } = useQuery(GET_SINGLE_MESSAGE, {
+        variables: { messageId: props?.match?.params?.id}
+    });
     const handleAlertClose = () => {
         setState({
             alertMessage:{},
@@ -44,34 +47,28 @@ const ViewApostleEvent = (props:any):JSX.Element => {
         setState({
             showAddNoteModal: !showAddNoteModal,
         });
-    }
-
-    const fetchData = async () => {
-        setState({
-            isLoading: true,
-        });
-
-        try {
-            const response = await ApiRequestClient.get(`${apiRoutes.GET_SINGLE_APOSTLE_DESK_EVENT}?id=${props?.match?.params?.id}`);
-            const contents = await ApiRequestClient.get(`${apiRoutes.GET_ALL_MESSAGE_NOTES}?messageId=${props?.match?.params?.id}`);
-
-            setState({
-                data: response?.data?.data,
-                messageNote: contents?.data?.data?.paragraphs[0] || '',
-                isLoading: false,
-            });
-        } catch (error) {
-            const err = extractErrorMessage(error);
-            setState({
-                isLoading: false,
-                alertMessage: processAlertError(err),
-            });
-        }
-
     };
 
     useEffect(() => {
-        fetchData();
+        if(data){
+            setState({
+                apostleData: data?.getMessage || {},
+              
+            });
+           
+        };
+        if(!loading){
+            setState({
+                isLoading: false,
+            });
+        };
+
+        if(error){
+            
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(error)),
+            })
+        }
 
         // Cleanup method
         return () => {
@@ -79,7 +76,7 @@ const ViewApostleEvent = (props:any):JSX.Element => {
                 ...initialState,
             });
         };
-    }, []);
+    }, [data]);
 
     return(
         <>
@@ -118,8 +115,8 @@ const ViewApostleEvent = (props:any):JSX.Element => {
                     
                     <img src={missionIcon} />
                     <div className="user-name px-2 mt-4">
-                        <h6 className="m-0 name">{data?.topic}</h6>
-                        <span className="small email">{data?.minister}</span>
+                        <h6 className="m-0 name">{apostleData?.topic}</h6>
+                        <span className="small email">{apostleData?.minister}</span>
                     </div>
                    
                     <div className="mt-4">
@@ -128,14 +125,14 @@ const ViewApostleEvent = (props:any):JSX.Element => {
                             <AddNotes 
                                 addAlert={addAlert}
                                 messageId={props?.match?.params?.id}
-                                refreshForm= {fetchData}
+                                // refreshForm= {fetchData}
                             />
                         ):(
                             <EditNotes
                                 addAlert={addAlert}
                                 messageId={props?.match?.params?.id}
                                 messageNote={messageNote}
-                                refreshForm= {fetchData}
+                                // refreshForm= {fetchData}
                             />
                         )}
                         
@@ -157,7 +154,7 @@ const ViewApostleEvent = (props:any):JSX.Element => {
              addAlert={addAlert}
              data={data}
              messageId={props?.match?.params?.id}
-             refreshForm= {fetchData}
+            //  refreshForm= {fetchData}
         />
         </>
             )
