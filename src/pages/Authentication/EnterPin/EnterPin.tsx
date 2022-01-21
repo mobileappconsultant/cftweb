@@ -6,11 +6,12 @@ import PinInput from 'components/Auth/PinInput';
 import AuthFormInputs from 'components/Auth/AuthFormInputs';
 import mailIcon from 'assets/images/mail.svg';
 import { validateData } from 'helpers';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
 import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import { history } from 'helpers';
+import { useMutation } from '@apollo/client';
+import { CONFIRM_PASSWORD} from 'GraphQl/Mutations';
+
 const EnterPin = ():JSX.Element => {
     const initialState = {
         formData: {
@@ -29,7 +30,7 @@ const EnterPin = ():JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage, errors, showNewPassword, pinError} = state;
-
+    const [attemptConfirmPassword, { data, loading, error }] = useMutation(CONFIRM_PASSWORD);
     const handlePinChange = async (e: React.SyntheticEvent & { target: HTMLInputElement})=> {
 
         const {name, value } = e.target;
@@ -118,16 +119,15 @@ const EnterPin = ():JSX.Element => {
                 code: `${formData.pin_1}${formData.pin_2}${formData.pin_3}${formData.pin_4}`,
                 new_password: formData?.new_password,
             };
-    
-            await ApiRequestClient.post(apiRoutes.CONFIRM_PASSWORD, payload); 
-
+            await attemptConfirmPassword({variables:{new_password: payload?.new_password, code: payload?.code}});
+        
             setState({
                 isLoading: false,
                 alertMessage: processAlertSuccess('Password reset was successfully, kindly login with your new credentials'),
             });
-            // setTimeout(function(){ 
-            //     history.push('/login');
-            //   }, 3000);
+            setTimeout(function(){ 
+                history.push('/login');
+              }, 3000);
 
         } catch (error) {
             const errorMsg = extractErrorMessage(error);

@@ -91,6 +91,7 @@ const ApostleDesk = ():JSX.Element => {
             });
         };
     }, [data]);
+    console.log(data);
     
     const paginatedData = (dataArr:any) => {
         const splicedIndex = page * rowsPerPage;

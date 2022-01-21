@@ -112,28 +112,72 @@ export const GET_ALL_MESSAGES = gql`
   query MessageDTO{
     getMessages{
       _id
-      topic
-      description
-      bible_verse
-      event_id
-      release_date
+      title
       minister
-      status
+      image
+      bibleReading{
+        text
+        refrence
+      }
+      message
+      prayer_point
+      category
+      weekPublished
+      monthPublished
+      yearPublished
+      createdAt
     }
   }
 `;
 
 export const GET_SINGLE_MESSAGE = gql`
-query MessageDTO ($messageId: String!) {
-  getMessage(messageId: $messageId) {
-    _id
-    topic
-    description
-    bible_verse
-    event_id
-    release_date
-    minister
-    status
+  query MessageDTO ($messageId: String!) {
+    getMessage(messageId: $messageId) {
+      _id
+      title
+      minister
+      image
+      bibleReading{
+        text
+        refrence
+      }
+      message
+      prayer_point
+      category
+      weekPublished
+      monthPublished
+      yearPublished
+      createdAt
+    }
   }
-}
+`;
+
+export const GET_MESSAGE_CONTENT = gql`
+  query ContentDTO ($messageId: String!) {
+    getContents(messageId: $messageId) {
+      _id
+      subtitle
+      paragraphs
+      message{
+        _id
+        title
+        minister
+        image
+        bibleReading{
+          text
+          refrence
+        }
+        message
+        prayer_point
+        category
+        weekPublished
+        monthPublished
+        yearPublished
+        createdAt
+      }
+      image
+      prayer_point
+      status
+    }
+  }
 `;

@@ -1,6 +1,4 @@
-   
 import { gql } from "@apollo/client";
-
 
 export const LOGIN = gql`
   mutation login($creds:  LoginInput!) {
@@ -16,6 +14,22 @@ export const LOGIN = gql`
         createdAt
         updatedAt
       }
+    }
+  }
+`;
+
+export const INITIATE_FORGOT_PASSWORD = gql`
+  mutation initiateForgotPassword($email:  String!) {
+    initiateForgotPassword(email: $email ) {
+      msg
+    }
+  }
+`;
+
+export const CONFIRM_PASSWORD = gql`
+  mutation confirmPassword($new_password: String! $code: String!){
+    confirmPassword(new_password: $new_password code: $code ) {
+      msg
     }
   }
 `;

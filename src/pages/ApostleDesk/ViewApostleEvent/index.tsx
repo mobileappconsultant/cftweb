@@ -12,7 +12,7 @@ import EditApostleEvent from '../EditEvent';
 import EditNotes from './EditNotes';
 import CircularLoader from 'utilComponents/Loader';
 import { useQuery } from '@apollo/client';
-import { GET_SINGLE_MESSAGE } from 'GraphQl/Queries';
+import { GET_MESSAGE_CONTENT, GET_SINGLE_MESSAGE } from 'GraphQl/Queries';
 import { extractErrorMessage, formatInitialDateValue, processAlertError } from 'utils';
 const ViewApostleEvent = (props:any):JSX.Element => {
    
@@ -28,7 +28,11 @@ const ViewApostleEvent = (props:any):JSX.Element => {
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {isLoading, messageNote, alertMessage, apostleData, showAddNoteModal} = state;
+
     const { data, loading, error } = useQuery(GET_SINGLE_MESSAGE, {
+        variables: { messageId: props?.match?.params?.id}
+    });
+    const content_response = useQuery(GET_MESSAGE_CONTENT, {
         variables: { messageId: props?.match?.params?.id}
     });
     const handleAlertClose = () => {
@@ -55,21 +59,17 @@ const ViewApostleEvent = (props:any):JSX.Element => {
                 apostleData: data?.getMessage || {},
               
             });
-           
         };
         if(!loading){
             setState({
                 isLoading: false,
             });
         };
-
         if(error){
-            
             setState({
                 alertMessage :processAlertError(extractErrorMessage(error)),
             })
         }
-
         // Cleanup method
         return () => {
             setState({
@@ -77,6 +77,36 @@ const ViewApostleEvent = (props:any):JSX.Element => {
             });
         };
     }, [data]);
+
+    useEffect(() => {
+        if(content_response.data){
+            setState({
+                apostleData: data?.getMessage || {},
+              
+            });
+           
+        };
+        // if(!content_response.loading){
+        //     setState({
+        //         isLoading: false,
+        //     });
+        // };
+
+        if(content_response.error){
+            
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(content_response.error)),
+            })
+        }
+        console.log(content_response);
+        // Cleanup method
+        return () => {
+            setState({
+                ...initialState,
+            });
+        };
+       
+    }, []);
 
     return(
         <>

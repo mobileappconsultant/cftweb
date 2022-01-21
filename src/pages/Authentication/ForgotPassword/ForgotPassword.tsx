@@ -4,11 +4,11 @@ import AuthButton from 'components/Auth/AuthButton';
 import AuthFormInput from 'components/Auth/AuthFormInputs';
 import mailIcon from 'assets/images/mail.svg';
 import { Link } from 'react-router-dom';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
 import { extractErrorMessage, processAlertError, processAlertSuccess } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import { history } from 'helpers';
+import { useMutation } from '@apollo/client';
+import { INITIATE_FORGOT_PASSWORD } from 'GraphQl/Mutations';
 
 const ForgotPassword = ():JSX.Element => {
     const initialState = {
@@ -22,6 +22,7 @@ const ForgotPassword = ():JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage } = state;
+    const [attemptInitiateForgotPassword, { data, loading, error }] = useMutation(INITIATE_FORGOT_PASSWORD);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -42,7 +43,8 @@ const ForgotPassword = ():JSX.Element => {
             isLoading: true,
         })
         try {
-          const response = await ApiRequestClient.post(apiRoutes.INITIATE_FORGOT_PASSWORD, formData);
+          
+          const response = await attemptInitiateForgotPassword({variables:{email: formData?.email}});
           setState({
               isLoading: false,
               alertMessage: processAlertSuccess('Email retrived successfully, kindly check your mail for a code to reset your password'),
