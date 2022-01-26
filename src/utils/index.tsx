@@ -184,17 +184,17 @@ export const isObjectEmpty = (obj = {}) =>
 //  * @param {Number} numChars Number of characters needed
 //  * @returns {String} Truncated text
 //  */
-// export const truncateMultilineText = (text, numChars) => {
-//     if (!text) return '';
+export const truncateMultilineText = (text:string, numChars:number) => {
+    if (!text) return '';
 
-//     // Because '...' will be appended to long strings,
-//     // this ensures that the entire character count is as specified
-//     const maxStringLength = numChars - 3;
+    // Because '...' will be appended to long strings,
+    // this ensures that the entire character count is as specified
+    const maxStringLength = numChars - 3;
 
-//     return maxStringLength > text.length
-//         ? text
-//         : `${text.trim().substring(0, maxStringLength)}...`;
-// };
+    return maxStringLength > text.length
+        ? text
+        : `${text.trim().substring(0, maxStringLength)}...`;
+};
 
 // /**
 //  * Helper function to prevent default event handling and call a specified handler

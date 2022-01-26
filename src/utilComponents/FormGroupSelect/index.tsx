@@ -19,6 +19,7 @@ interface propInterface {
     //defaultValue?: { id?: number, name?: string, label?:string, value?: string|number, title?:string },
     isMulti?: boolean;
     optionKey?: null | string;
+    defaultValue?:any
 }
 /**
  *

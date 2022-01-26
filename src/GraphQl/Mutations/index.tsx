@@ -103,3 +103,25 @@ export const CREATE_MESSAGE = gql`
     }
   }
 `;
+
+export const EDIT_MESSAGE = gql`
+  mutation updateMessage($messageId: String! $input:  MessageInput!) {
+    updateMessage(messageId: $messageId  input: $input ) {
+      _id
+      title
+      minister
+      image
+      bibleReading{
+        text
+        refrence
+      }
+      message
+      prayer_point
+      category
+      weekPublished
+      monthPublished
+      yearPublished
+
+    }
+  }
+`;
