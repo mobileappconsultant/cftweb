@@ -16,3 +16,10 @@ export const eventOptions = [
     {value:'crusade', label: 'Crusade'},
    
 ];
+
+export const apostleDeskCategoryOptions = [
+    {value:'weekly', label: 'Weekly'},
+    {value:'monthly', label: 'Monthly'},
+    
+   
+];

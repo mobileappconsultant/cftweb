@@ -181,3 +181,12 @@ export const GET_MESSAGE_CONTENT = gql`
     }
   }
 `;
+
+export const GET_BIBLE_PASSAGE = gql`
+  query VerseDTO ($verse: String! $chapter: String! $book: String! $version:String!) {
+    getBibleBookVerse(verse: $verse chapter:$chapter book:$book version:$version) {
+      num
+      text
+    }
+  }
+`;

@@ -23,6 +23,7 @@ import CreateEvent from 'pages/ApostleDesk/CreateEvent';
 import Transactions from 'pages/Transactions';
 import Merchandise from 'pages/Merchandise';
 import EditEvent from 'pages/Calendar/EditCalendarEvent';
+import CreateApostleMessage from 'pages/ApostleDesk/Messages/CreateMessage';
 
 export const publicRoutes = [
 	{path: '/', component: () => <Redirect to="/login" />},
@@ -51,7 +52,7 @@ export const privateRoutes = [
 	{path:"/calendar/create-event", exact: true, component: CreateCalendarEvent},
 	{path:"/calendar/edit-event/:id", exact: true, component: EditEvent},
 	{path:"/apostle-desk", exact: true, component: ApostleDesk},
-	{path:"/apostle-desk/create", exact: true, component: CreateEvent},
+	{path:"/apostle-desk/createmessage", exact: true, component: CreateApostleMessage},
 	{path:"/apostle-desk/:id", exact: true, component: ViewApostleEvent},
 	{path:"/transactions", exact: true, component: Transactions},
 	{path:"/merchandise", exact: true, component: Merchandise},

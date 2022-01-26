@@ -4,7 +4,7 @@ const ReactQuill = require('react-quill');
 class TextEditor extends Component {
 
     handleChange(value: string) {
-        console.log(this.props);
+       
          //@ts-ignore
     //   this.props.handleTextChange(value);
     }
@@ -33,8 +33,7 @@ class TextEditor extends Component {
             'link',
             'image',
         ];
-           //@ts-ignore
-          console.log(this.props.text); 
+    
       return (
         <>
           <ReactQuill 
@@ -44,6 +43,8 @@ class TextEditor extends Component {
               onChange={this.props.handleChange} 
               formats={formats}
               modules={modules}
+              //@ts-ignore
+              placeholder={this.props?.placeholder || ''}
           />
           {//@ts-ignore
           this.props?.error && (

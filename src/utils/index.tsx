@@ -373,9 +373,9 @@ export const getMomentAgo = (data: Date) => {
     return moment(data).fromNow();
 }
 
-// export const capiitalizeFirstLetter = (string = '') => {
-//     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-// }
+export const capiitalizeFirstLetter = (string = '') => {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
 
 // export const extractFirstLetter = (string = '') => {
 //     if(string){
@@ -426,4 +426,32 @@ export const validateImage = (file: any) : boolean=> {
 }
 export const replaceUnderScore = (str = '') => {
     return str.split('_').join(' ');
+};
+
+export const getDateFromWeek = (w:any,y:any) => {
+    
+    var simple = new Date(y, 0, 1 + (w - 1) * 7);
+    var dow = simple.getDay();
+    var ISOweekStart = simple;
+    if (dow <= 4)
+        ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+    else
+        ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+ 
+    return ISOweekStart;
+    
+};
+
+export const splitBiblePassage = (biblePassageStr: String, version= 'niv') => {
+    let str: Array<String>|String = biblePassageStr;
+    str = str.split(':');
+    let verse = str[1];
+    let book = str[0].split(' ');
+    return {
+        book: capiitalizeFirstLetter(book[0]),
+        chapter: book[1],
+        verse: verse,
+        version
+    };
+
 };

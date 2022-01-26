@@ -25,6 +25,13 @@ const DashboardLayout = (props: any): JSX.Element => {
         history.push('/login');
     };
 
+    const getMatch = (item:any) => {
+        if(window.location.pathname.match(item)){
+          return true;
+        }
+        return false;
+     }
+
     return(
         <>
 
@@ -83,7 +90,7 @@ const DashboardLayout = (props: any): JSX.Element => {
                         return(
                             <>
                                 <div className="w-100 sidebar-section-link py-2 px-2 ">
-                                    <Link to={routeChild.path} className="sidebar-navlink">
+                                    <Link to={routeChild.path} className={`sidebar-navlink ${getMatch(routeChild?.match)? 'text-primary': ''}`}>
                                         {routeChild?.icon}  {routeChild?.text}
                                     </Link>
                                 </div>
