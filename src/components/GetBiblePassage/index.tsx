@@ -23,11 +23,7 @@ const GetBiblePassage = (props: propsObject):JSX.Element => {
     useEffect(() => {
         if(data){
             updatePassageText({refrence :biblePassage, text: data?.getBibleBookVerse?.text}, index);
-            // setState({
-            //     dataArr: data?.getAllBranch,
-            //     activeDataObj: data?.getAllBranch? data?.getAllBranch[0] : {},
-            // });
-           
+            
         };
 
         if(!loading){
@@ -55,10 +51,10 @@ const GetBiblePassage = (props: propsObject):JSX.Element => {
     return(
         <>
             <div className='mt-2'>
-                {biblePassage}
+                <h6>{biblePassage}</h6>
             </div>
-            <div className='text-muted font-italic mt-1'>
-                {data?.getBibleBookVerse?.text}
+            <div className='text-muted font-italic font-italic font-weight-light mt-1 h6'>
+                <p className=" mt-1 small px-2">{data?.getBibleBookVerse?.text}</p>
             </div> 
         </>
     );

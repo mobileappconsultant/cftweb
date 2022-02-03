@@ -19,12 +19,15 @@ import CreateCalendarEvent from 'pages/Calendar/CreateCalendarEvent';
 import { Redirect } from 'react-router-dom';
 import ApostleDesk from 'pages/ApostleDesk';
 import ViewApostleEvent from 'pages/ApostleDesk/ViewApostleEvent';
-import CreateEvent from 'pages/ApostleDesk/CreateEvent';
 import Transactions from 'pages/Transactions';
 import Merchandise from 'pages/Merchandise';
 import EditEvent from 'pages/Calendar/EditCalendarEvent';
 import CreateApostleMessage from 'pages/ApostleDesk/Messages/CreateMessage';
 import EditApostleMessage from 'pages/ApostleDesk/Messages/EditMessage';
+import ViewApostleMessage from 'pages/ApostleDesk/Messages/ViewMessage';
+import CreateApostlePrayer from 'pages/ApostleDesk/Prayers/CreatePrayer';
+import ViewApostlePrayer from 'pages/ApostleDesk/Prayers/ViewPrayer';
+import EditApostlePrayer from 'pages/ApostleDesk/Prayers/EditPrayer';
 
 export const publicRoutes = [
 	{path: '/', component: () => <Redirect to="/login" />},
@@ -55,6 +58,10 @@ export const privateRoutes = [
 	{path:"/apostle-desk", exact: true, component: ApostleDesk},
 	{path:"/apostle-desk/createmessage", exact: true, component: CreateApostleMessage},
 	{path:"/apostle-desk/editmessage/:id", exact: true, component: EditApostleMessage},
+	{path:"/apostle-desk/viewmessage/:id", exact: true, component: ViewApostleMessage},
+	{path:"/apostle-desk/create-prayer", exact: true, component: CreateApostlePrayer},
+	{path:"/apostle-desk/editprayer/:id", exact: true, component: EditApostlePrayer},
+	{path:"/apostle-desk/viewprayer/:id", exact: true, component: ViewApostlePrayer},
 	{path:"/apostle-desk/:id", exact: true, component: ViewApostleEvent},
 	{path:"/transactions", exact: true, component: Transactions},
 	{path:"/merchandise", exact: true, component: Merchandise},

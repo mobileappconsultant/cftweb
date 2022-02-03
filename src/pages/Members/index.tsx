@@ -12,7 +12,7 @@ import { extractErrorMessage, formatInitialDateValue, processAlertError } from '
 import Filter from 'components/Filter';
 import { Printer } from 'tabler-icons-react';
 import CircularLoader from 'utilComponents/Loader';
-
+import userIcon from 'assets/images/user.png';
 const Administrators = ():JSX.Element => {
     const initialState = {
         listView: true,
@@ -147,15 +147,18 @@ const Administrators = ():JSX.Element => {
                 {dataArr.map((datum: any, _i: number)=> {
                     return(
                         <>
+                            
                             <div className="col-md-6">
                                 <div className="my-2">
                                 <UserCard
                                     name={datum?.full_name}
-                                    // userName={'Xi jiping'}
+                                    active={datum?.status}
                                     role={datum?.role}
-                                    time={formatInitialDateValue(datum?.createdAt)}
-                                    avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
-                                    id="2"
+                                    //@ts-ignore
+                                    time={formatInitialDateValue(new Date(parseInt(datum?.createdAt)))}
+                                    avatar={datum?.avartar?datum?.avartar : userIcon}
+                                   
+                                    id={datum?.id}
                                 />
                                 </div>
                             </div>

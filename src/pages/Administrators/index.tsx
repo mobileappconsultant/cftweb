@@ -157,16 +157,17 @@ const Administrators = ():JSX.Element => {
            
         <div className="row  py-4 px-4 overflow-y-auto "> 
             {paginateData.map((datum: any, _i: number)=> {
+                console.log(datum);
                 return(
                     <>
                         <div className="col-md-6">
                             <div className="my-2">
                             <UserCard
                                 name={datum?.full_name}
-                                // userName={'Xi jiping'}
                                 role={datum?.role}
                                 time={'22/03/2022'}
                                 avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
+                                active={datum?.status}
                                 id="2"
                             />
                             </div>

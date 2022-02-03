@@ -1,6 +1,6 @@
 #drop {
     /* width: 600px; */
-    height: 200px;
+    height: 250px;
     padding: 15px;
     border-radius: 10px;
     border-width: 1px;
@@ -108,8 +108,9 @@
 .dz-image {
     border-radius: 20px;
     overflow: hidden;
-    width: 115px;
-    height: 115px;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
     position: relative;
     display: block;
     z-index: 10;

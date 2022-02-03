@@ -6,11 +6,11 @@ import CreateApostleEvent from '../CreateEvent';
 import CreateButton from 'utilComponents/CreateButton';
 import CircularLoader from 'utilComponents/Loader';
 import { useQuery } from '@apollo/client';
-import { GET_ALL_MESSAGES } from 'GraphQl/Queries';
+import { GET_ALL_PRAYERS } from 'GraphQl/Queries';
 import { capiitalizeFirstLetter, extractErrorMessage, formatDate, formatDate2, getDateFromWeek, processAlertError, truncateMultilineText } from 'utils';
 import InfoDivHeader from 'utilComponents/InfoDivHeader';
 
-const Messages = () => {
+const Prayers = () => {
     const initialState = {
         listView: true,
         rowsPerPage:10,
@@ -23,14 +23,14 @@ const Messages = () => {
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
 
     const {listView, page, isLoading, rowsPerPage, alertMessage,  showEditModal, dataArr} = state;
-    const { data, loading, error } = useQuery(GET_ALL_MESSAGES);
+    const { data, loading, error } = useQuery(GET_ALL_PRAYERS);
 
     useEffect(() => {
         if(data){
             setState({
-                dataArr: data?.getMessages,
+                dataArr: data?.getPrayers,
             });
-           
+           console.log(data);
            
         };
         if(!loading){
@@ -62,30 +62,15 @@ const Messages = () => {
                     <>
                         <div className="col-md-12 border-top py-3">
                             <div className='d-flex row align-items-start'>
-                                <div className='col-md-2'>
-                                    {datum?.image? (
-                                        <img 
-                                        className='img-fluid pointer'
-                                        src={datum?.image} 
-                                        alt="Message banner"
-                                    />
-                                    ):(
-                                        <img 
-                                        className='img-fluid pointer'
-                                        src='https://thumbs.dreamstime.com/z/smile-god-love-you-text-wood-cycle-face-40762828.jpg' 
-                                        alt="Message banner"
-                                    />
-                                    )}
-                                    
-                                </div>
+                                
                                 <div 
-                                    className='col-md-8 pointer'
-                                    onClick={()=> history.push(`/apostle-desk/viewmessage/${datum?._id}`) }
+                                    className='col-md-10 pointer'
+                                    onClick={()=> history.push(`/apostle-desk/viewprayer/${datum?._id}`) }
                                 >
-                                    <h5>{capiitalizeFirstLetter(datum?.title)}</h5>
+                                    <h6>{capiitalizeFirstLetter(datum?.title)}</h6>
                                     <p 
                                         className='small username text-muted' 
-                                        dangerouslySetInnerHTML={{ __html: truncateMultilineText(datum?.message, 240) || 'N/A' }}
+                                        dangerouslySetInnerHTML={{ __html: truncateMultilineText(datum?.subtitle, 240) || 'N/A' }}
                                     />
                                        
                                    
@@ -107,7 +92,7 @@ const Messages = () => {
                                                 </>
                                             }
                                             className="edit-action mr-3"
-                                            actionEvent={()=> history.push(`/apostle-desk/editmessage/${datum?._id}`)}
+                                            actionEvent={()=> history.push(`/apostle-desk/editprayer/${datum?._id}`)}
                                         />
 
                                         <ActionButton
@@ -131,8 +116,8 @@ const Messages = () => {
                 
             </div>
             <CreateButton
-                actionEvent={()=> history.push('/apostle-desk/createmessage') }
-                text={'Create Message'}
+                actionEvent={()=> history.push('/apostle-desk/create-prayer') }
+                text={'Create Prayer'}
                 float
             />
             
@@ -140,4 +125,4 @@ const Messages = () => {
     )
 };
 
-export default Messages;
+export default Prayers;

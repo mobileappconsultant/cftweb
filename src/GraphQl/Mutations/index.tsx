@@ -1,5 +1,10 @@
 import { gql } from "@apollo/client";
 
+export const MESSAGE_IMAGE_UPLOAD = gql`
+  mutation uploadMessageContentImage($messageId: String! $file: Upload!) {
+    uploadMessageContentImage(messageId: $messageId file: $file) 
+  }
+`;
 export const LOGIN = gql`
   mutation login($creds:  LoginInput!) {
     login(creds: $creds ) {
@@ -33,6 +38,36 @@ export const CONFIRM_PASSWORD = gql`
     }
   }
 `;
+export const UPDATE_PROFILE = gql`
+mutation updateadmin($input: AdminInput!){
+  updateadmin(input: $input) {
+    email
+    phone
+    full_name
+    code
+    role
+    status
+    createdAt
+    updatedAt
+
+  }
+}
+`;
+
+export const CREATE_ADMIN = gql`
+  mutation register($input: AdminInput!){
+      register(input: $input) {
+        email
+        phone
+        full_name
+        role
+        status
+        createdAt
+        updatedAt
+      }
+  }
+`;
+
 
 export const CREATE_BRANCH = gql`
   mutation createBranch($input:  BranchInput!) {
@@ -125,3 +160,21 @@ export const EDIT_MESSAGE = gql`
     }
   }
 `;
+// MESSAGES
+
+export const CREATE_PRAYER = gql`
+  mutation createPrayer($input: PrayerInput!) {
+    createPrayer(input: $input ) {
+      _id
+      title
+      subtitle
+      content
+      author
+      monthPublished
+      yearPublished
+      createdAt
+    }
+  }
+`;
+
+

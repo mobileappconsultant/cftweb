@@ -1,26 +1,37 @@
-import React, {useReducer} from 'react';
+import React, {useEffect, useReducer} from 'react';
 import AlertComponent from 'components/AlertComponent';
 import FormGroupInput from 'utilComponents/FormGroupInput';
 import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
 import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
+import { useSelector, useDispatch } from "react-redux";
+import { Dispatch } from "redux";
+import { useMutation } from '@apollo/client';
+import { UPDATE_PROFILE } from 'GraphQl/Mutations';
+import { addUser } from "store/actionCreators";
 const UpdateProfile = ():JSX.Element => {
     const initialState = {
         formData: {
-            name: '',
-            group_head:'',
+            email: '',
+            full_name: '',
+            phone:'',
+            role: '',
         },
         errors:{},
-        rowsPerPage:5,
-        page:0,
         alertMessage:{},
-        data:{},
         isLoading: false,
     };
+    // State
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, page, isLoading, alertMessage, errors} = state;
+    // Redux
+    const dispatch: Dispatch = useDispatch();
+    const reduxState = useSelector( (state:any) => state);
+    const{userObject} = reduxState?.reducer;
+    // GraphQL
+    const [updateProfile, { data, loading, error }] = useMutation(UPDATE_PROFILE);
+
+    
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
         setState({
@@ -37,13 +48,13 @@ const UpdateProfile = ():JSX.Element => {
 
     const validateFormData = async () => {
         const rules = {
-            'name': 'required',
-            'group_head' : 'required',   
+            'full_name': 'required',
+            'phone': 'required',
         };
 
-        const messages = {
-            'name.required': 'Group name is required',
-            'group_head.required': 'Group head is required',
+        const messages = {  
+            'full_name.required': 'Full name is required',
+            'phone.required': 'Phone number is required',
         };
         const validate = await validateData(formData, rules, messages);
         if (isObjectEmpty(validate)) {
@@ -67,10 +78,13 @@ const UpdateProfile = ():JSX.Element => {
             const validate = await validateFormData();
            
             if(validate){
-                await ApiRequestClient.post(apiRoutes.CREATE_GROUP, formData);  
+              
+                const response = await updateProfile({variables:{input: {full_name: formData?.full_name, phone: formData?.phone}}});
+                dispatch(addUser(response?.data?.updateadmin));
             };
             setState({
                 isLoading: false,
+                alertMessage: processAlertSuccess('Profile updated successfully'),
             }); 
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
@@ -86,6 +100,24 @@ const UpdateProfile = ():JSX.Element => {
             alertMessage:{},
         });
     };
+
+    useEffect(() => {
+    
+       setState({
+           formData:{
+                email: userObject?.email,
+                full_name: userObject?.full_name,
+                phone:userObject?.phone,
+                role: userObject?.role[0],
+           }
+       })
+        // Cleanup method
+        return () => {
+            setState({
+                ...initialState,
+            });
+        };
+    }, []);
 
     return(
         <>
@@ -112,22 +144,22 @@ const UpdateProfile = ():JSX.Element => {
                 <div className="col-md-6 mb-3">
                     <FormGroupInput
                         placeholder="Full name"
-                        value={formData?.name}
+                        value={formData?.full_name}
                         onChange={handleChange}
-                        name="name"
-                        showError={errors.name}
-                        errorMessage={errors.name}
+                        name="full_name"
+                        showError={errors.full_name}
+                        errorMessage={errors.full_name}
                     />
                 </div>
                 <div className="col-md-6 mb-3">
                     <FormGroupInput
                         placeholder="Email"
                         disabled={true}
-                        value={formData?.name}
+                        value={formData?.email}
                         onChange={handleChange}
                         name="name"
-                        showError={errors.name}
-                        errorMessage={errors.name}
+                        showError={errors.email}
+                        errorMessage={errors.email}
                     />
                 </div>
                 <div className="col-md-6 mb-3">

@@ -1,5 +1,6 @@
 import React, {useReducer} from 'react';
 import { Link } from 'react-router-dom';
+import Badges from 'utilComponents/Badges';
 import './usercard.scss';
 interface propsObject {
     name : string;
@@ -8,11 +9,26 @@ interface propsObject {
     avatar? : string;
     id? : string;
     role?: string;
+    active?: boolean;
   }
 const UserCard = (props: propsObject):JSX.Element => {
-    const {name, userName, time, role, avatar} = props;
+    const {name, userName, time, role, avatar, active} = props;
     return(
         <div className={`card user-card w-100 p-3 mb-3`}>   
+            <div className='d-flex justify-content-end'>
+                {active? (
+                    <Badges
+                        text={'Active'}
+                        type='success'
+                    />
+                ):(
+                    <Badges
+                        text={'Inactive'}
+                        type='pending'
+                    />
+                )}
+                
+            </div>
             <div className="d-flex align-items-center">
                 <div className="">
                     <img src={avatar} className="user-profile-img" />

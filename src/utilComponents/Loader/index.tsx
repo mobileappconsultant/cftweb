@@ -19,9 +19,9 @@ export  function DivLoader() {
   return (
     <div className=" div-loader text-center">
         {/* <Box sx={{ display: 'flex' }}> */}
-          <div className='mt-5 pt-3' />
+          <div className='mt-5  mb-5 pt-3' />
             <CircularProgress 
-                className="mt-5"
+                className="mt-5 mb-5"
                 size={70}
                 thickness={5}
             />

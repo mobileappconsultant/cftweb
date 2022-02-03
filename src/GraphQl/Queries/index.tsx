@@ -27,7 +27,7 @@ export const GET_ALL_GROUPS = gql`
       group_head
       members{
         email
-        userID
+        id
         phone
         full_name
         church_group
@@ -52,7 +52,7 @@ export const GET_SINGLE_GROUP = gql`
       group_head
       members{
         email
-        userID
+        id
         phone
         full_name
         church_group
@@ -73,7 +73,6 @@ export const GET_ALL_ADMINS = gql`
   query AdminDTO{
     getAllAdmin{
       email
-      password
       phone
       full_name
       role
@@ -89,8 +88,8 @@ export const GET_ALL_ADMINS = gql`
 export const GET_ALL_MEMBERS = gql`
   query UserDTO{
     getAllMembers{
+      id
       email
-      userID
       phone
       full_name
       church_group
@@ -189,4 +188,49 @@ export const GET_BIBLE_PASSAGE = gql`
       text
     }
   }
+`;
+
+// Prayers
+export const GET_ALL_PRAYERS = gql`
+query PrayerDTO {
+  getPrayers {
+    _id
+    title
+    subtitle
+    content
+    author
+    monthPublished
+    yearPublished
+    createdAt
+  }
+}
+`;
+
+export const GET_SINGLE_PRAYER = gql`
+query PrayerDTO  ($prayerId: String!) {
+  getPrayer(prayerId: $prayerId) {
+    _id
+    title
+    subtitle
+    content
+    author
+    dailyPrayers{
+      day
+      subtitle
+      scripture{
+        text
+        refrence
+      }
+      heading
+      content
+      supportingVerse
+      prayer_points
+      prayerMannerId
+      createdAt
+    }
+    monthPublished
+    yearPublished
+    createdAt
+  }
+}
 `;

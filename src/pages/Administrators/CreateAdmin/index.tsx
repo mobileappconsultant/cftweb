@@ -9,7 +9,8 @@ import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
 import FormGroupSelect from 'utilComponents/FormGroupSelect';
-
+import { useMutation } from '@apollo/client';
+import { CREATE_ADMIN } from 'GraphQl/Mutations';
 
 const CreateAdmin = (props: any):JSX.Element => {
     const initialState = {
@@ -28,6 +29,8 @@ const CreateAdmin = (props: any):JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage, errors, showModal} = state;
+    // Graphql
+    const [createNewAdmin, { data, loading, error }] = useMutation(CREATE_ADMIN); 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -114,8 +117,12 @@ const CreateAdmin = (props: any):JSX.Element => {
         try {
             const validate = await validateFormData();
             if(validate){
-                await ApiRequestClient.post(apiRoutes.CREATE_ADMIN, formData);  
-                
+                const payload = {
+                    ...formData,
+                    role: formData?.role
+                };
+                await createNewAdmin({variables:{input: payload}})
+               
                 refreshForm();
                 props.addAlert(processAlertSuccess('Admin added successfully'));
                 handleModalToggle();

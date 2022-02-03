@@ -243,6 +243,7 @@ import Messages from './Messages';
 import { extractErrorMessage, formatDate, formatDate2, getDateFromWeek, processAlertError } from 'utils';
 import Badges from 'utilComponents/Badges';
 import { history } from 'helpers';
+import Prayers from './Prayers';
 const Requests = ():JSX.Element => {
     const initialState = {
         activeTab: 0,
@@ -264,13 +265,8 @@ const Requests = ():JSX.Element => {
         },
         {
             path:'/requests',
-            component: <></>,
+            component: <><Prayers /></>,
             title: 'Prayers',
-        },
-        {
-            path:'/requests',
-            component: <> </>,
-            title: 'Daily prayers',
         }
     ]
 

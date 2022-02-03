@@ -10,7 +10,9 @@
   overflow-y: auto;
   max-height: 80vh;
 }
-
+.font-italic {
+  font-style: italic!important;
+}
 .min-height-80{
   min-height: 80vh;
 }
@@ -378,5 +380,20 @@ ol, ul {
   box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2), 0px 1px 18px rgba(0, 0, 0, 0.12), 0px 6px 10px rgba(0, 0, 0, 0.14);
   border-radius: 4px;
   color: white;
+}
+.upload-img-icon{
+  top:10%;
+  right: 3%;
+  z-index: 1000;
+}
+.message-img-container{
+  max-height: 50vh;
+  width: 100%;
+}
+.message-img-container img{
+  width: 100% !important;
+  max-height: 50vh;
+  object-fit: contain;
+  // object-fit: fill;
 }
 

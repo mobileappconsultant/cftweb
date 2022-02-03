@@ -118,11 +118,10 @@ class DropZone extends Component{
 
                     <div className="w-100 text-center" id="empty-drop" onClick={(e)=>this.emptyFileInputClicked(e)}>
                         <img src={pictureIcon}  width={80} height={80} />
-                        {/* <div className="dz-message needsclick">
-                            <i className="fa fa-picture-o fa-5x" aria-hidden="true"/>
-                        </div> */}
+                        
                         <h6 className="mt-3 text-muted">Drag and drop a cover photo here</h6>
                         <span className="text-center text-muted">OR</span>
+                        <h6 className="mt-3 text-muted">Click to upload picture</h6>
                     </div>
                 )}
                 

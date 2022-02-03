@@ -11,6 +11,7 @@ import TableComponent from 'utilComponents/Table';
 import { GROUP_MEMBERS_HEADERS } from 'constants/tableHeaders';
 import {TableRow, TableCell} from '@mui/material';
 import CreateButton from 'utilComponents/CreateButton';
+import AddUserToGroup from './AddUserToGroup';
 
 const ViewGroup = (props:any): JSX.Element => {
     const initialState = {
@@ -18,10 +19,11 @@ const ViewGroup = (props:any): JSX.Element => {
         alertMessage:{},
         groupData:{},
         showEditModal: false,
+        showAddUserModal: false,
         
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {groupData, isLoading, showEditModal } = state;
+    const {groupData, isLoading, showEditModal, showAddUserModal } = state;
     const { data, loading, error } = useQuery(GET_SINGLE_GROUP, {
         variables: { groupId: props?.group?.id}
     });
@@ -58,6 +60,18 @@ const ViewGroup = (props:any): JSX.Element => {
     const toggleEditModal = () => {
         setState({
             showEditModal: !showEditModal,
+        });
+    };
+
+    const toggleAddUserModal = () => {
+        setState({
+            showAddUserModal: !showAddUserModal,
+        });
+    };
+
+    const addAlert = (alert:any) => {
+        setState({
+            alertMessage: alert,
         });
     };
    
@@ -144,7 +158,7 @@ const ViewGroup = (props:any): JSX.Element => {
                     <div className="col-md-12 p-0 d-flex justify-content-end">
                         <span 
                             className={` pointer edit-button`}  
-                            onClick={toggleEditModal}
+                            onClick={toggleAddUserModal}
                         >   
                             <UserPlus
                                 className="button-icon"
@@ -193,6 +207,16 @@ const ViewGroup = (props:any): JSX.Element => {
                 </TableComponent>
                 </div>
                 
+            </>
+        )}
+        {showAddUserModal && (
+            <>
+                <AddUserToGroup
+                     showModal={showAddUserModal}
+                     toggleModal={toggleAddUserModal}
+                     groupId={props?.group?.id}
+                     addAlert={addAlert}
+                />
             </>
         )}
         </>

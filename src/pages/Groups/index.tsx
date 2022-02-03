@@ -184,7 +184,7 @@ const Groups = ():JSX.Element => {
                                         </div>
                                         <div className="user-name px-2">
                                             <h6 className="m-0 name">{datum?.name}</h6>
-                                            <span className="small email">{formatInitialDateValue(datum?.createdAt)}</span>
+                                            <span className="small email">{formatInitialDateValue(new Date(parseInt(datum?.createdAt)))}</span>
                                         </div>
                                     </div>
                                     <div className="justify-content-end py-0 my-0 pt-1 ">

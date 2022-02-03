@@ -1,8 +1,7 @@
 import React, {useReducer, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes, roleOptions , apostleDeskCategoryOptions} from 'constants/index';
-import { extractErrorMessage, formatDate, isNotEmptyArray, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop, capiitalizeFirstLetter } from 'utils';
+import {  apostleDeskCategoryOptions} from 'constants/index';
+import { extractErrorMessage, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop, capiitalizeFirstLetter } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
@@ -11,16 +10,14 @@ import { history, validateData } from 'helpers';
 import PageTitle from 'components/PageTitle';
 import TextEditor from 'utilComponents/TextEditor';
 import ReactTagInput from "@pathofdev/react-tag-input";
-import { CirclePlus, TrashOff, Variable } from 'tabler-icons-react';
 import "@pathofdev/react-tag-input/build/index.css";
-import FormGroupTextarea from 'utilComponents/FormGroupTextarea';
 import { useMutation, useQuery } from '@apollo/client';
 import { EDIT_MESSAGE } from 'GraphQl/Mutations';
 import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
-import { GET_SINGLE_MESSAGE } from 'GraphQl/Queries';
-import CircularLoader from 'utilComponents/Loader';
+import { GET_ALL_ADMINS, GET_SINGLE_MESSAGE } from 'GraphQl/Queries';
+import { DivLoader } from 'utilComponents/Loader';
 
 const EditApostleMessage = (props: any):JSX.Element => {
   
@@ -31,24 +28,25 @@ const EditApostleMessage = (props: any):JSX.Element => {
             minister: '',
             bibleReading:[],
             category:'',
+            prayer_point:'',
 
         },
         payload:{},
-        prayers:[''],
         errors:{},
-        prayerErrors:{},
         bibleVerseData:[],
-        isLoading: false,
+        isLoading: true,
         alertMessage:{},
         preview: false,
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const [createNewMessage, loadingParams] = useMutation(EDIT_MESSAGE); 
-    const {formData, isLoading, alertMessage, errors, preview, adminData, prayers, prayerErrors, bibleVerseData} = state;
+    const {formData, isLoading, alertMessage, errors, preview, adminData, bibleVerseData} = state;
     const { data, loading, error } = useQuery(GET_SINGLE_MESSAGE, {
         variables: { messageId: props?.match?.params?.id}
     }); 
+    const adminDataQuery = useQuery(GET_ALL_ADMINS);
+    
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
         
@@ -63,18 +61,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
             }
         });
     };
-    const handlePrayerChange = (e: React.ChangeEvent<HTMLInputElement> , index: number) :void  => {
-        const {value} = e.target;
-        prayers[index] = value;
-
-        setState({
-            prayers:[...prayers],
-            prayerErrors:{
-                ...state.prayerErrors,
-                [index]: '',
-            }
-        });
-    };
+    
     const handleSelectChange = (e:{label?: string, value?: string|null|number}, name = '') :void  => {
         if (e) {
             setState({
@@ -117,6 +104,19 @@ const EditApostleMessage = (props: any):JSX.Element => {
         });
     };
 
+    const handlePrayerPointChange = (data: any) => {
+        setState({
+            formData:{
+                ...formData,
+                prayer_point: data,
+            },
+            errors:{
+                ...state.errors,
+                prayer_point: '',
+            }
+        });
+    };
+
     
     const validateFormData = async () => {
         const newFormData = {...formData};
@@ -127,6 +127,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
             'minister': 'required',
             'message':'required',
             'bible_verse': 'required',
+            'prayer_point': 'required',
         };
 
         const messages = {
@@ -134,24 +135,17 @@ const EditApostleMessage = (props: any):JSX.Element => {
             'category.required': 'Select a category',
             'minister.required': 'Select a minister',
             'message.required': 'Message required',
-            'bible_verse.required': 'Bible reading required'
+            'bible_verse.required': 'Bible reading required',
+            'prayer_point.required': 'Prayer points required',
         };
         const validate = await validateData(newFormData, rules, messages);
-        const getPrayerErrors:any = {};
         
-        for (let index = 0; index < prayers.length; index++) {
-            const element = prayers[index];
-            if(!element){
-                getPrayerErrors[index] = 'This field is required';
-            }
-        };
      
-        if ((isObjectEmpty(validate) && (isObjectEmpty(getPrayerErrors)))) {
+        if (isObjectEmpty(validate)) {
             return true;
         } else {
             setState({
                 errors: validate,
-                prayerErrors: getPrayerErrors,
             });
             return false;
         }
@@ -180,7 +174,6 @@ const EditApostleMessage = (props: any):JSX.Element => {
             const payload = {
                 ...formData,
                 bibleReading:bibleVerseData,
-                prayer_point: prayers,
             };
             await createNewMessage({variables:{messageId: props?.match?.params?.id, input: payload}});
             setState({
@@ -203,45 +196,6 @@ const EditApostleMessage = (props: any):JSX.Element => {
         setState({
             alertMessage:{},
         });
-    };
-
-    const fetchData = async () => {
-        setState({
-            isLoading: true,
-        });
-
-        try {
-            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_ADMINS);
-            for (let index = 0; index < response?.data?.data.length; index++) {
-                const element = response?.data?.data[index];
-                element.label = element?.full_name;
-                element.value = element?.full_name;
-            };
-            setState({
-                adminData: response?.data?.data,
-                isLoading: false,
-            });
-        } catch (error) {
-            setState({
-                isLoading: false,
-            });
-        }
-
-    };
-
-    const addPrayer = () => {
-        setState({
-            prayers:[...prayers, '']
-        })
-    };
-
-    const removePrayer = (prayerIndex: number) => {
-        prayers.splice(prayerIndex, 1);
-        delete prayerErrors[prayerIndex];
-        setState({
-            prayers: [...prayers],
-            prayerErrors:{...prayerErrors},
-        })
     };
 
     const upDateBibleVerseText = (bibleVerseObj:any, index:number) => {
@@ -271,6 +225,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                     minister: response?.minister,
                     bibleReading: getBibleReading(),
                     category: response?.category,
+                    prayer_point: response?.prayer_point,
                 },
                 prayers: response?.prayer_point,
             });
@@ -290,7 +245,6 @@ const EditApostleMessage = (props: any):JSX.Element => {
             })
         }
 
-        fetchData();
         // Cleanup method
         return () => {
             setState({
@@ -298,6 +252,43 @@ const EditApostleMessage = (props: any):JSX.Element => {
             });
         };
     }, [data]);
+
+    useEffect(() => {
+        
+        if(adminDataQuery.data){
+            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin)) ;
+            for (let index = 0; index < adminList.length; index++) {
+                const element = adminList[index];
+                element.label = element?.full_name;
+                element.value = element?.full_name;
+            };
+            setState({
+                adminData: adminList,
+            
+            });
+        
+        };
+        // if(!adminDataQuery.loading){
+        //     setState({
+        //         isLoading: false,
+        //     });
+        // };
+
+        if(adminDataQuery.error){
+            
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
+            })
+        }
+
+        // Cleanup method
+        return () => {
+            setState({
+                ...initialState,
+            });
+        };
+    }, [adminDataQuery.data]);
+
 
     return(
         <>
@@ -322,7 +313,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                 <div className='bg-white shadow-sm p-3'>
                 {isLoading? (
                     <>
-                        <CircularLoader />
+                        <DivLoader />
                     </>
                 ):(
                     <>
@@ -341,6 +332,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                                         />
                                     </div>
                                     <div className="col-md-6 mb-4">
+                                        
                                         <FormGroupSelect
                                             placeholder="Select category"
                                             onChange={(e: object)=>handleSelectChange(e, 'category')}
@@ -393,55 +385,20 @@ const EditApostleMessage = (props: any):JSX.Element => {
                                     </div>
                                     <div className="col-md-12 mb-3">
                                 
-                                        <h6 className='mb-4'>Add prayers to message
-                                        <button
-                                            className={`border-0 pointer edit-button mx-3 pb-1 px-1`}  
-                                            onClick={()=>{addPrayer()}}
-                                        >   
-                                            <CirclePlus
-                                                className="button-icon "
-                                                size={20}
-                                                strokeWidth={1.5}
-                                                color={'#FFF'}
+                                        <h6 className='mb-2'>Add prayers to message</h6>
+                                        <div className="col-md-12 mb-2">
+                                            <TextEditor
+                                                //@ts-ignore
+                                                text={formData?.prayer_point}
+                                                handleChange={handlePrayerPointChange}
+                                                placeholder="Type prayer points"
                                             />
-                                        </button> 
-                                        
-                                        </h6>
-                                        {prayers.map((prayer:string, _i:number)=>{
-                                            return(
-                                                <div className='row'>
-                                                    <div className="col-md-12 mb-2">
-                                                        <h6 className='d-flex align-items-center'>Prayer point {_i + 1}
-                                                        {_i !== 0 && (
-                                                            <button
-                                                            className={`border-0 pointer edit-button mx-3 pb-1 px-1`}  
-                                                            onClick={()=>{removePrayer(_i)}}
-                                                                >   
-                                                                    <TrashOff
-                                                                        className="button-icon "
-                                                                        size={20}
-                                                                        strokeWidth={1.5}
-                                                                        color={'#FFF'}
-                                                                    />
-                                                                </button> 
-                                                        )}
-                                                        
-                                                        </h6>
-                                                    </div>
-                                                    <div className="col-md-12 mb-4">
-                                                        <FormGroupTextarea
-                                                            placeholder="Prayer point"
-                                                            value={prayer}
-                                                            onChange={(e:any)=>handlePrayerChange(e, _i)}
-                                                            name="prayer"
-                                                            showError={prayerErrors[_i]}
-                                                            errorMessage={prayerErrors[_i]}
-                                                        />
-                                                    </div> 
+                                            {errors.prayer_point && (
+                                                <div className="small w-100 text-left text-danger">
+                                                    {errors.prayer_point}
                                                 </div>
-                                            )
-                                        })}
-
+                                            )}
+                                        </div>
                                     
                                     </div>
                                     <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
@@ -515,16 +472,13 @@ const EditApostleMessage = (props: any):JSX.Element => {
                                     <div className="user-name px-2 mt-4">
                                         <h5 className="m-0 name">Prayer points</h5>
                                     </div>
-                                    {prayers.map((prayer:string, _i:number)=>{
-                                        return(
-                                            <>
-                                                <div className='mt-3 small'>
-                                                    <li>{prayer}</li>
-                                                </div>
-                                            </>
-                                        )
-                                    })}
+                                    <div 
+                                        className="text-dark mt-1 small px-2"
+                                        dangerouslySetInnerHTML={{ __html: formData?.prayer_point || 'N/A' }}       
+                                    /> 
+                                    
                                 </div>
+
 
                                 <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
                                     <CreateButton
