@@ -18,6 +18,7 @@ import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
 import { GET_ALL_ADMINS, GET_SINGLE_MESSAGE } from 'GraphQl/Queries';
 import { DivLoader } from 'utilComponents/Loader';
+import CloseButton from 'components/CloseButton';
 
 const EditApostleMessage = (props: any):JSX.Element => {
   
@@ -43,7 +44,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
     const [createNewMessage, loadingParams] = useMutation(EDIT_MESSAGE); 
     const {formData, isLoading, alertMessage, errors, preview, adminData, bibleVerseData} = state;
     const { data, loading, error } = useQuery(GET_SINGLE_MESSAGE, {
-        variables: { messageId: props?.match?.params?.id}
+        variables: { messageId: props?.messageId}
     }); 
     const adminDataQuery = useQuery(GET_ALL_ADMINS);
     
@@ -175,7 +176,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                 ...formData,
                 bibleReading:bibleVerseData,
             };
-            await createNewMessage({variables:{messageId: props?.match?.params?.id, input: payload}});
+            await createNewMessage({variables:{messageId: props?.messageId, input: payload}});
             setState({
                 alertMessage:  processAlertSuccess('Message updated successfully'),
             });
@@ -293,10 +294,16 @@ const EditApostleMessage = (props: any):JSX.Element => {
     return(
         <>
             {!preview && (
-                 <div className="row justify-content-between align-items-end">
-                    <div className="col-md-6">
-                        <PageTitle text='Edit Message' />
-                    </div>
+                < div className="row justify-content-between align-items-start pt-4 px-4">
+                 <div className="col-md-6">
+                     <PageTitle text='Edit Message' />
+                 </div>
+                 <div className="col-md-6 d-flex justify-content-end">
+                     <CloseButton 
+                         close={props.close}
+                     />
+                 </div>
+                 
                 </div>
             )}
            
@@ -310,7 +317,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                         />
                     </>
                 )}
-                <div className='bg-white shadow-sm p-3'>
+                <div className=''>
                 {isLoading? (
                     <>
                         <DivLoader />
@@ -319,9 +326,9 @@ const EditApostleMessage = (props: any):JSX.Element => {
                     <>
                         {!preview? (
                             <>
-                                <div className="row  pt-4">
+                                <div className="row  pt-4 px-4">
                                     <div className="col-md-6 mb-4">
-                                        {console.log(formData?.title)}
+                                        
                                         <FormGroupInput
                                             placeholder="Title of message"
                                             value={formData?.title}

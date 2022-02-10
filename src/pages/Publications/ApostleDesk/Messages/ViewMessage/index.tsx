@@ -10,6 +10,7 @@ import { GET_SINGLE_MESSAGE } from 'GraphQl/Queries';
 import { DivLoader } from 'utilComponents/Loader';
 import UploadMessageImage from './UploadMessageImage';
 import { EditCircle } from 'tabler-icons-react';
+import CloseButton from 'components/CloseButton';
 
 const ViewApostleMessage = (props: any):JSX.Element => {
     const initialState = {
@@ -32,7 +33,7 @@ const ViewApostleMessage = (props: any):JSX.Element => {
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage,  preview, showImageModal, bibleVerseData} = state;
     const { data, loading, error } = useQuery(GET_SINGLE_MESSAGE, {
-        variables: { messageId: props?.match?.params?.id}
+        variables: { messageId: props?.messageId}
     }); 
     
     const upDateBibleVerseText = (bibleVerseObj:any, index:number) => {
@@ -110,11 +111,17 @@ const ViewApostleMessage = (props: any):JSX.Element => {
     return(
         <>
             {!preview && (
-                 <div className="row justify-content-between align-items-end">
-                    <div className="col-md-6">
-                        <PageTitle text='View Message' />
-                    </div>
+                <div className="row justify-content-between align-items-start pt-3">
+                <div className="col-md-6">
+                    <PageTitle text='View Message' />
                 </div>
+                <div className="col-md-6 d-flex justify-content-end">
+                    
+                    <CloseButton 
+                        close={props.close}
+                    />
+                </div>
+            </div>
             )}
            
             <>
@@ -127,7 +134,7 @@ const ViewApostleMessage = (props: any):JSX.Element => {
                         />
                     </>
                 )}
-                <div className='bg-white shadow-sm p-3'>
+                <div className='p-3'>
                 {isLoading? (
                     <>
                         <DivLoader />
@@ -136,10 +143,8 @@ const ViewApostleMessage = (props: any):JSX.Element => {
                     <>
                         
                         <div className='row p-4'>
-                            <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
-                                <div>
-                                    <PageTitle text='Apostle desk' />
-                                </div>
+                            {/* <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
+                               
                                 <div className='username small text-muted'>
                                     <li>{formData?.category}</li>
                                 </div>
@@ -150,7 +155,7 @@ const ViewApostleMessage = (props: any):JSX.Element => {
                                     />
                                 </>
                                 
-                            </div>
+                            </div> */}
                             <div className='col-md-8  d-flex position-relative'>
                                 {formData?.image? (
                                     <div className='message-img-container'> 
@@ -239,7 +244,7 @@ const ViewApostleMessage = (props: any):JSX.Element => {
             <UploadMessageImage 
                 showModal={showImageModal}
                 toggleModal={toggleUploadImageModal}
-                messageId={ props?.match?.params?.id}
+                messageId={ props?.messageId}
                 addAlert={addAlert}
             />
         )}

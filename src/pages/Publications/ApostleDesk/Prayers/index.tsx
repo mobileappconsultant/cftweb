@@ -2,7 +2,7 @@ import React, {useEffect, useReducer} from 'react';
 import Badges from 'utilComponents/Badges';
 import { history } from 'helpers';
 import ActionButton from 'utilComponents/ActionButton';
-import CreateApostleEvent from '../CreateEvent';
+import CreateApostleEvent from './CreatePrayer';
 import CreateButton from 'utilComponents/CreateButton';
 import CircularLoader from 'utilComponents/Loader';
 import { useQuery } from '@apollo/client';
@@ -56,7 +56,7 @@ const Prayers = () => {
 
     return(
         <>
-            <div className="row  py-4 px-4"> 
+            <div className="row  py-4"> 
             {dataArr.map((datum: any, _i:number) => {
                 return(
                     <>
@@ -67,10 +67,10 @@ const Prayers = () => {
                                     className='col-md-10 pointer'
                                     onClick={()=> history.push(`/apostle-desk/viewprayer/${datum?._id}`) }
                                 >
-                                    <h6>{capiitalizeFirstLetter(datum?.title)}</h6>
+                                    <h6 className='apostle-desk-post-header'>{capiitalizeFirstLetter(datum?.title)}</h6>
                                     <p 
-                                        className='small username text-muted' 
-                                        dangerouslySetInnerHTML={{ __html: truncateMultilineText(datum?.subtitle, 240) || 'N/A' }}
+                                        className='apostle-desk-post-body'  
+                                        dangerouslySetInnerHTML={{ __html: truncateMultilineText(datum?.subtitle, 300) || 'N/A' }}
                                     />
                                        
                                    

@@ -19,6 +19,7 @@ import { CREATE_MESSAGE } from 'GraphQl/Mutations';
 import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
+import CloseButton from 'components/CloseButton';
 
 const CreateApostleMessage = (props: any):JSX.Element => {
     
@@ -243,9 +244,14 @@ const CreateApostleMessage = (props: any):JSX.Element => {
     return(
         <>
             {!preview && (
-                 <div className="row justify-content-between align-items-end">
+                 <div className="row justify-content-between align-items-start pt-3">
                     <div className="col-md-6">
                         <PageTitle text='Create Message' />
+                    </div>
+                    <div className="col-md-6 d-flex justify-content-end">
+                        <CloseButton 
+                            close={props.close}
+                        />
                     </div>
                 </div>
             )}
@@ -260,11 +266,11 @@ const CreateApostleMessage = (props: any):JSX.Element => {
                         />
                     </>
                 )}
-                <div className='bg-white shadow-sm p-3'>
+                <div className=''>
 
                 {!preview? (
                     <>
-                        <div className="row  pt-4">
+                        <div className="row  pt-2">
                             <div className="col-md-6 mb-4">
                                 <FormGroupInput
                                     placeholder="Title of message"

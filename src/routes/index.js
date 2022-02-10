@@ -1,4 +1,5 @@
 import React from 'react';
+import PrivacyPolicy from 'pages/Legal/PrivacyPolicy';
 import Login from 'pages/Authentication/Login';
 import ForgotPassword from 'pages/Authentication/ForgotPassword';
 import Register from 'pages/Authentication/Register';
@@ -17,19 +18,13 @@ import CreateAnnouncement from 'pages/Announcement/CreateAnnouncement';
 import Calendar from 'pages/Calendar';
 import CreateCalendarEvent from 'pages/Calendar/CreateCalendarEvent';
 import { Redirect } from 'react-router-dom';
-import ApostleDesk from 'pages/ApostleDesk';
-import ViewApostleEvent from 'pages/ApostleDesk/ViewApostleEvent';
+import Publications from 'pages/Publications';
 import Transactions from 'pages/Transactions';
 import Merchandise from 'pages/Merchandise';
 import EditEvent from 'pages/Calendar/EditCalendarEvent';
-import CreateApostleMessage from 'pages/ApostleDesk/Messages/CreateMessage';
-import EditApostleMessage from 'pages/ApostleDesk/Messages/EditMessage';
-import ViewApostleMessage from 'pages/ApostleDesk/Messages/ViewMessage';
-import CreateApostlePrayer from 'pages/ApostleDesk/Prayers/CreatePrayer';
-import ViewApostlePrayer from 'pages/ApostleDesk/Prayers/ViewPrayer';
-import EditApostlePrayer from 'pages/ApostleDesk/Prayers/EditPrayer';
+import Terms from 'pages/Legal/Terms';
 
-export const publicRoutes = [
+export const authRoutes = [
 	{path: '/', component: () => <Redirect to="/login" />},
 	{ path: "/login", component: Login },
 	{ path: "/forgotpassword", component: ForgotPassword },
@@ -37,6 +32,12 @@ export const publicRoutes = [
 	{ path: "/resetpassword", component: ResetPassword},
 	{ path: '/change-password/:token', component: <> Token</>},
 	{ path: "/register", component: Register},
+
+];
+
+export const publicRoutes = [
+	{ path:	"/privacy-policy", component: PrivacyPolicy},
+	{ path: "/terms-and-conditions", component: Terms}
 
 ];
 
@@ -55,14 +56,7 @@ export const privateRoutes = [
 	{path:"/calendar", exact: true, component: Calendar},
 	{path:"/calendar/create-event", exact: true, component: CreateCalendarEvent},
 	{path:"/calendar/edit-event/:id", exact: true, component: EditEvent},
-	{path:"/apostle-desk", exact: true, component: ApostleDesk},
-	{path:"/apostle-desk/createmessage", exact: true, component: CreateApostleMessage},
-	{path:"/apostle-desk/editmessage/:id", exact: true, component: EditApostleMessage},
-	{path:"/apostle-desk/viewmessage/:id", exact: true, component: ViewApostleMessage},
-	{path:"/apostle-desk/create-prayer", exact: true, component: CreateApostlePrayer},
-	{path:"/apostle-desk/editprayer/:id", exact: true, component: EditApostlePrayer},
-	{path:"/apostle-desk/viewprayer/:id", exact: true, component: ViewApostlePrayer},
-	{path:"/apostle-desk/:id", exact: true, component: ViewApostleEvent},
+	{path:"/publications", exact: true, component: Publications},
 	{path:"/transactions", exact: true, component: Transactions},
 	{path:"/merchandise", exact: true, component: Merchandise},
 ];

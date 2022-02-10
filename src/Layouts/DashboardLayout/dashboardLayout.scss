@@ -145,8 +145,8 @@
 .sidebar-navlink{
   font-style: normal;
   font-weight: 500;
-  font-size: 14px;
-  line-height: 25px;
+  font-size: 13.8px;
+  line-height: 19px;
   letter-spacing: 0.01em;
   color: rgba(10, 48, 122, 0.5);
   text-decoration: none;
@@ -395,5 +395,12 @@ ol, ul {
   max-height: 50vh;
   object-fit: contain;
   // object-fit: fill;
+}
+
+.close-button{
+  border: none;
+  background-color: rgb(223, 85, 85);
+  border-radius: 10px;
+  font-size: 14px;
 }
 

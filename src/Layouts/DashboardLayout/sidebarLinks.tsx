@@ -59,10 +59,10 @@ export const sideBarRoutes = [
                 match:/^\/announcements/,
             },
             {
-                text: 'Apostles Desk',
+                text: 'Publications',
                 icon: <Table />,
-                path:'/apostle-desk',
-                match:/^\/apostle-desk/,
+                path:'/publications',
+                match:/^\/publications/,
             },
             {
                 text: 'Calendar',

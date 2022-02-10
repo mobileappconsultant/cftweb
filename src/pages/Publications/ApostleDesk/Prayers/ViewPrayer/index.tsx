@@ -16,7 +16,7 @@ import { EDIT_MESSAGE } from 'GraphQl/Mutations';
 import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
-import { GET_ALL_ADMINS, GET_SINGLE_MESSAGE } from 'GraphQl/Queries';
+import { GET_ALL_ADMINS, GET_SINGLE_MESSAGE, GET_SINGLE_PRAYER } from 'GraphQl/Queries';
 import { DivLoader } from 'utilComponents/Loader';
 
 const ViewApostlePrayer = (props: any):JSX.Element => {
@@ -42,8 +42,8 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const [createNewMessage, loadingParams] = useMutation(EDIT_MESSAGE); 
     const {formData, isLoading, alertMessage, errors, preview, adminData, bibleVerseData} = state;
-    const { data, loading, error } = useQuery(GET_SINGLE_MESSAGE, {
-        variables: { messageId: props?.match?.params?.id}
+    const { data, loading, error } = useQuery(GET_SINGLE_PRAYER, {
+        variables: { prayerId: props?.match?.params?.id}
     }); 
     const adminDataQuery = useQuery(GET_ALL_ADMINS);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {

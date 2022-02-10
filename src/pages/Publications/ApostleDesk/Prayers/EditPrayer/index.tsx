@@ -16,6 +16,7 @@ import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import CustomDatePicker from 'utilComponents/DatePicker';
 import moment from 'moment';
+import CircularLoader from 'utilComponents/Loader';
 
 const EditApostlePrayer = (props: any):JSX.Element => {
     
@@ -30,7 +31,7 @@ const EditApostlePrayer = (props: any):JSX.Element => {
         },
         payload:{},
         errors:{},
-        isLoading: false,
+        isLoading: true,
         alertMessage:{},
         preview: false,
 
@@ -196,6 +197,27 @@ const EditApostlePrayer = (props: any):JSX.Element => {
     }
 
     useEffect(() => {
+        if(prayerQuery.data){
+            const{getPrayer} = prayerQuery?.data;
+            setState({
+                formData:{
+                    title: getPrayer?.title,
+                    subtitle: getPrayer?.subtitle,
+                    author: getPrayer?.author,
+                    content: getPrayer?.content,
+                },
+                
+                date: null,
+                isLoading: false,
+            });
+        };
+        if(prayerQuery.error){
+            
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(prayerQuery.error)),
+                isLoading: false,
+            })
+        }
 
         // Cleanup method
         return () => {
@@ -203,7 +225,7 @@ const EditApostlePrayer = (props: any):JSX.Element => {
                 ...initialState,
             });
         };
-    }, []);
+    }, [prayerQuery.data]);
 
     useEffect(() => {
         
@@ -216,20 +238,20 @@ const EditApostlePrayer = (props: any):JSX.Element => {
             };
             setState({
                 adminData: adminList,
-            
             });
         
         };
-        // if(!adminDataQuery.loading){
-        //     setState({
-        //         isLoading: false,
-        //     });
-        // };
+        if(!adminDataQuery.loading){
+            // setState({
+            //     isLoading: false,
+            // });
+        };
 
         if(adminDataQuery.error){
             
             setState({
                 alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
+                isLoading: false,
             })
         }
 
@@ -246,7 +268,7 @@ const EditApostlePrayer = (props: any):JSX.Element => {
             {!preview && (
                  <div className="row justify-content-between align-items-end">
                     <div className="col-md-6">
-                        <PageTitle text='Create Prayer' />
+                        <PageTitle text='Update Prayer' />
                     </div>
                 </div>
             )}
@@ -261,9 +283,14 @@ const EditApostlePrayer = (props: any):JSX.Element => {
                         />
                     </>
                 )}
-                <div className='bg-white shadow-sm p-3'>
-
-                {!preview? (
+                 <div className='bg-white shadow-sm p-3'>
+                {isLoading ? (
+                    <>
+                        <CircularLoader />
+                    </>
+                ):(
+                    <>
+                        {!preview? (
                     <>
                         <div className="row  pt-4">
                             <div className="col-md-12 mb-4">
@@ -399,6 +426,11 @@ const EditApostlePrayer = (props: any):JSX.Element => {
 
                     </div>
                 )}
+                    </>
+                )}
+               
+
+                
                 
                 </div>
             </>
