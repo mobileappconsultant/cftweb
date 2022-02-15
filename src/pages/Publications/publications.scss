@@ -101,3 +101,37 @@
     line-height: 14px;
     color: rgba(0, 0, 0, 0.5);
 }
+
+// Daliy prayer box
+.daily-prayer-box-container{
+    display: flex;
+    gap: 30px;
+
+    .daily-prayer-box{
+        width: 40px;
+        height: 40px;
+        border-radius: 5px;
+        background-color:  rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #C4C4C4;
+        div{
+            width: 100%;
+        }
+    }
+    .active{
+       border: 1px solid rgba(0, 0, 0, 0.5);
+       background-color: white;
+       color: rgba(0, 0, 0, 0.5);
+    }
+}
+
+
+// Bible study
+.bible-study{
+
+    .gap-20{
+        gap: 20px;
+    }
+}

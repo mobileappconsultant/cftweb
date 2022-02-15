@@ -1,13 +1,9 @@
 
 import PageTitle from 'components/PageTitle';
 import React, {useReducer} from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowBigDown } from 'tabler-icons-react';
 import './publications.scss';
 
 import { extractErrorMessage, formatDate, formatDate2, getDateFromWeek, processAlertError } from 'utils';
-import Badges from 'utilComponents/Badges';
-import { history } from 'helpers';
 import Prayers from './ApostleDesk/Prayers';
 
 // icons
@@ -17,6 +13,8 @@ import bibleStudyIcon from 'assets/images/book-one.svg';
 import dailyBibleReadingIcon from 'assets/images/sunny.svg';
 import pastorForumIcom from 'assets/images/peoples-two.svg';
 import ApostleDesk from './ApostleDesk';
+import Sermons from './Sermons';
+import BibleStudy from './BibleStudy';
 
 const Publications = ():JSX.Element => {
     const initialState = {
@@ -41,13 +39,13 @@ const Publications = ():JSX.Element => {
         {
             path:'/requests',
             icon: sermonsIcon,
-            component: <><Prayers /></>,
+            component: <><Sermons /></>,
             title: 'Sermons',
         },
         {
             path:'/requests',
             icon: bibleStudyIcon,
-            component: <><Prayers /></>,
+            component: <div className='bible-study'><BibleStudy /></div>,
             title: 'Bible study',
         },
         {

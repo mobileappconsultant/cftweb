@@ -178,3 +178,52 @@ export const CREATE_PRAYER = gql`
 `;
 
 
+// DAILY PRAYERS
+export const CREATE_DAILY_PRAYER = gql`
+mutation createDailyPrayer($input: DailyPrayerInput!) {
+  createDailyPrayer(input: $input ) {
+    day
+    subtitle
+    scripture{
+      text
+      refrence
+    }
+    heading
+    content
+    supportingVerse
+    prayer_points
+    prayerMannerId
+    createdAt
+  }
+}
+`;
+
+// Bible study
+export const CREATE_BIBLE_STUDY = gql`
+  mutation createBibleStudyContent($input:BibleStudyInput!) {
+    createBibleStudyContent(input: $input ) {
+      _id
+      topic
+      minister
+      memoryVerse
+      bibleText
+      message
+      createdAt
+    }
+  }
+`;
+
+export const UPDATE_BIBLE_STUDY = gql`
+  mutation updateBibleStudyContent($biibleStudyContentId:String! $input:BibleStudyInput!) {
+    updateBibleStudyContent(biibleStudyContentId:$biibleStudyContentId  input: $input ) {
+      _id
+      topic
+      minister
+      memoryVerse
+      bibleText
+      message
+      createdAt
+    }
+  }
+`;
+

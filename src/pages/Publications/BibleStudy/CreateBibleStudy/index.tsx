@@ -1,5 +1,4 @@
 import React, {useReducer, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { extractErrorMessage, formatDate, isNotEmptyArray, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import CreateButton from 'utilComponents/CreateButton';
@@ -8,39 +7,37 @@ import FormGroupSelect from 'utilComponents/FormGroupSelect';
 import { history, validateData } from 'helpers';
 import PageTitle from 'components/PageTitle';
 import TextEditor from 'utilComponents/TextEditor';
-import { GET_ALL_ADMINS } from 'GraphQl/Queries';
-import FormGroupTextarea from 'utilComponents/FormGroupTextarea';
 import { useMutation, useQuery } from '@apollo/client';
-import { CREATE_PRAYER } from 'GraphQl/Mutations';
+import { CREATE_BIBLE_STUDY } from 'GraphQl/Mutations';
 import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
-import CustomDatePicker from 'utilComponents/DatePicker';
-import moment from 'moment';
+import GetBiblePassage from 'components/GetBiblePassage';
 import CloseButton from 'components/CloseButton';
+import { GET_ALL_ADMINS } from 'GraphQl/Queries';
 
-const CreateApostlePrayer = (props: any):JSX.Element => {
+const CreateBibleStudy = (props: any):JSX.Element => {
     
     const initialState = {
         formData: {
-            title: '',
-            subtitle: '',
-            author: '',
-            content:'',
-            date: null,
+            topic: '',
+            message: '',
+            minister: '',
+            memoryVerse:'',
+            bibleText:'',
 
         },
         payload:{},
         errors:{},
+        bibleVerseData:[],
         isLoading: false,
         alertMessage:{},
         preview: false,
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
+    const [createNewBibleStudy, { data, loading, error }] = useMutation(CREATE_BIBLE_STUDY); 
+    const  adminDataQuery = useQuery(GET_ALL_ADMINS);
     const {formData, isLoading, alertMessage, errors, preview, adminData,  bibleVerseData} = state;
-    // GraphQL
-    const [createNewPrayer, { data, loading, error }] = useMutation(CREATE_PRAYER);
-    const adminDataQuery = useQuery(GET_ALL_ADMINS); 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -73,59 +70,56 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
 
     };
 
+
     const handleEditorChange = (data: any) => {
         setState({
             formData:{
                 ...formData,
-                content: data,
+                message: data,
             },
             errors:{
                 ...state.errors,
-                content: '',
+                message: '',
             }
         });
     };
 
-    const handleDateChange = (e:any):void => {
-        if(e){
-            const date = formatDate(e);
-            setState({
-                formData:{
-                    ...formData,
-                    date: date,
-                }
-            });
-        }else{
-            setState({
-                formData:{
-                    ...formData,
-                    date: null,
-                }
-            });
-        }
+    const handlePrayerPointChange = (data: any) => {
+        setState({
+            formData:{
+                ...formData,
+                prayer_point: data,
+            },
+            errors:{
+                ...state.errors,
+                prayer_point: '',
+            }
+        });
     };
+
 
     
     const validateFormData = async () => {
         const newFormData = {...formData};
-       
+        
         const rules = {
-            'title': 'required',
-            'subtitle' : 'required',
-            'author': 'required',
-            'content':'required',
-            'date': 'required',
+            'topic': 'required',
+            'minister': 'required',
+            'message':'required',
+            'memoryVerse': 'required',
+            'bibleText': 'required',
         };
 
         const messages = {
-            'title.required': 'Enter a title',
-            'subtitle.required': 'Subheader is required',
-            'author.required': 'Author required',
-            'content.required': 'Content required',
-            'date.required': 'Select a publish date'
+            'topic.required': 'Enter a topic',
+            'minister.required': 'Select a minister',
+            'message.required': 'Message required',
+            'memoryVerse.required': 'Memory verse required',
+            'bibleText.required': 'Bible text required',
         };
         const validate = await validateData(newFormData, rules, messages);
       
+     
         if (isObjectEmpty(validate)) {
             return true;
         } else {
@@ -141,7 +135,7 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
         e.preventDefault();
         const validate = await validateFormData();
         if(validate){
-           
+            
             setState({
                 preview: true,
                 isLoading: false,
@@ -158,14 +152,10 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
         try {
             const payload = {
                 ...formData,
-                day: moment(new Date(formData?.date), "MM-DD-YYYY").day(),
-                month: moment(new Date(formData?.date), "MM-DD-YYYY").month(),
-                year: moment(new Date(formData?.date), "MM-DD-YYYY").year(),
             };
-            delete payload.date;
-            await createNewPrayer({variables:{input: payload}});
+            await createNewBibleStudy({variables:{input: payload}});
             setState({
-                alertMessage:  processAlertSuccess('Prayer saved successfully'),
+                alertMessage:  processAlertSuccess('Bible study saved successfully'),
             });
             scrollTop();
             setTimeout(function () {
@@ -186,26 +176,8 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
         });
     };
 
-    const upDateBibleVerseText = (bibleVerseObj:any, index:number) => {
-      
-        bibleVerseData[index] = bibleVerseObj;
-        setState({
-            bibleVerseData: [...bibleVerseData],
-        })
-    }
-
     useEffect(() => {
-
-        // Cleanup method
-        return () => {
-            setState({
-                ...initialState,
-            });
-        };
-    }, []);
-
-    useEffect(() => {
-        
+    
         if(adminDataQuery.data){
             const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin));
             for (let index = 0; index < adminList.length; index++) {
@@ -215,15 +187,13 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
             };
             setState({
                 adminData: adminList,
-            
             });
-        
         };
 
         if(adminDataQuery.error){
             setState({
                 alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
-            })
+            });
         }
         // Cleanup method
         return () => {
@@ -236,11 +206,11 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
     return(
         <>
             {!preview && (
-                <div className="row justify-content-between align-items-start pt-3">
+                 <div className="row justify-content-between align-items-center pt-3">
                     <div className="col-md-6">
-                        <PageTitle text='Create Prayer' />
+                        <PageTitle text='Create Bible Study' />
                     </div>
-                    <div className="col-md-6 d-flex justify-content-end"> 
+                    <div className="col-md-6 d-flex justify-content-end">
                         <CloseButton 
                             close={props.close}
                         />
@@ -263,62 +233,61 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                 {!preview? (
                     <>
                         <div className="row  pt-2">
-                            <div className="col-md-12 mb-4">
+                            <div className="col-md-6 mb-4">
                                 <FormGroupInput
-                                    placeholder="Prayer title"
-                                    value={formData?.title}
+                                    placeholder="Bible reading topic"
+                                    value={formData?.topic}
                                     onChange={handleChange}
-                                    name="title"
-                                    showError={errors.title}
-                                    errorMessage={errors.title}
+                                    name="topic"
+                                    showError={errors.topic}
+                                    errorMessage={errors.topic}
                                 />
                             </div>
+
                             <div className="col-md-6 mb-4">
+                                <FormGroupInput
+                                    placeholder="Memory verse"
+                                    value={formData?.memoryVerse}
+                                    onChange={handleChange}
+                                    name="memoryVerse"
+                                    showError={errors.memoryVerse}
+                                    errorMessage={errors.memoryVerse}
+                                />
+                            </div>
+
+                            <div className="col-md-6 mb-4">
+                                <FormGroupInput
+                                    placeholder="Bible text"
+                                    value={formData?.bibleText}
+                                    onChange={handleChange}
+                                    name="bibleText"
+                                    showError={errors.bibleText}
+                                    errorMessage={errors.bibleText}
+                                />
+                            </div>
+                 
+                            <div className="col-md-6 mb-1">
                                 <FormGroupSelect
-                                    placeholder="Select author"
-                                    onChange={(e: object)=>handleSelectChange(e, 'author')}
-                                    name="author"
-                                    showError={errors.author}
-                                    errorMessage={errors.author} 
+                                    placeholder="Select minister"
+                                    onChange={(e: object)=>handleSelectChange(e, 'minister')}
+                                    name="minister"
+                                    showError={errors.minister}
+                                    errorMessage={errors.minister} 
                                     selectOptions={adminData}
                                 />
                             </div>
-                            <div className="col-md-6 mb-3">
-                                
-                                <CustomDatePicker
-                                    value={formData?.date}
-                                    //@ts-ignore
-                                    onChange={(e:any)=>handleDateChange(e)}
-                                    dayPlaceholder='Select'
-                                    monthPlaceholder='publish'
-                                    yearPlaceholder='date'
-                                    showError={errors.date}
-                                    errorMessage={errors.date}
-                                />
-                            </div>
-                            <div className="col-md-12 mb-4">
-                                <FormGroupTextarea
-                                    placeholder="Prayer subheading"
-                                    value={formData?.subtitle}
-                                    onChange={handleChange}
-                                    name="subtitle"
-                                    showError={errors.subtitle}
-                                    errorMessage={errors.subtitle}
-                                />
-                                
-                            </div>
-                            
-                            <div className="col-md-12 mb-4">
-                            <h6 className='mb-2'>Type prayer content</h6>
+
+                            <div className="col-md-12 mb-1">
+                            <h6 className='mb-2'>Type message</h6>
                                 <TextEditor
                                     //@ts-ignore
-                                    text={formData?.content}
+                                    text={formData?.message}
                                     handleChange={handleEditorChange}
-                                    placeholder="Type prayer content"
+                                    placeholder="Type message content"
                                 />
-                                {errors.content && (
+                                {errors.message && (
                                     <div className="small w-100 text-left text-danger">
-                                        {errors.content}
+                                        {errors.message}
                                     </div>
                                 )}
                             </div>
@@ -334,14 +303,12 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                         </div>
                     </>
                 ): (
-                    <div className='row p-2'>
-                        <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
+                    <div className='row p-4'>
+                        <div className="col-md-5 d-flex justify-content-between align-items-center ">
                             <div>
-                                <PageTitle text='Prayer review' />
+                                <PageTitle text='Review bible study' />
                             </div>
-                            <div className='username small text-muted'>
-                                <li>{formData?.category}</li>
-                            </div>
+                            
                             <>
                                 <Badges
                                     text={'Pending'}
@@ -350,36 +317,38 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                             </>
                             
                         </div>
-                        <div className='col-md-9'>
-                            <img src={missionIcon} />
-                        </div>
-
-                        <div className='col-md-12'>
-                            <div className="user-name px-2 mt-4">
-                                <h5 className="m-0 name">{formData?.title}</h5>
-                                <span className="small text-muted mt-4">By {formData?.author}</span>
-                            </div> 
-                        </div>
                         
                         <div className='col-md-12'>
                             <div className="user-name px-2 mt-4">
-                                <h5 className="m-0 name">Prayer subheader</h5>
-                            </div>
-                            <div 
-                                className="text-dark mt-1 small px-2"    
-                            > 
-                                {formData?.subtitle}
-                            </div>
+                                <h5 className="m-0 name">{formData?.topic}</h5>
+                                <span className="small text-muted mt-4">By {formData?.minister}</span>
+                            </div> 
                         </div>
-                       
+                        
+
+                        <div className='col-md-12'>
+                            <div className=" px-2 mt-3">
+                                <h5 className="m-0 name">Memory verse</h5>
+                                <p className='font-italic'>{formData.memoryVerse}</p> 
+                               
+                            </div> 
+                        </div>
+
+                        <div className='col-md-12'>
+                            <div className=" px-2 mt-1  ">
+                                <h5 className="m-0 name">Bible text</h5>
+                                <p className='font-italic'>{formData.bibleText}</p> 
+                               
+                            </div> 
+                        </div>
 
                         <div className='col-md-12'>
                             <div className="user-name px-2 mt-4">
-                                <h5 className="m-0 name">Prayer content</h5>
+                                <h5 className="m-0 name">Message</h5>
                             </div>
                             <div 
                                 className="text-dark mt-1 small px-2"
-                                dangerouslySetInnerHTML={{ __html: formData?.content || 'N/A' }}       
+                                dangerouslySetInnerHTML={{ __html: formData?.message || 'N/A' }}       
                             /> 
                         </div>
 
@@ -405,4 +374,4 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
     )
 
 };
-export default CreateApostlePrayer;
+export default CreateBibleStudy;

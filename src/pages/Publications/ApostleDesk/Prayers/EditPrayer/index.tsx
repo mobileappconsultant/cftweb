@@ -17,6 +17,7 @@ import missionIcon from 'assets/images/Rectangle 2638.svg';
 import CustomDatePicker from 'utilComponents/DatePicker';
 import moment from 'moment';
 import CircularLoader from 'utilComponents/Loader';
+import CloseButton from 'components/CloseButton';
 
 const EditApostlePrayer = (props: any):JSX.Element => {
     
@@ -42,7 +43,7 @@ const EditApostlePrayer = (props: any):JSX.Element => {
     const [createNewPrayer, { data, loading, error }] = useMutation(CREATE_PRAYER);
     const adminDataQuery = useQuery(GET_ALL_ADMINS); 
     const prayerQuery = useQuery(GET_SINGLE_PRAYER, {
-        variables: { prayerId: props?.match?.params?.id}
+        variables: { prayerId: props?.prayerId}
     }); 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
@@ -199,6 +200,7 @@ const EditApostlePrayer = (props: any):JSX.Element => {
     useEffect(() => {
         if(prayerQuery.data){
             const{getPrayer} = prayerQuery?.data;
+            console.log(getPrayer);
             setState({
                 formData:{
                     title: getPrayer?.title,
@@ -266,11 +268,16 @@ const EditApostlePrayer = (props: any):JSX.Element => {
     return(
         <>
             {!preview && (
-                 <div className="row justify-content-between align-items-end">
-                    <div className="col-md-6">
-                        <PageTitle text='Update Prayer' />
-                    </div>
+                <div className="row justify-content-between align-items-start pt-3">
+                <div className="col-md-6">
+                    <PageTitle text='Update Prayer' />
                 </div>
+                <div className="col-md-6 d-flex justify-content-end"> 
+                    <CloseButton 
+                        close={props.close}
+                    />
+                </div>
+            </div>
             )}
            
             <>
@@ -283,7 +290,7 @@ const EditApostlePrayer = (props: any):JSX.Element => {
                         />
                     </>
                 )}
-                 <div className='bg-white shadow-sm p-3'>
+                 <div className=''>
                 {isLoading ? (
                     <>
                         <CircularLoader />
@@ -292,7 +299,7 @@ const EditApostlePrayer = (props: any):JSX.Element => {
                     <>
                         {!preview? (
                     <>
-                        <div className="row  pt-4">
+                        <div className="row  pt-2">
                             <div className="col-md-12 mb-4">
                                 <FormGroupInput
                                     placeholder="Prayer title"
@@ -311,6 +318,7 @@ const EditApostlePrayer = (props: any):JSX.Element => {
                                     showError={errors.author}
                                     errorMessage={errors.author} 
                                     selectOptions={adminData}
+                                    defaultValue={{value:formData?.author, label:formData?.author}}
                                 />
                             </div>
                             <div className="col-md-6 mb-3">
@@ -367,7 +375,7 @@ const EditApostlePrayer = (props: any):JSX.Element => {
                     <div className='row p-4'>
                         <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
                             <div>
-                                <PageTitle text='Apostle desk' />
+                                <PageTitle text='Update prayer' />
                             </div>
                             <div className='username small text-muted'>
                                 <li>{formData?.category}</li>

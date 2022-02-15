@@ -143,19 +143,7 @@ const ViewApostleMessage = (props: any):JSX.Element => {
                     <>
                         
                         <div className='row p-4'>
-                            {/* <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
-                               
-                                <div className='username small text-muted'>
-                                    <li>{formData?.category}</li>
-                                </div>
-                                <>
-                                    <Badges
-                                        text={'Published'}
-                                        type='success'
-                                    />
-                                </>
-                                
-                            </div> */}
+                           
                             <div className='col-md-8  d-flex position-relative'>
                                 {formData?.image? (
                                     <div className='message-img-container'> 

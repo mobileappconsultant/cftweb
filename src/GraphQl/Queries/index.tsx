@@ -228,9 +228,40 @@ query PrayerDTO  ($prayerId: String!) {
       prayerMannerId
       createdAt
     }
+    dayPublished
     monthPublished
     yearPublished
     createdAt
   }
 }
+`;
+
+// BIBLE STUDY
+
+export const GET_ALL_BIBLE_STUDY_CONTENT = gql`
+  query BibleStudyDTO{
+    getAllBibleStudyContent{
+      _id
+      topic
+      minister
+      memoryVerse
+      bibleText
+      message
+      createdAt
+    }
+  }
+`;
+
+export const GET_SINGLE_BIBLE_STUDY_CONTENT = gql`
+  query BibleStudyDTO($bibleStudyContentId: String!) {
+    getBibleStudyContent(bibleStudyContentId: $bibleStudyContentId) {
+      _id
+      topic
+      minister
+      memoryVerse
+      bibleText
+      message
+      createdAt
+    }
+  }
 `;

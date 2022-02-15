@@ -1,5 +1,7 @@
 import React, {useReducer, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { ApiRequestClient } from 'apiClient';
+import { apiRoutes, roleOptions , apostleDeskCategoryOptions} from 'constants/index';
 import { extractErrorMessage, formatDate, isNotEmptyArray, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import CreateButton from 'utilComponents/CreateButton';
@@ -8,39 +10,40 @@ import FormGroupSelect from 'utilComponents/FormGroupSelect';
 import { history, validateData } from 'helpers';
 import PageTitle from 'components/PageTitle';
 import TextEditor from 'utilComponents/TextEditor';
-import { GET_ALL_ADMINS } from 'GraphQl/Queries';
+import ReactTagInput from "@pathofdev/react-tag-input";
+import { CirclePlus, TrashOff, Variable } from 'tabler-icons-react';
+import "@pathofdev/react-tag-input/build/index.css";
 import FormGroupTextarea from 'utilComponents/FormGroupTextarea';
-import { useMutation, useQuery } from '@apollo/client';
-import { CREATE_PRAYER } from 'GraphQl/Mutations';
+import { useMutation } from '@apollo/client';
+import { CREATE_MESSAGE } from 'GraphQl/Mutations';
 import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
-import CustomDatePicker from 'utilComponents/DatePicker';
-import moment from 'moment';
+import GetBiblePassage from 'components/GetBiblePassage';
 import CloseButton from 'components/CloseButton';
 
-const CreateApostlePrayer = (props: any):JSX.Element => {
+const UpdateDailyPrayer = (props: any):JSX.Element => {
     
     const initialState = {
         formData: {
             title: '',
-            subtitle: '',
-            author: '',
-            content:'',
-            date: null,
+            message: '',
+            minister: '',
+            bibleReading:[],
+            category:'',
+            prayer_point:'',
 
         },
         payload:{},
         errors:{},
+        bibleVerseData:[],
         isLoading: false,
         alertMessage:{},
         preview: false,
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
+    const [createNewMessage, { data, loading, error }] = useMutation(CREATE_MESSAGE); 
     const {formData, isLoading, alertMessage, errors, preview, adminData,  bibleVerseData} = state;
-    // GraphQL
-    const [createNewPrayer, { data, loading, error }] = useMutation(CREATE_PRAYER);
-    const adminDataQuery = useQuery(GET_ALL_ADMINS); 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -73,59 +76,70 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
 
     };
 
+    const setTags = (newTags: String[]) => {
+        setState({
+            formData: {
+                ...state.formData,
+                bibleReading: newTags,
+            },
+            errors: {
+                ...state.errors,
+                bibleReading: '',
+            },
+        });
+    };
+
     const handleEditorChange = (data: any) => {
         setState({
             formData:{
                 ...formData,
-                content: data,
+                message: data,
             },
             errors:{
                 ...state.errors,
-                content: '',
+                message: '',
             }
         });
     };
 
-    const handleDateChange = (e:any):void => {
-        if(e){
-            const date = formatDate(e);
-            setState({
-                formData:{
-                    ...formData,
-                    date: date,
-                }
-            });
-        }else{
-            setState({
-                formData:{
-                    ...formData,
-                    date: null,
-                }
-            });
-        }
+    const handlePrayerPointChange = (data: any) => {
+        setState({
+            formData:{
+                ...formData,
+                prayer_point: data,
+            },
+            errors:{
+                ...state.errors,
+                prayer_point: '',
+            }
+        });
     };
+
 
     
     const validateFormData = async () => {
         const newFormData = {...formData};
-       
+        newFormData.bible_verse = newFormData.bibleReading[0];
         const rules = {
             'title': 'required',
-            'subtitle' : 'required',
-            'author': 'required',
-            'content':'required',
-            'date': 'required',
+            'category' : 'required',
+            'minister': 'required',
+            'message':'required',
+            'bible_verse': 'required',
+            'prayer_point': 'required',
         };
 
         const messages = {
             'title.required': 'Enter a title',
-            'subtitle.required': 'Subheader is required',
-            'author.required': 'Author required',
-            'content.required': 'Content required',
-            'date.required': 'Select a publish date'
+            'category.required': 'Select a category',
+            'minister.required': 'Select a minister',
+            'message.required': 'Message required',
+            'bible_verse.required': 'Bible reading required',
+            'prayer_point.required': 'Prayer points required',
         };
         const validate = await validateData(newFormData, rules, messages);
       
+     
         if (isObjectEmpty(validate)) {
             return true;
         } else {
@@ -141,7 +155,7 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
         e.preventDefault();
         const validate = await validateFormData();
         if(validate){
-           
+            
             setState({
                 preview: true,
                 isLoading: false,
@@ -158,18 +172,15 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
         try {
             const payload = {
                 ...formData,
-                day: moment(new Date(formData?.date), "MM-DD-YYYY").day(),
-                month: moment(new Date(formData?.date), "MM-DD-YYYY").month(),
-                year: moment(new Date(formData?.date), "MM-DD-YYYY").year(),
+                bibleReading:bibleVerseData,
             };
-            delete payload.date;
-            await createNewPrayer({variables:{input: payload}});
+            await createNewMessage({variables:{input: payload}});
             setState({
-                alertMessage:  processAlertSuccess('Prayer saved successfully'),
+                alertMessage:  processAlertSuccess('Message saved successfully'),
             });
             scrollTop();
             setTimeout(function () {
-                props.close();
+                history.push('/apostle-desk')
             }, 2000);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
@@ -186,6 +197,31 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
         });
     };
 
+    const fetchData = async () => {
+        setState({
+            isLoading: true,
+        });
+
+        try {
+            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_ADMINS);
+            for (let index = 0; index < response?.data?.data.length; index++) {
+                const element = response?.data?.data[index];
+                element.label = element?.full_name;
+                element.value = element?.full_name;
+            };
+            setState({
+                adminData: response?.data?.data,
+                isLoading: false,
+            });
+        } catch (error) {
+            setState({
+                isLoading: false,
+            });
+        }
+
+    };
+
+
     const upDateBibleVerseText = (bibleVerseObj:any, index:number) => {
       
         bibleVerseData[index] = bibleVerseObj;
@@ -196,6 +232,7 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
 
     useEffect(() => {
 
+        fetchData();
         // Cleanup method
         return () => {
             setState({
@@ -204,43 +241,14 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
         };
     }, []);
 
-    useEffect(() => {
-        
-        if(adminDataQuery.data){
-            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin));
-            for (let index = 0; index < adminList.length; index++) {
-                const element = adminList[index];
-                element.label = element?.full_name;
-                element.value = element?.full_name;
-            };
-            setState({
-                adminData: adminList,
-            
-            });
-        
-        };
-
-        if(adminDataQuery.error){
-            setState({
-                alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
-            })
-        }
-        // Cleanup method
-        return () => {
-            setState({
-                ...initialState,
-            });
-        };
-    }, [adminDataQuery.data]);
-
     return(
         <>
             {!preview && (
-                <div className="row justify-content-between align-items-start pt-3">
+                 <div className="row justify-content-between align-items-start pt-3">
                     <div className="col-md-6">
-                        <PageTitle text='Create Prayer' />
+                        <PageTitle text='Create Message' />
                     </div>
-                    <div className="col-md-6 d-flex justify-content-end"> 
+                    <div className="col-md-6 d-flex justify-content-end">
                         <CloseButton 
                             close={props.close}
                         />
@@ -263,9 +271,9 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                 {!preview? (
                     <>
                         <div className="row  pt-2">
-                            <div className="col-md-12 mb-4">
+                            <div className="col-md-6 mb-4">
                                 <FormGroupInput
-                                    placeholder="Prayer title"
+                                    placeholder="Title of message"
                                     value={formData?.title}
                                     onChange={handleChange}
                                     name="title"
@@ -275,54 +283,71 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                             </div>
                             <div className="col-md-6 mb-4">
                                 <FormGroupSelect
-                                    placeholder="Select author"
-                                    onChange={(e: object)=>handleSelectChange(e, 'author')}
-                                    name="author"
-                                    showError={errors.author}
-                                    errorMessage={errors.author} 
-                                    selectOptions={adminData}
+                                    placeholder="Select category"
+                                    onChange={(e: object)=>handleSelectChange(e, 'category')}
+                                    name="category"
+                                    showError={errors.category}
+                                    errorMessage={errors.category} 
+                                    selectOptions={apostleDeskCategoryOptions}
                                 />
                             </div>
-                            <div className="col-md-6 mb-3">
-                                
-                                <CustomDatePicker
-                                    value={formData?.date}
-                                    //@ts-ignore
-                                    onChange={(e:any)=>handleDateChange(e)}
-                                    dayPlaceholder='Select'
-                                    monthPlaceholder='publish'
-                                    yearPlaceholder='date'
-                                    showError={errors.date}
-                                    errorMessage={errors.date}
+                            <div className="col-md-6 mb-4">
+                                <ReactTagInput 
+                                    tags={formData?.bibleReading} 
+                                    onChange={(newTags) => setTags(newTags)}
+                                    placeholder='Type bible verse and press enter'
                                 />
-                            </div>
-                            <div className="col-md-12 mb-4">
-                                <FormGroupTextarea
-                                    placeholder="Prayer subheading"
-                                    value={formData?.subtitle}
-                                    onChange={handleChange}
-                                    name="subtitle"
-                                    showError={errors.subtitle}
-                                    errorMessage={errors.subtitle}
-                                />
-                                
-                            </div>
-                            
-                            <div className="col-md-12 mb-4">
-                            <h6 className='mb-2'>Type prayer content</h6>
-                                <TextEditor
-                                    //@ts-ignore
-                                    text={formData?.content}
-                                    handleChange={handleEditorChange}
-                                    placeholder="Type prayer content"
-                                />
-                                {errors.content && (
+                                {errors.bible_verse && (
                                     <div className="small w-100 text-left text-danger">
-                                        {errors.content}
+                                        {errors.bible_verse}
                                     </div>
                                 )}
                             </div>
+                        
+
                             
+                            <div className="col-md-6 mb-4">
+                                <FormGroupSelect
+                                    placeholder="Select minister"
+                                    onChange={(e: object)=>handleSelectChange(e, 'minister')}
+                                    name="minister"
+                                    showError={errors.minister}
+                                    errorMessage={errors.minister} 
+                                    selectOptions={adminData}
+                                />
+                            </div>
+                            <div className="col-md-12 mb-4">
+                            <h6 className='mb-2'>Type message</h6>
+                                <TextEditor
+                                    //@ts-ignore
+                                    text={formData?.message}
+                                    handleChange={handleEditorChange}
+                                    placeholder="Type message content"
+                                />
+                                {errors.message && (
+                                    <div className="small w-100 text-left text-danger">
+                                        {errors.message}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="col-md-12 mb-1">
+                        
+                                <h6 className='mb-2'>Add prayers to message</h6>
+                                <div className="col-md-12 mb-2">
+                                <TextEditor
+                                    //@ts-ignore
+                                    text={formData?.prayer_point}
+                                    handleChange={handlePrayerPointChange}
+                                    placeholder="Type prayer points"
+                                />
+                                {errors.prayer_point && (
+                                    <div className="small w-100 text-left text-danger">
+                                        {errors.prayer_point}
+                                    </div>
+                                )}
+                                </div>
+                                
+                            </div>
                             <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
                                 <CreateButton
                                     text={'Proceed'}
@@ -334,10 +359,10 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                         </div>
                     </>
                 ): (
-                    <div className='row p-2'>
+                    <div className='row p-4'>
                         <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
                             <div>
-                                <PageTitle text='Prayer review' />
+                                <PageTitle text='Apostle desk' />
                             </div>
                             <div className='username small text-muted'>
                                 <li>{formData?.category}</li>
@@ -357,33 +382,49 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                         <div className='col-md-12'>
                             <div className="user-name px-2 mt-4">
                                 <h5 className="m-0 name">{formData?.title}</h5>
-                                <span className="small text-muted mt-4">By {formData?.author}</span>
+                                <span className="small text-muted mt-4">By {formData?.minister}</span>
                             </div> 
                         </div>
                         
-                        <div className='col-md-12'>
-                            <div className="user-name px-2 mt-4">
-                                <h5 className="m-0 name">Prayer subheader</h5>
-                            </div>
-                            <div 
-                                className="text-dark mt-1 small px-2"    
-                            > 
-                                {formData?.subtitle}
-                            </div>
-                        </div>
-                       
 
                         <div className='col-md-12'>
                             <div className="user-name px-2 mt-4">
-                                <h5 className="m-0 name">Prayer content</h5>
+                                <h5 className="m-0 name">Bible passages</h5>
+                                    {formData?.bibleReading.map((item:string, index:number) => {
+                                        return(
+                                            <>
+                                                <GetBiblePassage
+                                                    biblePassage={item}
+                                                    updatePassageText={upDateBibleVerseText}
+                                                    index={index}
+                                                />
+                                            </>
+                                        )
+                                    })}
+                               
+                            </div> 
+                        </div>
+
+                        <div className='col-md-12'>
+                            <div className="user-name px-2 mt-4">
+                                <h5 className="m-0 name">Message</h5>
                             </div>
                             <div 
                                 className="text-dark mt-1 small px-2"
-                                dangerouslySetInnerHTML={{ __html: formData?.content || 'N/A' }}       
+                                dangerouslySetInnerHTML={{ __html: formData?.message || 'N/A' }}       
                             /> 
                         </div>
 
-                        
+                        <div className='col-md-12'>
+                            <div className="user-name px-2 mt-4">
+                                <h5 className="m-0 name">Prayer points</h5>
+                            </div>
+                            <div 
+                                className="text-dark mt-1 small px-2"
+                                dangerouslySetInnerHTML={{ __html: formData?.prayer_point || 'N/A' }}       
+                            /> 
+                            
+                        </div>
 
                         <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
                             <CreateButton
@@ -405,4 +446,4 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
     )
 
 };
-export default CreateApostlePrayer;
+export default UpdateDailyPrayer;
