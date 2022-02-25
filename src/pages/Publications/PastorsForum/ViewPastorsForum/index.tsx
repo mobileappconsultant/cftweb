@@ -2,17 +2,16 @@ import React, {useReducer, useEffect } from 'react';
 import { extractErrorMessage, processAlertError, scrollTop, capiitalizeFirstLetter } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import PageTitle from 'components/PageTitle';
-import { useMutation, useQuery } from '@apollo/client';
-import Badges from 'utilComponents/Badges';
+import { useQuery } from '@apollo/client';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
-import { GET_SINGLE_MESSAGE } from 'GraphQl/Queries';
+import { GET_SINGLE_SERMON } from 'GraphQl/Queries';
 import { DivLoader } from 'utilComponents/Loader';
 import UploadMessageImage from './UploadMessageImage';
 import { EditCircle } from 'tabler-icons-react';
 import CloseButton from 'components/CloseButton';
 
-const ViewApostleMessage = (props: any):JSX.Element => {
+const ViewSermon = (props: any):JSX.Element => {
     const initialState = {
         formData: {
             title: '',
@@ -32,7 +31,7 @@ const ViewApostleMessage = (props: any):JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage,  preview, showImageModal, bibleVerseData} = state;
-    const { data, loading, error } = useQuery(GET_SINGLE_MESSAGE, {
+    const { fetchMore } = useQuery(GET_SINGLE_SERMON, {
         variables: { messageId: props?.messageId}
     }); 
     
@@ -50,9 +49,15 @@ const ViewApostleMessage = (props: any):JSX.Element => {
         });
     };
 
-    useEffect(() => {
-        if(data){
-            const response = data?.getMessage;
+    const fetchData =  async () => {
+        setState({
+            isLoading:true,
+        });
+    
+        const apiData : any = await fetchMore({ variables: { messageId: props?.messageId} });
+
+         if(apiData.data){
+            const response = apiData?.data?.getSermon;
             const getBibleReading = () => {
                 const returnArr = [];
                 for (let index = 0; index < response?.bibleReading.length; index++) {
@@ -67,35 +72,36 @@ const ViewApostleMessage = (props: any):JSX.Element => {
                     message: response?.message,
                     minister: response?.minister,
                     bibleReading: getBibleReading(),
-                    category: response?.category,
                     image: response?.image,
-                    prayer_point: response?.prayer_point,
                 },
-               
-            });
-            
+                prayers: response?.prayer_point,
+            }); 
           
         };
-        if(!loading){
+
+        if(!apiData.loading){
             setState({
                 isLoading: false,
             });
         };
 
-        if(error){
-            
+        if(apiData.error){
             setState({
-                alertMessage :processAlertError(extractErrorMessage(error)),
-            })
+                alertMessage :processAlertError(extractErrorMessage(apiData?.error)),
+                isLoading: false,
+            });
         }
+    };
 
+    useEffect(() => {
+        fetchData();
         // Cleanup method
         return () => {
             setState({
                 ...initialState,
             });
         };
-    }, [data]);
+    }, []);
 
     const toggleUploadImageModal = () => {
         setState({
@@ -112,9 +118,9 @@ const ViewApostleMessage = (props: any):JSX.Element => {
     return(
         <>
             {!preview && (
-                <div className="row justify-content-between align-items-start pt-3">
+                <div className="row justify-content-between align-items-start pt-4 px-4">
                 <div className="col-md-6">
-                    <PageTitle text='View Message' />
+                    <PageTitle text='View Sermon' />
                 </div>
                 <div className="col-md-6 d-flex justify-content-end">
                     
@@ -135,7 +141,7 @@ const ViewApostleMessage = (props: any):JSX.Element => {
                         />
                     </>
                 )}
-                <div className='p-3'>
+                <div className='p-0'>
                 {isLoading? (
                     <>
                         <DivLoader />
@@ -235,6 +241,7 @@ const ViewApostleMessage = (props: any):JSX.Element => {
                 toggleModal={toggleUploadImageModal}
                 messageId={ props?.messageId}
                 addAlert={addAlert}
+                reload={fetchData}
             />
         )}
             
@@ -242,4 +249,4 @@ const ViewApostleMessage = (props: any):JSX.Element => {
     )
 
 };
-export default ViewApostleMessage;
+export default ViewSermon;

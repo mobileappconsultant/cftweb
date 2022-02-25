@@ -14,7 +14,7 @@ import CircularLoader from 'utilComponents/Loader';
 import Badges from 'utilComponents/Badges';
 import { useQuery } from '@apollo/client';
 import { GET_ALL_GROUPS } from 'GraphQl/Queries';
-import { extractErrorMessage, formatInitialDateValue, processAlertError } from 'utils';
+import { extractErrorMessage, formatDate2, formatInitialDateValue, processAlertError } from 'utils';
 import ViewGroup from './ViewGroup';
 
 
@@ -184,7 +184,7 @@ const Groups = ():JSX.Element => {
                                         </div>
                                         <div className="user-name px-2">
                                             <h6 className="m-0 name">{datum?.name}</h6>
-                                            <span className="small email">{formatInitialDateValue(new Date(parseInt(datum?.createdAt)))}</span>
+                                            <span className="small email">{formatDate2 (new Date(datum?.createdAt))}</span>
                                         </div>
                                     </div>
                                     <div className="justify-content-end py-0 my-0 pt-1 ">
@@ -202,13 +202,13 @@ const Groups = ():JSX.Element => {
                 </div>
                 
                 <div>
-                <Pagination
-                    count={dataArr.length?? 0}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
-                    onPageChange={handleChangePage}
-                    handleChangeRowsPerPage={handleChangeRowsPerPage}
-                />
+                    <Pagination
+                        count={dataArr.length?? 0}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={handleChangePage}
+                        handleChangeRowsPerPage={handleChangeRowsPerPage}
+                    />
                 </div>
 
             </div>

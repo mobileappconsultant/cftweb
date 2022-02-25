@@ -19,7 +19,11 @@ export const eventOptions = [
 
 export const apostleDeskCategoryOptions = [
     {value:'weekly', label: 'Weekly'},
-    {value:'monthly', label: 'Monthly'},
-    
-   
+    {value:'monthly', label: 'Monthly'}, 
+];
+
+export const publishOptions = [
+    {value:'null', label: 'All'},
+    {value:true, label: 'Published'},
+    {value:false, label: 'Not Published'},
 ];

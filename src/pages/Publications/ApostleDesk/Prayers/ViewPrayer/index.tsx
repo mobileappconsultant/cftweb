@@ -35,10 +35,10 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
             yearPublished: null,
             createdAt: null,
         },
-        showCreateDailyPrayerPage:true,
+        showCreateDailyPrayerPage:false,
         showUpdateDailyPrayerPage:false,
         showViewDailyPrayerPage:false,
-        showViewAllDailyPrayerPage:false,
+        showViewAllDailyPrayerPage:true,
         activeDailyPrayer: null,
         payload:{},
         errors:{},
@@ -61,6 +61,7 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
         showUpdateDailyPrayerPage,
         showViewDailyPrayerPage,
         showViewAllDailyPrayerPage,
+        activeDailyPrayer,
     } = state;
     const { data, loading, error } = useQuery(GET_SINGLE_PRAYER, {
         variables: { prayerId: props?.prayerId}
@@ -125,8 +126,11 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
         
         if(data){
             const{getPrayer} = data;
+         
             setState({
                 prayerData: getPrayer,
+                activeDailyPrayer:  getPrayer?.dailyPrayers[0]? getPrayer?.dailyPrayers[0]: null,
+               
             });
             
         };
@@ -157,16 +161,16 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
             showUpdateDailyPrayerPage:false,
             showViewDailyPrayerPage:false,
             showViewAllDailyPrayerPage:true,
-            activeDailyPrayer: null,
+            // activeDailyPrayer: null,
         })
     }
 
    
-
+    
     return(
         <>
             {!preview && (
-                <div className="row justify-content-between align-items-start pt-3">
+                <div className="row justify-content-between align-items-start pt-3 px-2">
                 <div className="col-md-6">
                     <PageTitle text='View Prayer' />
                 </div>
@@ -195,7 +199,7 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
                     </>
                 ):(
                     <>
-                        <div className='row p-2'>
+                        <div className='row p-2 px-0'>
                         
                            <div className='col-md-12'>
                                <div className="user-name px-2 mt-4">
@@ -209,25 +213,23 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
                                    <h5 className="m-0 name h6">Prayer subtitle</h5>
                                </div>
                                <div 
-                                   className="text-dark mt-1 small px-2"
-                                     
+                                   className="text-dark mt-1 small px-2"  
                                 > 
                                     {prayerData?.subtitle}
                                 </div>
                            </div>
                           
-
                            <div className='col-md-12'>
                                <div className="user-name px-2 mt-4">
-                                   <h5 className="m-0 name h6">Prayer points</h5>
+                                   <h5 className="m-0 name mb-0 font-weight-bold">Prayer preface</h5>
                                </div>
                                <div 
-                                   className="text-dark mt-1 small px-2"
-                                   dangerouslySetInnerHTML={{ __html: prayerData?.content || 'N/A' }}       
-                               /> 
+                                   className="text-dark mt-0  small px-2"  
+                                   dangerouslySetInnerHTML={{ __html: prayerData?.preface || 'N/A' }} 
+                                /> 
+                                   
                            </div>
-
-
+                          
                        </div>
                        {showViewAllDailyPrayerPage && (
                            <>
@@ -244,7 +246,7 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
                                                     showUpdateDailyPrayerPage:false,
                                                     showViewDailyPrayerPage:false,
                                                     showViewAllDailyPrayerPage:false,
-                                                    activeDailyPrayer: null,
+                                                    
                                                 })
                                             }}
                                         >   
@@ -258,31 +260,65 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
                                         </span>
                                     </div>
                                 </div>
-
+                            
                             <div className='col-md-12 daily-prayer-box-container'>
-                                    <div className='daily-prayer-box small pointer'>
-                                        <div>
-                                            1
-                                        </div>
+                            
+                                {prayerData?.dailyPrayers.map((dailyPrayer:any, index:any) => {
                                     
-                                    </div>
-                                    <div className='daily-prayer-box small active pointer'>
-                                        <div>
-                                            2
-                                        </div>
-                                    </div>
+                                    return(
+                                        <>
+                                            <div 
+                                                className={`daily-prayer-box small pointer ${activeDailyPrayer?._id === dailyPrayer?._id? 'active' :''}`}
+                                                onClick={() =>{
+                                                        setState({
+                                                            activeDailyPrayer:dailyPrayer,
+                                                        })
+                                                }}
+                                            >
+                                                <div>
+                                                    {dailyPrayer?.day}
+                                                </div>
+                                            
+                                            </div>
+                                        </>
+                                    )
+                                })}
+                                   
                             </div>
+                            {activeDailyPrayer && (
+                                <div className='col-md-12 mt-4'>
+                                    <>
+                                        <div className='py-3'>
+                                            <h4 className='small font-weight-bold'>
+                                                {activeDailyPrayer.heading}
+                                            </h4>
+                                        </div>
+
+                                        <div className='py-3'>
+                                            <h2 className='small font-weight-bold'>Content</h2>
+                                            <p className='small' dangerouslySetInnerHTML={{ __html: activeDailyPrayer.content || 'N/A' }} />
+                                             
+                                        </div>
+                                        <div className='py-3'>
+                                            <h2 className='small font-weight-bold'>Prayers</h2>
+                                            <div  className='small' dangerouslySetInnerHTML={{ __html: activeDailyPrayer.prayer_points || 'N/A' }}  />
+                                            
+                                        </div>
+                                    </>
+                                </div>
+                            )}
+                            
                        
                            </>
                        )}
                         {/* Create daily prayer */}
                        {showCreateDailyPrayerPage && (
-                           <>
+                           <div className='px-2'>
                                 <CreateDailyPrayer
                                     close={()=> closePages()}
                                     prayerId={props?.prayerId}
                                 />
-                           </>
+                           </div>
                        )}
 
                        

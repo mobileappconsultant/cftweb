@@ -25,9 +25,8 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
             title: '',
             subtitle: '',
             author: '',
-            content:'',
-            date: null,
-
+            preface:'',
+            date:null,
         },
         payload:{},
         errors:{},
@@ -77,11 +76,11 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
         setState({
             formData:{
                 ...formData,
-                content: data,
+                preface: data,
             },
             errors:{
                 ...state.errors,
-                content: '',
+                preface: '',
             }
         });
     };
@@ -113,7 +112,7 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
             'title': 'required',
             'subtitle' : 'required',
             'author': 'required',
-            'content':'required',
+            'preface': 'required',
             'date': 'required',
         };
 
@@ -121,8 +120,8 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
             'title.required': 'Enter a title',
             'subtitle.required': 'Subheader is required',
             'author.required': 'Author required',
-            'content.required': 'Content required',
-            'date.required': 'Select a publish date'
+            'preface.required': 'Preface required',
+            'date.required': 'Date required',
         };
         const validate = await validateData(newFormData, rules, messages);
       
@@ -158,11 +157,9 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
         try {
             const payload = {
                 ...formData,
-                day: moment(new Date(formData?.date), "MM-DD-YYYY").day(),
-                month: moment(new Date(formData?.date), "MM-DD-YYYY").month(),
-                year: moment(new Date(formData?.date), "MM-DD-YYYY").year(),
+                date: formData.date,
             };
-            delete payload.date;
+           
             await createNewPrayer({variables:{input: payload}});
             setState({
                 alertMessage:  processAlertSuccess('Prayer saved successfully'),
@@ -222,7 +219,7 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
 
         if(adminDataQuery.error){
             setState({
-                alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
+                alertMessage:processAlertError(extractErrorMessage(adminDataQuery.error)),
             })
         }
         // Cleanup method
@@ -309,16 +306,16 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                             </div>
                             
                             <div className="col-md-12 mb-4">
-                            <h6 className='mb-2'>Type prayer content</h6>
+                            <h6 className='mb-2'>Type prayer preface</h6>
                                 <TextEditor
                                     //@ts-ignore
-                                    text={formData?.content}
+                                    text={formData?.preface}
                                     handleChange={handleEditorChange}
-                                    placeholder="Type prayer content"
+                                    placeholder="Type prayer preface"
                                 />
-                                {errors.content && (
+                                {errors.preface && (
                                     <div className="small w-100 text-left text-danger">
-                                        {errors.content}
+                                        {errors.preface}
                                     </div>
                                 )}
                             </div>
@@ -335,13 +332,11 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                     </>
                 ): (
                     <div className='row p-2'>
-                        <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
+                        <div className="col-md-5 d-flex justify-content-between align-items-start mb-4 mt-3">
                             <div>
                                 <PageTitle text='Prayer review' />
                             </div>
-                            <div className='username small text-muted'>
-                                <li>{formData?.category}</li>
-                            </div>
+                            
                             <>
                                 <Badges
                                     text={'Pending'}

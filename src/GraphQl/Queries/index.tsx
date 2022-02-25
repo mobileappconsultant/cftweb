@@ -75,10 +75,30 @@ export const GET_ALL_ADMINS = gql`
       email
       phone
       full_name
-      role
+      role{
+        id
+        name
+        permissions{
+          id
+          name
+          description
+          module
+        }
+      }
       status
       createdAt
       updatedAt
+    }
+  }
+`;
+
+// Roles
+
+export const GET_ALL_ROLES = gql`
+  query RoleDTO{
+    getRoles{
+      id
+      name
     }
   }
 `;
@@ -108,8 +128,8 @@ export const GET_ALL_MEMBERS = gql`
 
 // Messages
 export const GET_ALL_MESSAGES = gql`
-  query MessageDTO{
-    getMessages{
+  query ApostleDeskDTO($flag: String! $page: Float! $limit: Float!){
+    getAllMessages(flag:$flag page:$page limit:$limit ){
       _id
       title
       minister
@@ -121,10 +141,11 @@ export const GET_ALL_MESSAGES = gql`
       message
       prayer_point
       category
-      weekPublished
-      monthPublished
-      yearPublished
+      published
+      minuteRead
       createdAt
+      updatedAt
+      
     }
   }
 `;
@@ -143,9 +164,6 @@ export const GET_SINGLE_MESSAGE = gql`
       message
       prayer_point
       category
-      weekPublished
-      monthPublished
-      yearPublished
       createdAt
     }
   }
@@ -192,16 +210,37 @@ export const GET_BIBLE_PASSAGE = gql`
 
 // Prayers
 export const GET_ALL_PRAYERS = gql`
-query PrayerDTO {
-  getPrayers {
+query PrayerDTO ($flag: String! $page: Float! $limit: Float!){
+  getAllPrayers (flag:$flag page:$page limit:$limit ){
     _id
     title
     subtitle
-    content
+    preface
+    image
     author
-    monthPublished
-    yearPublished
+    dailyPrayers{
+      _id
+      day
+      subtitle
+      scripture {
+        text
+        refrence
+      }
+      heading
+      content
+      supportingVerse{
+        text
+        refrence
+      }
+      prayer_points
+      prayerMannerId
+      published
+      createdAt
+      updatedAt
+    }
+    published
     createdAt
+    updatedAt
   }
 }
 `;
@@ -212,42 +251,51 @@ query PrayerDTO  ($prayerId: String!) {
     _id
     title
     subtitle
-    content
     author
+    preface
     dailyPrayers{
-      day
-      subtitle
-      scripture{
-        text
-        refrence
-      }
-      heading
-      content
-      supportingVerse
-      prayer_points
-      prayerMannerId
-      createdAt
+        _id
+        day
+        subtitle
+        scripture {
+          text
+          refrence
+        }
+        heading
+        content
+        supportingVerse{
+          text
+          refrence
+        }
+        prayer_points
+        prayerMannerId
+        published
+        createdAt
+        updatedAt
     }
-    dayPublished
-    monthPublished
-    yearPublished
     createdAt
   }
 }
 `;
 
 // BIBLE STUDY
-
 export const GET_ALL_BIBLE_STUDY_CONTENT = gql`
-  query BibleStudyDTO{
-    getAllBibleStudyContent{
+query BibleStudyDTO($page: Float! $limit: Float!){
+  getAllBibleStudyContent(page:$page limit:$limit ){
       _id
       topic
       minister
-      memoryVerse
-      bibleText
+      memoryVerse{
+        text
+        refrence
+      }
       message
+      dayPublished
+      monthPublished
+      yearPublished
+      published
       createdAt
+      updatedAt
     }
   }
 `;
@@ -264,4 +312,92 @@ export const GET_SINGLE_BIBLE_STUDY_CONTENT = gql`
       createdAt
     }
   }
+`;
+
+// SERMONS
+export const  GET_ALL_SERMONS = gql`
+query SermonDTO($page: Float! $limit: Float!){
+  getSermons(page:$page limit:$limit ){
+    _id
+    title
+    minister
+    image
+    bibleReading{
+      text
+      refrence
+    }
+    message
+    prayer_point
+    published
+    minuteRead
+    createdAt
+    updatedAt
+    
+  }
+}
+`;
+
+export const  GET_SINGLE_SERMON = gql`
+query SermonDTO($messageId: String!) {
+  getSermon(messageId: $messageId) {
+    _id
+    title
+    minister
+    image
+    bibleReading{
+      text
+      refrence
+    }
+    message
+    prayer_point
+    published
+    minuteRead
+    createdAt
+    updatedAt
+  }
+}
+`;
+// Pastors forum
+export const  GET_ALL_PASTORS_FORUM_MESSAGES = gql`
+query PastorForumDTO($page: Float! $limit: Float!){
+  getAllMessagesFromPastorForum(page:$page limit:$limit ){
+    _id
+    title
+    minister
+    image
+    bibleReading{
+      text
+      refrence
+    }
+    message
+    prayer_point
+    published
+    minuteRead
+    createdAt
+    updatedAt
+    
+  }
+}
+`;
+
+export const  GET_SINGLE_PASTORS_FORUM_MESSAGE = gql`
+query PastorForumDTO($id: String!){
+  getMessageDetailFromPastorForum(id:$id ){
+    _id
+    title
+    minister
+    image
+    bibleReading{
+      text
+      refrence
+    }
+    message
+    prayer_point
+    published
+    minuteRead
+    createdAt
+    updatedAt
+    
+  }
+}
 `;

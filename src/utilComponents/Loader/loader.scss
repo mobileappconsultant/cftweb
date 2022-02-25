@@ -1,10 +1,10 @@
 .loader{
-    position: fixed;
-    left: 55%;
+    position: absolute;
+    left: 45%;
     top: 50%;
     width: 100%;
     height: 100%;
-    z-index: 9999;
+    z-index: 10;
    
 }
 .div-loader{
@@ -15,4 +15,8 @@
   height: '100%';
   // zIndex: '9999';
 
+}
+.loader-container{
+  min-height: 50vh;
+  position: relative;
 }

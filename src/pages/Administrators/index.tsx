@@ -1,200 +1,74 @@
+
 import PageTitle from 'components/PageTitle';
-import UserCard from 'components/UserCard';
-import React, {useReducer, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import AlertComponent from 'components/AlertComponent';
-import ExportComponent from 'utilComponents/ExportComponent';
-import TableListView from 'utilComponents/TableListView';
-import Pagination from 'utilComponents/TablePagination';
-import CreateAdmin from './CreateAdmin';
-import { useQuery } from '@apollo/client';
-import { GET_ALL_ADMINS } from 'GraphQl/Queries';
-import { extractErrorMessage, formatInitialDateValue, processAlertError } from 'utils';
-import Filter from 'components/Filter';
-import { Printer } from 'tabler-icons-react';
-import CircularLoader from 'utilComponents/Loader';
+import React, {useReducer} from 'react';
+
+// icons
+import apostleDeskIcon from 'assets/images/newspaper-folding.svg';
+import sermonsIcon from 'assets/images/entertainment.svg';
+import { Lock, Users } from 'tabler-icons-react';
+import AdministratorsList from './AdminLists';
+import Roles from './Roles';
+
+
 
 const Administrators = ():JSX.Element => {
     const initialState = {
-        listView: true,
-        rowsPerPage:10,
-        page:0,
-        alertMessage:{},
-        dataArr:[],
-        isLoading:true,
+        activeTab: 0,
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr} = state;
-    const { data, loading, error } = useQuery(GET_ALL_ADMINS);
-
-    const changeListView = () => {
+    const {activeTab} = state;
+    const handleTabChange = (tabIndex: number):void => {
         setState({
-            listView: !listView,
+            activeTab: tabIndex,
         });
     };
 
-    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-        setState({
-            page: newPage,
-        });
-    };
-  
-    const handleChangeRowsPerPage = (event: any): void => {
-
-        const splicedIndex = page * rowsPerPage;
-        let spilceStop = rowsPerPage+ splicedIndex;
-        
-        if(spilceStop >= dataArr.length){
-            return;
-        }
-        setState({
-            rowsPerPage: event?.target?.value,
-        });
-      
-    };
-    const handleAlertClose = () => {
-        setState({
-            alertMessage:{},
-        });
-    };
-
-    const addAlert = (alertObj:{text: string, type: string}) => {
-        setState({
-            alertMessage: alertObj,
-        });
-    };
-
-    
-
-    useEffect(() => {
-        if(data){
-            setState({
-                dataArr: data?.getAllAdmin,
-            });
-           
-        };
-        if(!loading){
-            setState({
-                isLoading: false,
-            });
-        };
-
-        if(error){
-            
-            setState({
-                alertMessage :processAlertError(extractErrorMessage(error)),
-            })
+    const tabs = [
+        {
+            path:'/requests',
+            icon: <Users size={24} strokeWidth={2} color={'black'} />,
+            component: <> <AdministratorsList/> </>,
+            title: 'Administrators',
+        },
+        {
+            path:'/requests',
+            icon: <Lock size={24} strokeWidth={2} color={'black'} />,
+            component: <><Roles /> </>,
+            title: 'Roles',
         }
 
-        // Cleanup method
-        return () => {
-            setState({
-                ...initialState,
-            });
-        };
-    }, [data]);
-    
-    const paginatedData = (dataArr:any) => {
-        const splicedIndex = page * rowsPerPage;
-        let spilceStop = rowsPerPage+ splicedIndex;
-        const newArr = dataArr.slice(splicedIndex, spilceStop);
-        
-        return newArr;
-
-    };
-    const paginateData = paginatedData(dataArr);
+    ]
 
     return(
         <>
-        <div className="row justify-content-between align-items-end">
-        <div className="col-md-6">
+        <div className="col-md-12 px-0">
             <PageTitle text='Administrators' />
         </div>
-        <div className="col-md-6 d-flex justify-content-end">
-            <TableListView
-                isActive={listView}
-                actionEvent={changeListView}
-            />
-        </div>
-        </div>
-        {alertMessage?.text && (
-            <>
-                <AlertComponent
-                    text={alertMessage.text}
-                    type={alertMessage.type}
-                    onClose={handleAlertClose}
-                />
-            </>
-        )}
-        <div className="bg-white">
-        <div className="row  pt-4 px-4 justify-content-between"> 
-            <div className='col-md-3'>
-                <Filter
-                    text="Status"
-                />
-            </div>
-            <div className='col-md-1 text-right row justify-content-end'> 
-                <Printer
-                    size={34}
-                    strokeWidth={2}
-                    color={'#000000'}
-                    className='pointer'
-                />
-            </div>
-            <div className='col-md-12'>
-                <PageTitle text='Administrators List' />
-            </div>
-            
-        </div>
-        
-        {isLoading? (
-            <>
-                <CircularLoader/>
-            </>
-        ):(
-            <>
-           
-        <div className="row  py-4 px-4 overflow-y-auto "> 
-            {paginateData.map((datum: any, _i: number)=> {
-                
-                return(
+        <div className="d-flex  bg-white px-3 pt-3  tab border-bottom">
+            {tabs.map((tab, index)=> {
+                return (
                     <>
-                        <div className="col-md-6">
-                            <div className="my-2">
-                            <UserCard
-                                name={datum?.full_name}
-                                role={datum?.role}
-                                time={'22/03/2022'}
-                                avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
-                                active={datum?.status}
-                                id="2"
-                            />
+                        <div
+                            className={`tab-title d-flex align-items-center  ${index !==0? 'px-3': 'pr-3'} ${activeTab === index? 'active-tab-title': 'text-muted' } pointer `}
+                            onClick={()=>handleTabChange(index)}
+                        > 
+                            <div className=''>
+                            {tab.icon}&nbsp;
                             </div>
+                            
+                            {tab.title}
+                            
                         </div>
+                        
                     </>
-                );
+                )
             })}
-            
         </div>
-
-        </>
-        )}
-            <Pagination
-                count={dataArr.length?? 0}
-                page={page}
-                rowsPerPage={rowsPerPage}
-                onPageChange={handleChangePage}
-                handleChangeRowsPerPage={handleChangeRowsPerPage}
-            />
+        <div className="bg-white">
+            {tabs[activeTab].component}
         </div>
-            
-        <div>
-            
-           <CreateAdmin
-                addAlert={addAlert}
-           />
-        </div>
+       
        
         </>
     )

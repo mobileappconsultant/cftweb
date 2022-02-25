@@ -5,6 +5,12 @@ export const MESSAGE_IMAGE_UPLOAD = gql`
     uploadMessageContentImage(messageId: $messageId file: $file) 
   }
 `;
+
+export const SERMON_IMAGE_UPLOAD = gql`
+  mutation uploadSermonContentImage($sermonId: String! $file: Upload!) {
+    uploadSermonContentImage(sermonId: $sermonId file: $file) 
+  }
+`;
 export const LOGIN = gql`
   mutation login($creds:  LoginInput!) {
     login(creds: $creds ) {
@@ -14,7 +20,16 @@ export const LOGIN = gql`
         phone
         full_name
         code
-        role
+        role{
+            id
+            name
+            permissions{
+              id
+              name
+              description
+              module
+            }
+        }
         status
         createdAt
         updatedAt
@@ -68,6 +83,13 @@ export const CREATE_ADMIN = gql`
   }
 `;
 
+export const INVITE_ADMIN =gql`
+  mutation inviteAdmin($role: String! $email: String!){
+    inviteAdmin(role:$role email:$email){
+      msg
+    }
+  }
+`;
 
 export const CREATE_BRANCH = gql`
   mutation createBranch($input:  BranchInput!) {
@@ -116,7 +138,7 @@ export const CREATE_GROUP = gql`
     }
   }
 `;
-
+// MESSAGES
 export const CREATE_MESSAGE = gql`
   mutation createMessage($input:  MessageInput!) {
     createMessage(input: $input ) {
@@ -131,10 +153,7 @@ export const CREATE_MESSAGE = gql`
       message
       prayer_point
       category
-      weekPublished
-      monthPublished
-      yearPublished
-
+      
     }
   }
 `;
@@ -153,14 +172,36 @@ export const EDIT_MESSAGE = gql`
       message
       prayer_point
       category
-      weekPublished
-      monthPublished
-      yearPublished
+    
 
     }
   }
 `;
-// MESSAGES
+
+export const PUBLISH_MESSAGE =gql`
+  mutation publishDeskMessage($messageId: String!) {
+    publishDeskMessage(messageId: $messageId ) {
+      _id
+    }
+  }
+`;
+
+export const UNPUBLISH_MESSAGE =gql`
+  mutation unPublishDeskMessage($messageId: String!) {
+    unPublishDeskMessage(messageId: $messageId) {
+      _id
+    }
+  }
+`;
+
+export const DELETE_MESSAGE =gql`
+  mutation deleteMessage($messageId: String!) {
+    deleteMessage(messageId: $messageId) {
+      msg
+    }
+  }
+`;
+
 
 export const CREATE_PRAYER = gql`
   mutation createPrayer($input: PrayerInput!) {
@@ -168,10 +209,7 @@ export const CREATE_PRAYER = gql`
       _id
       title
       subtitle
-      content
       author
-      monthPublished
-      yearPublished
       createdAt
     }
   }
@@ -180,22 +218,38 @@ export const CREATE_PRAYER = gql`
 
 // DAILY PRAYERS
 export const CREATE_DAILY_PRAYER = gql`
-mutation createDailyPrayer($input: DailyPrayerInput!) {
-  createDailyPrayer(input: $input ) {
-    day
-    subtitle
-    scripture{
-      text
-      refrence
+  mutation createDailyPrayer($input: DailyPrayerInput!) {
+    createDailyPrayer(input: $input ) {
+      day
+      subtitle
+      scripture{
+        text
+        refrence
+      }
+      heading
+      content
+      supportingVerse
+      prayer_points
+      prayerMannerId
+      createdAt
     }
-    heading
-    content
-    supportingVerse
-    prayer_points
-    prayerMannerId
-    createdAt
   }
-}
+`;
+
+export const PUBLISH_PRAYER =gql`
+  mutation publishPrayer($prayerId: String!) {
+    publishPrayer(prayerId: $prayerId ) {
+      _id
+    }
+  }
+`;
+
+export const UNPUBLISH_PRAYER =gql`
+  mutation unPublishPrayer($prayerId: String!) {
+    unPublishPrayer(prayerId: $prayerId) {
+      _id
+    }
+  }
 `;
 
 // Bible study
@@ -225,5 +279,49 @@ export const UPDATE_BIBLE_STUDY = gql`
       createdAt
     }
   }
+`;
+
+// SERMONS
+export const CREATE_SERMON = gql`
+mutation createSermon($input:SermonInput!) {
+  createSermon(input: $input ) {
+    _id
+    title
+    minister
+    image
+    bibleReading{
+      text
+      refrence
+    }
+    message
+    prayer_point
+    published
+    minuteRead
+    createdAt
+    updatedAt
+  }
+}
+`;
+
+// Pastors forum
+export const CREATE_PASTOR_FORUM_MESSAGE = gql`
+mutation createMessageForPastorForum($input: PastorForumInput!) {
+  createMessageForPastorForum(input: $input ) {
+    _id
+    title
+    minister
+    image
+    bibleReading{
+      text
+      refrence
+    }
+    message
+    prayer_point
+    published
+    minuteRead
+    createdAt
+    updatedAt
+  }
+}
 `;
 

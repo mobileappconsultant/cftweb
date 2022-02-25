@@ -405,6 +405,17 @@ export const capiitalizeFirstLetter = (string = '') => {
     
 //     return string;
 // }
+export const changeOptionsToBool = (value: string):any => {
+    const obj:any = {
+        'false': 'false',
+        'true': 'true',
+        'active': 'true',
+        'non-active': 'true',
+        '': 'null',
+        'null': 'null',
+    }
+    return obj[value];
+};
 
 export const processAlertError =(message: string) : object => {
     return {type: 'alert-danger', text: message};

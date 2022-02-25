@@ -1,54 +1,69 @@
 import React, {useEffect, useReducer} from 'react';
 import Badges from 'utilComponents/Badges';
-import { history } from 'helpers';
 import ActionButton from 'utilComponents/ActionButton';
-import CreateApostleEvent from '../../CreateEvent';
 import CreateButton from 'utilComponents/CreateButton';
-import CircularLoader from 'utilComponents/Loader';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { GET_ALL_MESSAGES } from 'GraphQl/Queries';
-import { capiitalizeFirstLetter, extractErrorMessage, formatDate, formatDate2, getDateFromWeek, processAlertError, truncateMultilineText } from 'utils';
-import InfoDivHeader from 'utilComponents/InfoDivHeader';
+import { capiitalizeFirstLetter, extractErrorMessage, changeOptionsToBool, processAlertError, truncateMultilineText, processAlertSuccess } from 'utils';
 import Filter from 'components/Filter';
 import moment from 'moment';
 import CreateApostleMessage from './CreateMessage';
 import EditApostleMessage from './EditMessage';
 import ViewApostleMessage from './ViewMessage';
+import Pagination from 'utilComponents/TablePagination';
+import CircularLoader from 'utilComponents/Loader';
+import { publishOptions } from 'constants/index';
+import { DELETE_MESSAGE, PUBLISH_MESSAGE, UNPUBLISH_MESSAGE } from 'GraphQl/Mutations';
+import AlertComponent from 'components/AlertComponent';
+import DeleteModal from 'utilComponents/DeleteModal';
+
 
 const Messages = () => {
     const initialState = {
         listView: true,
-        rowsPerPage:10,
+        rowsPerPage: 10,
         page:0,
         alertMessage:{},
         dataArr:[],
         activeId: null,
         isLoading:false,
+        status: 'null',
         showAllMessages:true,
         showCreateForm: false,
         showEditForm: false,
         showViewSingleMessage: false,
+        showDeleteModal:false,
+
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
 
-    const {
-        listView, 
+    const { 
         page, 
         isLoading, 
         rowsPerPage, 
         alertMessage,  
-        showEditModal, 
+        showDeleteModal, 
         dataArr,
         activeId,
         showAllMessages,
         showCreateForm,
         showEditForm,
         showViewSingleMessage,
+        status,
     } = state;
-    const { data, loading, error } = useQuery(GET_ALL_MESSAGES);
+    const { fetchMore } = useQuery(GET_ALL_MESSAGES, {
+        variables: {
+          page: 0,
+          limit: 10,
+          flag: status,
+        },
+    });
 
-    const defaultView = () => {
+    const [unPublishMessageData] = useMutation(UNPUBLISH_MESSAGE);
+    const [publishMessageData] = useMutation(PUBLISH_MESSAGE);
+    
+    const defaultView = (refresh= null) => {
         setState({
             showAllMessages:true,
             showCreateForm: false,
@@ -56,49 +71,152 @@ const Messages = () => {
             showViewSingleMessage: false,
             activeId: null,
         });
+        if(refresh){
+            fetchData();
+        }
     };
 
-    useEffect(() => {
-        if(data){
+    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
+        
+        setState({
+            page: newPage,
+        });
+        fetchData();
+        
+    };
+  
+    const handleChangeRowsPerPage = (event: any): void => {
+        
+        setState({
+            rowsPerPage: event?.target?.value,
+        });
+        fetchData();
+    };
+
+    const fetchData =  async (flag= status) => {
+        setState({
+            isLoading:true,
+        });
+        const apiData : any = 
+        await fetchMore({
+                    variables:{
+                        flag:flag,
+                        page: page? page: 0,
+                        limit: rowsPerPage? rowsPerPage : 10,
+                        
+                    }
+                });
+         if(apiData.data){
             setState({
-                dataArr: data?.getMessages,
-            });
-           
-           
+                dataArr: apiData?.data?.getAllMessages,
+            }); 
         };
-        if(!loading){
+
+        if(!apiData.loading){
             setState({
                 isLoading: false,
             });
         };
 
-        if(error){
-            
+        if(apiData.error){
             setState({
-                alertMessage :processAlertError(extractErrorMessage(error)),
-            })
+                alertMessage :processAlertError(extractErrorMessage(apiData?.error)),
+                isLoading: false,
+            });
         }
+    };
 
+    const changeStatus = (e:any) => {
+        const option = changeOptionsToBool(e?.target?.value);
+        setState({
+            status: option,
+        });
+        fetchData(option);
+    };
+
+    useEffect(() => {
+        fetchData();
+        
         // Cleanup method
         return () => {
             setState({
                 ...initialState,
             });
         };
-    }, [data]);
+    }, [page, rowsPerPage]);
+
+    const unPublishData = async(id:number) => {
+        // eslint-disable-next-line no-restricted-globals
+        if(confirm("This will unpublish this message, click ok to continue")){
+            await unPublishMessageData({variables:{messageId: id}});
+            setState({
+                alertMessage :processAlertSuccess('Message unpublished'),
+                isLoading: false,
+            });
+            fetchData();
+        }
+    };
+
+    const publishData = async (id:number) => {
+        // eslint-disable-next-line no-restricted-globals
+        if(confirm("This will publish this message, click ok to continue")){
+            await publishMessageData({variables:{messageId: id}});
+            setState({
+                alertMessage :processAlertSuccess('Message published'),
+                isLoading: false,
+            });
+            fetchData();
+        }
+    };
+
+    const handleAlertClose = () => {
+        setState({
+            alertMessage:{},
+        });
+    };
+
+    const addAlert = (alert:any) => {
+        setState({
+            alertMessage:alert,
+        });
+    };
+
+    const toggleDeleteModal = () => {
+        setState({
+            showDeleteModal: !showDeleteModal,
+        });
+    };
 
     return(
         <>
             {showAllMessages &&(
                 <div className="row py-0 px-0"> 
                 
-                
+                        {isLoading? (
+                            <div className='bg-white'>
+                                <CircularLoader />
+                            </div>
+                        ) :(
                         <>
-                                <div className='col-md-12 d-flex justify-content-end'>
+                            
+                         
+                            <div className='col-md-12 d-flex justify-content-end'>
                                 <Filter
                                     text="Show"
+                                    selectOptions={publishOptions}
+                                    changeEvent={changeStatus}
                                 />
                             </div>
+
+                            {alertMessage?.text && (
+                                 <div className='col-md-12 d-flex justify-content-end my-2'>
+                                    <AlertComponent
+                                        text={alertMessage.text}
+                                        type={alertMessage.type}
+                                        onClose={handleAlertClose}
+                                    />
+                                </div>
+                            )}
                             
                             {dataArr.map((datum: any, _i:number) => {
                                 return(
@@ -145,14 +263,24 @@ const Messages = () => {
                                             </div>
                                             <div className='col-md-2 text-right' >
                                                 <div className='d-flex flex-row-reverse mb-3'>
-                                                    <Badges
-                                                        text="Published"
-                                                        type="success"
-                                                    />
+                                                    {datum?.published?(
+                                                        <Badges
+                                                            clickEvent={()=>unPublishData(datum?._id)}
+                                                            text="Published"
+                                                            type="success"
+                                                        />
+                                                    ):(
+                                                        <Badges
+                                                            clickEvent={()=>publishData(datum?._id)}
+                                                            text="Not Published"
+                                                            type="pending"
+                                                        />
+                                                    )}
+                                                    
                                                 </div>
 
                                                 <div className='d-flex flex-row-reverse published-time-posted'>
-                                                {moment(datum?.createdAt).format("DD/MM/YYYY, hh:mm:ss")}
+                                                    {moment(datum?.createdAt).format("DD/MM/YYYY, hh:mm:ss")}
                                                 </div>
 
                                                 <div className='d-flex justify-content-end mt-4'>
@@ -183,7 +311,12 @@ const Messages = () => {
                                                             </>
                                                         }
                                                         className="edit-action "
-                                                        actionEvent={()=> console.log('me')}
+                                                        actionEvent={()=> {
+                                                            setState({
+                                                                showDeleteModal:true,
+                                                                activeId:datum?._id,
+                                                            });
+                                                        }}
                                                     />
                                                 </div>
                                             </div>
@@ -194,6 +327,20 @@ const Messages = () => {
                                 </>
                             )
                         })}
+                        {dataArr.length !== 0 && (
+                            <>
+                                <div>
+                                    <Pagination
+                                        count={dataArr.length?? 0}
+                                        page={page}
+                                        rowsPerPage={rowsPerPage}
+                                        onPageChange={handleChangePage}
+                                        handleChangeRowsPerPage={handleChangeRowsPerPage}
+                                    />
+                                </div>
+                            </>
+                        )}
+                        
 
                             <div>
                                 <CreateButton
@@ -213,7 +360,7 @@ const Messages = () => {
                         
                         </>
                 
-            
+                    )}
                     
                 </div>
             )}
@@ -233,6 +380,18 @@ const Messages = () => {
                 <ViewApostleMessage
                     close={defaultView}
                     messageId={activeId}
+                />
+            )}
+
+            {showDeleteModal && (
+                <DeleteModal
+                    refresh={fetchData}
+                    mutation={DELETE_MESSAGE}
+                    handleModalToggle={toggleDeleteModal}
+                    showModal={showDeleteModal}
+                    parameterKey="messageId"
+                    recordId={activeId}
+                    addAlert={addAlert}
                 />
             )}
             

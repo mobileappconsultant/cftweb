@@ -338,6 +338,13 @@ ol, ul {
     padding: 5px;
     border: 1px solid #ced4da;
   }
+  .react-datetime-picker__wrapper{
+    position: relative !important;
+    border-radius: 12px;
+    outline: none !important;
+    padding: 5px;
+    border: 1px solid #ced4da;
+  }
 }
 .rdrDefinedRangesWrapper{
   display: none !important;

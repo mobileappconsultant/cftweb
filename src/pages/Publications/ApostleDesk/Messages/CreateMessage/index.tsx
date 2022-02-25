@@ -1,25 +1,24 @@
 import React, {useReducer, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { ApiRequestClient } from 'apiClient';
-import { apiRoutes, roleOptions , apostleDeskCategoryOptions} from 'constants/index';
-import { extractErrorMessage, formatDate, isNotEmptyArray, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop } from 'utils';
+import { apiRoutes, apostleDeskCategoryOptions} from 'constants/index';
+import { extractErrorMessage, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop, formatDate } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
 import FormGroupSelect from 'utilComponents/FormGroupSelect';
-import { history, validateData } from 'helpers';
+import { validateData } from 'helpers';
 import PageTitle from 'components/PageTitle';
 import TextEditor from 'utilComponents/TextEditor';
 import ReactTagInput from "@pathofdev/react-tag-input";
-import { CirclePlus, TrashOff, Variable } from 'tabler-icons-react';
 import "@pathofdev/react-tag-input/build/index.css";
-import FormGroupTextarea from 'utilComponents/FormGroupTextarea';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { CREATE_MESSAGE } from 'GraphQl/Mutations';
 import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
 import CloseButton from 'components/CloseButton';
+import { GET_ALL_ADMINS } from 'GraphQl/Queries';
+import CustomDateTimePicker from 'utilComponents/DateTimePicker';
 
 const CreateApostleMessage = (props: any):JSX.Element => {
     
@@ -31,6 +30,7 @@ const CreateApostleMessage = (props: any):JSX.Element => {
             bibleReading:[],
             category:'',
             prayer_point:'',
+            // dateTime: null,
 
         },
         payload:{},
@@ -42,7 +42,8 @@ const CreateApostleMessage = (props: any):JSX.Element => {
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const [createNewMessage, { data, loading, error }] = useMutation(CREATE_MESSAGE); 
+    const [createNewMessage] = useMutation(CREATE_MESSAGE); 
+    const adminDataQuery = useQuery(GET_ALL_ADMINS); 
     const {formData, isLoading, alertMessage, errors, preview, adminData,  bibleVerseData} = state;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
@@ -115,6 +116,25 @@ const CreateApostleMessage = (props: any):JSX.Element => {
         });
     };
 
+    const handleDateChange = (e:any):void => {
+        if(e){
+            const date = formatDate(e);
+            setState({
+                formData:{
+                    ...formData,
+                    dateTime: date,
+                }
+            });
+        }else{
+            setState({
+                formData:{
+                    ...formData,
+                    dateTime: null,
+                }
+            });
+        }
+    };
+
 
     
     const validateFormData = async () => {
@@ -179,9 +199,7 @@ const CreateApostleMessage = (props: any):JSX.Element => {
                 alertMessage:  processAlertSuccess('Message saved successfully'),
             });
             scrollTop();
-            setTimeout(function () {
-                history.push('/apostle-desk')
-            }, 2000);
+            
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
             setState({
@@ -197,49 +215,42 @@ const CreateApostleMessage = (props: any):JSX.Element => {
         });
     };
 
-    const fetchData = async () => {
-        setState({
-            isLoading: true,
-        });
-
-        try {
-            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_ADMINS);
-            for (let index = 0; index < response?.data?.data.length; index++) {
-                const element = response?.data?.data[index];
-                element.label = element?.full_name;
-                element.value = element?.full_name;
-            };
-            setState({
-                adminData: response?.data?.data,
-                isLoading: false,
-            });
-        } catch (error) {
-            setState({
-                isLoading: false,
-            });
-        }
-
-    };
-
-
     const upDateBibleVerseText = (bibleVerseObj:any, index:number) => {
       
         bibleVerseData[index] = bibleVerseObj;
         setState({
             bibleVerseData: [...bibleVerseData],
         })
-    }
+    };
 
     useEffect(() => {
+        
+        if(adminDataQuery.data){
+            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin));
+            for (let index = 0; index < adminList.length; index++) {
+                const element = adminList[index];
+                element.label = element?.full_name;
+                element.value = element?.full_name;
+            };
+            setState({
+                adminData: adminList,
+            
+            });
+        
+        };
 
-        fetchData();
+        if(adminDataQuery.error){
+            setState({
+                alertMessage:processAlertError(extractErrorMessage(adminDataQuery.error)),
+            })
+        }
         // Cleanup method
         return () => {
             setState({
                 ...initialState,
             });
         };
-    }, []);
+    }, [adminDataQuery.data]);
 
     return(
         <>
@@ -316,6 +327,17 @@ const CreateApostleMessage = (props: any):JSX.Element => {
                                     selectOptions={adminData}
                                 />
                             </div>
+
+                            {/* <div className="col-md-6 mb-4">
+                                <CustomDateTimePicker
+                                    value={formData?.dateTime}
+                                    //@ts-ignore
+                                    onChange={(e:any)=>handleDateChange(e)}
+                                    placeholder="Select publish date"
+                                    showError={errors.dateTime}
+                                    errorMessage={errors.dateTime}
+                                />
+                            </div> */}
                             <div className="col-md-12 mb-4">
                             <h6 className='mb-2'>Type message</h6>
                                 <TextEditor

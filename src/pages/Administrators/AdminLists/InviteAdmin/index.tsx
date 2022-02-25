@@ -1,37 +1,37 @@
-import React, {useReducer, useEffect } from 'react';
+import React, {useEffect, useReducer} from 'react';
 import Modal from 'utilComponents/Modal';
-import { Link } from 'react-router-dom';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes, roleOptions } from 'constants/index';
-import { extractErrorMessage, formatDate, isNotEmptyArray, processAlertSuccess, isObjectEmpty, processAlertError } from 'utils';
+
+import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
 import AlertComponent from 'components/AlertComponent';
+import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
 import FormGroupSelect from 'utilComponents/FormGroupSelect';
-import CustomDatePicker from 'utilComponents/DatePicker';
-import { history, validateData } from 'helpers';
-import FormGroupTextarea from 'utilComponents/FormGroupTextarea';
-import { EditCircle } from 'tabler-icons-react';
-import TextEditor from 'utilComponents/TextEditor';
+import { useMutation, useQuery } from '@apollo/client';
+import { INVITE_ADMIN } from 'GraphQl/Mutations';
+import { GET_ALL_ROLES } from 'GraphQl/Queries';
 
-const AddNotes = (props: any):JSX.Element => {
+const InviteAdmin = (props: any):JSX.Element => {
     const initialState = {
         formData: {
-            text: '',
+            email: '',
+            role: '',
         },
+        roleOptions:[],
         errors:{},
-        adminData:[],
         isLoading: false,
         alertMessage:{},
         showModal: false,
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {formData, isLoading, alertMessage, errors, showModal, adminData} = state;
+    const {formData, isLoading, alertMessage, errors, showModal, roleOptions} = state;
+    // Graphql
+    const [inviteNewAdmin, { data, loading, error }] = useMutation(INVITE_ADMIN); 
+    const getAllRoles = useQuery(GET_ALL_ROLES);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
-        
         setState({
             formData:{
                 ...formData,
@@ -44,6 +44,21 @@ const AddNotes = (props: any):JSX.Element => {
         });
     };
 
+    const handleSelectChange = (e:{label?: string, value?: string|null|number}, name = '') :void  => {
+        if (e) {
+            setState({
+                formData: {
+                    ...state.formData,
+                    [name]: e.value,
+                },
+                errors: {
+                    ...state.errors,
+                    [name]: '',
+                },
+            });
+        }
+
+    }
 
     const handleModalToggle = () => {
         setState({showModal: !showModal});
@@ -52,11 +67,15 @@ const AddNotes = (props: any):JSX.Element => {
 
     const validateFormData = async () => {
         const rules = {
-            'text': 'required',
+            'email': 'required|email|validemail',
+            'role': 'required',
         };
 
         const messages = {
-            'text.required': 'Message body required',
+            'email.email': 'Enter valid email address',
+            'email.required': 'Enter email address',
+            'email.validemail': 'Enter valid email address',
+            'role.required': 'Select a role',
         };
         const validate = await validateData(formData, rules, messages);
         if (isObjectEmpty(validate)) {
@@ -72,7 +91,8 @@ const AddNotes = (props: any):JSX.Element => {
     const refreshForm = () => {
         setState({
             formData: {
-                text: '',
+                email: '',
+                role: '',
             },
             errors:{},
         })
@@ -87,18 +107,14 @@ const AddNotes = (props: any):JSX.Element => {
             const validate = await validateFormData();
             if(validate){
                 const payload = {
-                    subtitle: 'n/a',
-                    paragraphs: [formData?.text],
-                    message: props?.messageId,
-
+                    ...formData,
+                    role: formData?.role
                 };
-                await ApiRequestClient.post(apiRoutes.CREATE_MESSAGE_NOTE, payload);  
-                
+                await inviteNewAdmin({variables:{input: payload}})
+               
                 refreshForm();
-                
-                props.addAlert(processAlertSuccess('Note added successfully'));
+                props.addAlert(processAlertSuccess('Admin invited successfully'));
                 handleModalToggle();
-                props?.refreshForm();
             };
             setState({
                 isLoading: false,
@@ -118,59 +134,45 @@ const AddNotes = (props: any):JSX.Element => {
         });
     };
 
-    const fetchData = async () => {
-        setState({
-            isLoading: true,
-        });
-
-        try {
-            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_ADMINS);
-            for (let index = 0; index < response?.data?.data.length; index++) {
-                const element = response?.data?.data[index];
-                element.label = element?.full_name;
-                element.value = element?.full_name;
+    useEffect(() => {
+        
+        if(getAllRoles.data){
+            const roleList:any = JSON.parse(JSON.stringify(getAllRoles.data.getRoles));
+            for (let index = 0; index < roleList.length; index++) {
+                const element = roleList[index];
+                element.label = element?.name;
+                element.value = element?.name;
             };
             setState({
-                adminData: response?.data?.data,
-                isLoading: false,
+                roleOptions: roleList,
             });
-        } catch (error) {
+           
+        };
+        if(!getAllRoles.loading){
             setState({
                 isLoading: false,
+            });
+        };
+
+        if(getAllRoles.error){
+            
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(getAllRoles.error)),
             });
         }
 
-    };
-
-    const handleEditorChange = (data:any) => {
-        setState({
-            formData:{
-                ...formData,
-                text: data,
-            },
-            errors:{
-                ...state.errors,
-                text: '',
-            }
-        });
-    };
-
-    useEffect(() => {
-       // fetchData();
         // Cleanup method
         return () => {
             setState({
                 ...initialState,
             });
         };
-    }, []);
+    }, [getAllRoles.data]);
 
     return(
         <>
         <Modal
-            title="Add note to message"
-            //@ts-ignore
-            size="lg"
+            title="Invite Admin"
             show={showModal} 
             toggle={handleModalToggle}
         >
@@ -186,15 +188,30 @@ const AddNotes = (props: any):JSX.Element => {
                 )}
 
                 <div className="row">
+                    
                     <div className="col-md-12 mb-3">
-                       
-                        <TextEditor
-                             //@ts-ignore
-                            text={formData?.text}
-                            handleChange={handleEditorChange}
+                        <FormGroupInput
+                            placeholder="Email"
+                            value={formData?.email}
+                            onChange={handleChange}
+                            name="email"
+                            showError={errors.email}
+                            errorMessage={errors.email}
                         />
                     </div>
-                   
+                    
+                    <div className="col-md-12 mb-3">
+                        <FormGroupSelect
+                                placeholder="Select role"
+                                // value={formData?.role}
+                                onChange={(e: object)=>handleSelectChange(e, 'role')}
+                                name="role"
+                                showError={errors.role}
+                                errorMessage={errors.role} 
+                                selectOptions={roleOptions}
+                                // label={'Select Role'}                        
+                        />
+                    </div>
                     <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
                     <CreateButton
                         text={'Submit'}
@@ -206,20 +223,13 @@ const AddNotes = (props: any):JSX.Element => {
                 </div>
             </>
         </Modal>
-        <button
-            className={`border-0 pointer edit-button mx-3 pb-1 px-1`}  
-            onClick={()=>{handleModalToggle()}}
-        >   
-            <EditCircle
-                className="button-icon "
-                size={20}
-                strokeWidth={1.5}
-                color={'#FFF'}
-            />
-        </button> 
-       
+        <CreateButton
+            text={'Invite Admin'}
+            float
+            actionEvent={()=>{handleModalToggle()}}
+        />
         </>
     )
 
 };
-export default AddNotes;
+export default InviteAdmin;

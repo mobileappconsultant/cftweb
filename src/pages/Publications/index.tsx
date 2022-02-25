@@ -2,19 +2,19 @@
 import PageTitle from 'components/PageTitle';
 import React, {useReducer} from 'react';
 import './publications.scss';
-
-import { extractErrorMessage, formatDate, formatDate2, getDateFromWeek, processAlertError } from 'utils';
 import Prayers from './ApostleDesk/Prayers';
 
+import ApostleDesk from './ApostleDesk';
+import Sermons from './Sermons';
+import BibleStudy from './BibleStudy';
+import PastorsForum from './PastorsForum';
 // icons
 import apostleDeskIcon from 'assets/images/newspaper-folding.svg';
 import sermonsIcon from 'assets/images/entertainment.svg';
 import bibleStudyIcon from 'assets/images/book-one.svg';
 import dailyBibleReadingIcon from 'assets/images/sunny.svg';
 import pastorForumIcom from 'assets/images/peoples-two.svg';
-import ApostleDesk from './ApostleDesk';
-import Sermons from './Sermons';
-import BibleStudy from './BibleStudy';
+
 
 const Publications = ():JSX.Element => {
     const initialState = {
@@ -57,7 +57,7 @@ const Publications = ():JSX.Element => {
         {
             path:'/requests',
             icon: pastorForumIcom,
-            component: <><Prayers /></>,
+            component: <div className='pastors-forum'><PastorsForum /></div>,
             title: 'Pastors forum',
         }
 

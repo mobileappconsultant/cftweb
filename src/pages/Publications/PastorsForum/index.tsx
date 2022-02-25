@@ -1,30 +1,32 @@
 import moment from 'moment';
-import React, {useEffect, useReducer} from 'react'
+import React, {useReducer, useEffect} from 'react'
 import ActionButton from 'utilComponents/ActionButton';
 import Badges from 'utilComponents/Badges';
 import { capiitalizeFirstLetter, extractErrorMessage, processAlertError, truncateMultilineText } from 'utils';
-import calendarDot from 'assets/images/calendar-dot.svg';
-import CreateButton from 'utilComponents/CreateButton';
-import CreateBibleStudy from './CreateBibleStudy';
+import Filter from 'components/Filter';
+import CreatePastorsForum from './CreatePastorsForum';
+import EditPastorsForum from './EditPastorsForum';
+import ViewPastorsForum from './ViewPastorsForum';
+import Pagination from 'utilComponents/TablePagination';
+import CircularLoader from 'utilComponents/Loader';
 import { useQuery } from '@apollo/client';
-import { GET_ALL_BIBLE_STUDY_CONTENT } from 'GraphQl/Queries';
-import EditBibleStudy from './EditBibleStudy';
-const BibleStudy =() => {
+import { GET_ALL_PASTORS_FORUM_MESSAGES } from 'GraphQl/Queries';
+import CreateButton from 'utilComponents/CreateButton';
 
+const PastorsForum =() => {
     const initialState = {
         listView: true,
-        rowsPerPage:10,
+        rowsPerPage: 10,
         page:0,
         alertMessage:{},
         dataArr:[],
         activeId: null,
         isLoading:false,
-        showAllStudies: true,
+        showAllSermons:true,
         showCreateForm: false,
         showEditForm: false,
-        showViewSingleStudy: false,
+        showViewSingleSermon: false,
     };
-
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
 
     const {
@@ -33,16 +35,15 @@ const BibleStudy =() => {
         isLoading, 
         rowsPerPage, 
         alertMessage,  
+        showEditModal, 
         dataArr,
         activeId,
-        showAllStudies,
+        showAllSermons,
         showCreateForm,
         showEditForm,
-        showViewSingleStudy,
+        showViewSingleSermon,
     } = state;
-    // GRAPHQL
-  
-    const { fetchMore } = useQuery(GET_ALL_BIBLE_STUDY_CONTENT, {
+    const { fetchMore } = useQuery(GET_ALL_PASTORS_FORUM_MESSAGES, {
         variables: {
           page: 0,
           limit: 10
@@ -66,16 +67,6 @@ const BibleStudy =() => {
         fetchData();
     };
 
-    const closePages = () => {
-        setState({
-            showAllStudies: true,
-            showCreateForm: false,
-            showEditForm: false,
-            showViewSingleStudy: false,
-            activeId:null,
-        })
-    };
-
     const fetchData =  async () => {
         setState({
             isLoading:true,
@@ -89,7 +80,7 @@ const BibleStudy =() => {
                 });
          if(apiData.data){
             setState({
-                dataArr: apiData?.data?.getAllBibleStudyContent,
+                dataArr: apiData?.data?.getAllMessagesFromPastorForum,
             }); 
         };
 
@@ -107,44 +98,56 @@ const BibleStudy =() => {
         }
     };
 
+    const defaultView = () => {
+        setState({
+            showAllSermons:true,
+            showCreateForm: false,
+            showEditForm: false,
+            showViewSingleSermon: false,
+            activeId: null,
+        });
+    };
+
     useEffect(() => {
         fetchData();
+        
         // Cleanup method
         return () => {
             setState({
                 ...initialState,
             });
         };
-    }, []);
-
-    console.log(dataArr);
+    }, [page, rowsPerPage]);
     return (
 
         <>
-        {showAllStudies && (
-            <>
-                 <div className='row p-4'>
-                 {dataArr.map((datum: any, _i:number) => {
-                        return(
-                            <>
-                                
-                                <div className="col-md-12 border-top border-bottom py-3">
-                                        <div className='d-flex row align-items-center'>
-                                            <div className='col-md-2 border-right d-flex gap-20'> 
-                                                <img src={calendarDot} />
-                                                <span className='small font-weight-bold'>
-                                                    {moment(datum?.createdAt).format('dddd')},<br/>
-                                                    {moment(datum?.createdAt).format('D/M/Y')}
-                                                    
-                                                </span>
-                                            </div>
+            {showAllSermons &&( 
+                <>
+                    <div className='row p-4'>
+                    {isLoading? (
+                            <div className='bg-white'>
+                                <CircularLoader />
+                            </div>
+                        ) :(
+                        <>
+                            {dataArr.map((datum: any, _i:number) => {
+                                return(
+                                    <div className="col-md-12 border-top py-3">
+                                        <div className='d-flex row align-items-start'>
+                                            
                                             <div 
-                                                className='col-md-8 pointer border-left'
+                                                className='col-md-10 pointer'
+                                                onClick={()=> {
+                                                    setState({
+                                                        showAllSermons:false,
+                                                        showCreateForm: false,
+                                                        showEditForm: false,
+                                                        showViewSingleSermon: true,
+                                                        activeId:datum?._id,
+                                                    });
+                                                }}
                                             >
-                                                
-                                                <h6 className='apostle-desk-post-header d-flex gap-20 align-items-center'>{capiitalizeFirstLetter(datum?.topic)}
-                                                    <p className='user-name font-weight-light mb-0'>by {datum?.minister}</p>
-                                                </h6>
+                                                <h6 className='apostle-desk-post-header'>{capiitalizeFirstLetter(datum?.title)}</h6>
                                                 <p 
                                                     className='apostle-desk-post-body'  
                                                     dangerouslySetInnerHTML={{ __html: truncateMultilineText(
@@ -161,7 +164,9 @@ const BibleStudy =() => {
                                                         type="success"
                                                     />
                                                 </div>
-                                            
+                                                <div className='d-flex flex-row-reverse published-time-posted mt-3'>
+                                                {moment(new Date()).format("DD/MM/YYYY, hh:mm:ss")}
+                                                </div>
 
                                                 <div className='d-flex justify-content-end mt-4'>
                                                     
@@ -174,12 +179,12 @@ const BibleStudy =() => {
                                                         className="edit-action mr-3"
                                                         actionEvent={()=> {
                                                             setState({
-                                                                showAllStudies:false,
+                                                                showAllSermons:false,
                                                                 showCreateForm: false,
                                                                 showEditForm: true,
-                                                                showViewSingleStudy: false,
-                                                                activeId: datum?._id,
-                                                            })
+                                                                showViewSingleSermon: false,
+                                                                activeId:datum?._id,
+                                                            });
                                                         }}
                                                         
                                                     />
@@ -198,50 +203,72 @@ const BibleStudy =() => {
 
                                         </div>
                                     </div>
-                            </>
-                        
-                    )})}
+                                
+                                )}
+                            )}
+                        </>
+                    
+                    )}
+                    
                     </div>
 
                     <div>
-                
                         <CreateButton
                             actionEvent={()=> 
                                 setState({
-                                    showAllStudies:false,
+                                    showAllSermons: false,
                                     showCreateForm: true,
                                     showEditForm: false,
-                                    showViewSingleStudy: false,
-                                    activeId:null,
+                                    showViewSingleSermon: false,
+                                    activeId: null,
                                 })
                             }
-                            text={'Create Bible Study'}
+                            text={'Create Forum Message'}
                             float
                         />
                     </div>
+
+                    {dataArr.length !== 0 && (
+                            <>
+                                <div>
+                                    <Pagination
+                                        count={dataArr.length?? 0}
+                                        page={page}
+                                        rowsPerPage={rowsPerPage}
+                                        onPageChange={handleChangePage}
+                                        handleChangeRowsPerPage={handleChangeRowsPerPage}
+                                    />
+                                </div>
+                            </>
+                    )}
             </>
-        )}
+            )}
+            {showCreateForm && (
+                <div className='px-4'>
+                    <CreatePastorsForum
+                        close={defaultView}
+                    />
+                </div>
+            )}
 
-        {showCreateForm && (
-            <div className='px-4 py-3'>
-               <CreateBibleStudy
-                    close={closePages}
-               />
-            </div>
-        )}
-
-        {showEditForm && (
-            <div className='px-4 py-3'>
-               <EditBibleStudy
-                    close={closePages}
-                    bibleStudyId={activeId}
-               />
-            </div>
-        )}
-           
-            
+            {showEditForm && (
+                <div className='px-4'>
+                    <EditPastorsForum
+                        close={defaultView}
+                        messageId={activeId}
+                    />
+                </div>
+            )}  
+            {showViewSingleSermon && (
+                <div className="px-4">
+                    <ViewPastorsForum
+                        close={defaultView}
+                        messageId={activeId}
+                    />
+                </div>
+            )}
         </>
     )
 };
 
-export default BibleStudy;
+export default PastorsForum;

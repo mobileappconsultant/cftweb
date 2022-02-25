@@ -230,7 +230,7 @@ const CreateAdmin = (props: any):JSX.Element => {
             </>
         </Modal>
         <CreateButton
-            text={'Create Admin'}
+            text={'Invite Admin'}
             float
             actionEvent={()=>{handleModalToggle()}}
         />

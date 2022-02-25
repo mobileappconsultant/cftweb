@@ -16,12 +16,12 @@ import { EDIT_MESSAGE } from 'GraphQl/Mutations';
 import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
-import { GET_ALL_ADMINS, GET_SINGLE_MESSAGE } from 'GraphQl/Queries';
+import { GET_ALL_ADMINS, GET_SINGLE_PASTORS_FORUM_MESSAGE } from 'GraphQl/Queries';
 import { DivLoader } from 'utilComponents/Loader';
 import CloseButton from 'components/CloseButton';
-import TimePicker from 'react-time-picker';
 
-const EditApostleMessage = (props: any):JSX.Element => {
+
+const EditSermon = (props: any):JSX.Element => {
   
     const initialState = {
         formData: {
@@ -44,8 +44,8 @@ const EditApostleMessage = (props: any):JSX.Element => {
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const [createNewMessage, loadingParams] = useMutation(EDIT_MESSAGE); 
     const {formData, isLoading, alertMessage, errors, preview, adminData, bibleVerseData} = state;
-    const { fetchMore } = useQuery(GET_SINGLE_MESSAGE, {
-        variables: { messageId: props?.messageId}
+    const { data, loading, error } = useQuery(GET_SINGLE_PASTORS_FORUM_MESSAGE, {
+        variables: { id: props?.messageId}
     }); 
     const adminDataQuery = useQuery(GET_ALL_ADMINS);
     
@@ -183,8 +183,8 @@ const EditApostleMessage = (props: any):JSX.Element => {
             });
             scrollTop();
             setTimeout(function () {
-                props.close(true);
-            }, 500);
+                history.push('/apostle-desk')
+            }, 2000);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
             setState({
@@ -208,50 +208,54 @@ const EditApostleMessage = (props: any):JSX.Element => {
         })
     };
 
-    const fetchData = async() => {
-        try {
-            
-            const response = await fetchMore({variables: { messageId: props?.messageId}});
-            const {data, error} = response;
-            if(data){
-                const response = data?.getMessage;
-                const getBibleReading = () => {
-                    const returnArr = [];
-                    for (let index = 0; index < response?.bibleReading.length; index++) {
-                        const element = response?.bibleReading[index];
-                        returnArr.push(element?.refrence);
-                    };
-                    return returnArr;
+
+    useEffect(() => {
+        if(data){
+            const response = data?.getMessageDetailFromPastorForum;
+            const getBibleReading = () => {
+                const returnArr = [];
+                for (let index = 0; index < response?.bibleReading.length; index++) {
+                    const element = response?.bibleReading[index];
+                    returnArr.push(element?.refrence);
                 };
-                setState({
-                    formData:{
-                        title: response?.title,
-                        message: response?.message,
-                        minister: response?.minister,
-                        bibleReading: getBibleReading(),
-                        category: response?.category,
-                        prayer_point: response?.prayer_point,
-                    },
-                    isLoading: false,
-                
-                });   
+                return returnArr;
             };
-            if(error){
-                setState({
-                    alertMessage :processAlertError(extractErrorMessage(error)),
-                    isLoading: false,
-                })
-            }
-        } catch (error) {
-            const errMsg = extractErrorMessage(error);
             setState({
-                alertMessage :processAlertError(extractErrorMessage(errMsg)),
+                formData:{
+                    title: response?.title,
+                    message: response?.message,
+                    minister: response?.minister,
+                    bibleReading: getBibleReading(),
+                    category: response?.category,
+                    prayer_point: response?.prayer_point,
+                },
+                prayers: response?.prayer_point,
+                preview: true,
+            });
+            
+          
+        };
+        if(!loading){
+            setState({
                 isLoading: false,
+            });
+        };
+
+        if(error){
+            
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(error)),
             })
         }
-    };
-    
-    // Fetch Admin
+
+        // Cleanup method
+        return () => {
+            setState({
+                ...initialState,
+            });
+        };
+    }, [data]);
+
     useEffect(() => {
         
         if(adminDataQuery.data){
@@ -263,18 +267,19 @@ const EditApostleMessage = (props: any):JSX.Element => {
             };
             setState({
                 adminData: adminList,
+            
             });
         
         };
         
         if(adminDataQuery.error){
+            
             setState({
                 alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
-            });
+            })
         }
+
         // Cleanup method
-        fetchData();
-    
         return () => {
             setState({
                 ...initialState,
@@ -288,7 +293,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
             {!preview && (
                 < div className="row justify-content-between align-items-start pt-4 px-4">
                  <div className="col-md-6">
-                     <PageTitle text='Edit Message' />
+                     <PageTitle text='Edit Forum Message' />
                  </div>
                  <div className="col-md-6 d-flex justify-content-end">
                      <CloseButton 
@@ -491,7 +496,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                                     </div>
                                 </div>
                                 <div className='col-md-5'>
-                                   
+                                    xxxx
                                 </div>
                                 
                             </div>
@@ -507,4 +512,4 @@ const EditApostleMessage = (props: any):JSX.Element => {
     )
 
 };
-export default EditApostleMessage;
+export default EditSermon;

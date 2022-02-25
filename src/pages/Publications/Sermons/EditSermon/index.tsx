@@ -21,7 +21,7 @@ import { DivLoader } from 'utilComponents/Loader';
 import CloseButton from 'components/CloseButton';
 import TimePicker from 'react-time-picker';
 
-const EditApostleMessage = (props: any):JSX.Element => {
+const EditSermon = (props: any):JSX.Element => {
   
     const initialState = {
         formData: {
@@ -44,7 +44,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const [createNewMessage, loadingParams] = useMutation(EDIT_MESSAGE); 
     const {formData, isLoading, alertMessage, errors, preview, adminData, bibleVerseData} = state;
-    const { fetchMore } = useQuery(GET_SINGLE_MESSAGE, {
+    const { data, loading, error } = useQuery(GET_SINGLE_MESSAGE, {
         variables: { messageId: props?.messageId}
     }); 
     const adminDataQuery = useQuery(GET_ALL_ADMINS);
@@ -183,8 +183,8 @@ const EditApostleMessage = (props: any):JSX.Element => {
             });
             scrollTop();
             setTimeout(function () {
-                props.close(true);
-            }, 500);
+                history.push('/apostle-desk')
+            }, 2000);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
             setState({
@@ -208,50 +208,54 @@ const EditApostleMessage = (props: any):JSX.Element => {
         })
     };
 
-    const fetchData = async() => {
-        try {
-            
-            const response = await fetchMore({variables: { messageId: props?.messageId}});
-            const {data, error} = response;
-            if(data){
-                const response = data?.getMessage;
-                const getBibleReading = () => {
-                    const returnArr = [];
-                    for (let index = 0; index < response?.bibleReading.length; index++) {
-                        const element = response?.bibleReading[index];
-                        returnArr.push(element?.refrence);
-                    };
-                    return returnArr;
+
+    useEffect(() => {
+        if(data){
+            const response = data?.getMessage;
+            const getBibleReading = () => {
+                const returnArr = [];
+                for (let index = 0; index < response?.bibleReading.length; index++) {
+                    const element = response?.bibleReading[index];
+                    returnArr.push(element?.refrence);
                 };
-                setState({
-                    formData:{
-                        title: response?.title,
-                        message: response?.message,
-                        minister: response?.minister,
-                        bibleReading: getBibleReading(),
-                        category: response?.category,
-                        prayer_point: response?.prayer_point,
-                    },
-                    isLoading: false,
-                
-                });   
+                return returnArr;
             };
-            if(error){
-                setState({
-                    alertMessage :processAlertError(extractErrorMessage(error)),
-                    isLoading: false,
-                })
-            }
-        } catch (error) {
-            const errMsg = extractErrorMessage(error);
             setState({
-                alertMessage :processAlertError(extractErrorMessage(errMsg)),
+                formData:{
+                    title: response?.title,
+                    message: response?.message,
+                    minister: response?.minister,
+                    bibleReading: getBibleReading(),
+                    category: response?.category,
+                    prayer_point: response?.prayer_point,
+                },
+                prayers: response?.prayer_point,
+                preview: true,
+            });
+            
+          
+        };
+        if(!loading){
+            setState({
                 isLoading: false,
+            });
+        };
+
+        if(error){
+            
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(error)),
             })
         }
-    };
-    
-    // Fetch Admin
+
+        // Cleanup method
+        return () => {
+            setState({
+                ...initialState,
+            });
+        };
+    }, [data]);
+
     useEffect(() => {
         
         if(adminDataQuery.data){
@@ -263,18 +267,19 @@ const EditApostleMessage = (props: any):JSX.Element => {
             };
             setState({
                 adminData: adminList,
+            
             });
         
         };
         
         if(adminDataQuery.error){
+            
             setState({
                 alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
-            });
+            })
         }
+
         // Cleanup method
-        fetchData();
-    
         return () => {
             setState({
                 ...initialState,
@@ -491,7 +496,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                                     </div>
                                 </div>
                                 <div className='col-md-5'>
-                                   
+                                    xxxx
                                 </div>
                                 
                             </div>
@@ -507,4 +512,4 @@ const EditApostleMessage = (props: any):JSX.Element => {
     )
 
 };
-export default EditApostleMessage;
+export default EditSermon;
