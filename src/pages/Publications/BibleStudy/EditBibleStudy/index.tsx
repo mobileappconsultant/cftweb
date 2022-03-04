@@ -1,5 +1,5 @@
 import React, {useReducer, useEffect } from 'react';
-import { extractErrorMessage, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop } from 'utils';
+import { extractErrorMessage, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop, formatDate } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
@@ -13,6 +13,8 @@ import Badges from 'utilComponents/Badges';
 import CloseButton from 'components/CloseButton';
 import { GET_ALL_ADMINS, GET_SINGLE_BIBLE_STUDY_CONTENT } from 'GraphQl/Queries';
 import { DivLoader } from 'utilComponents/Loader';
+import CustomDatePicker from 'utilComponents/DatePicker';
+import GetBiblePassage from 'components/GetBiblePassage';
 
 const EditBibleStudy= (props: any):JSX.Element => {
     
@@ -22,12 +24,10 @@ const EditBibleStudy= (props: any):JSX.Element => {
             message: '',
             minister: '',
             memoryVerse:'',
-            bibleText:'',
-
         },
         payload:{},
         errors:{},
-        bibleVerseData:[],
+        bibleVerseData:{},
         isLoading: true,
         alertMessage:{},
         preview: false,
@@ -36,11 +36,11 @@ const EditBibleStudy= (props: any):JSX.Element => {
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const [updateBibleStudy, { data, loading, error }] = useMutation(UPDATE_BIBLE_STUDY); 
     const  adminDataQuery = useQuery(GET_ALL_ADMINS);
-    const bibleStudyQuery = useQuery(GET_SINGLE_BIBLE_STUDY_CONTENT, {
+    const {fetchMore} = useQuery(GET_SINGLE_BIBLE_STUDY_CONTENT, {
         variables: { bibleStudyContentId: props?.bibleStudyId}
     });
    
-    const {formData, isLoading, alertMessage, errors, preview, adminData} = state;
+    const {formData, isLoading, alertMessage, errors, preview, adminData, bibleVerseData} = state;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -87,6 +87,25 @@ const EditBibleStudy= (props: any):JSX.Element => {
         });
     };
 
+    const handleDateChange = (e:any):void => {
+        if(e){
+            const date = formatDate(e);
+            setState({
+                formData:{
+                    ...formData,
+                    date: date,
+                }
+            });
+        }else{
+            setState({
+                formData:{
+                    ...formData,
+                    date: null,
+                }
+            });
+        }
+    };
+
     const validateFormData = async () => {
         const newFormData = {...formData};
         
@@ -95,7 +114,7 @@ const EditBibleStudy= (props: any):JSX.Element => {
             'minister': 'required',
             'message':'required',
             'memoryVerse': 'required',
-            'bibleText': 'required',
+            'date': 'required',
         };
 
         const messages = {
@@ -103,7 +122,7 @@ const EditBibleStudy= (props: any):JSX.Element => {
             'minister.required': 'Select a minister',
             'message.required': 'Message required',
             'memoryVerse.required': 'Memory verse required',
-            'bibleText.required': 'Bible text required',
+            'date.required': 'Date required',
         };
         const validate = await validateData(newFormData, rules, messages);
       
@@ -140,6 +159,7 @@ const EditBibleStudy= (props: any):JSX.Element => {
         try {
             const payload = {
                 ...formData,
+                memoryVerse: bibleVerseData,
             };
             await updateBibleStudy({variables:{biibleStudyContentId: props?.bibleStudyId, input: payload}});
             setState({
@@ -164,6 +184,42 @@ const EditBibleStudy= (props: any):JSX.Element => {
         });
     };
 
+    const fetchData = async() => {
+        try {
+            
+            const response = await fetchMore({variables: { messageId: props?.messageId}});
+            const {data, error}:any = response;
+            if(data){
+                const responseData= data?.getBibleStudyContent;
+               
+                setState({
+                    formData: {
+                        topic: responseData?.topic,
+                        message: responseData?.message,
+                        minister: responseData?.minister,
+                        memoryVerse: responseData?.memoryVerse?.refrence,
+                        date:null,
+            
+                    },
+                    isLoading: false,
+                
+                });   
+            };
+            if(error){
+                setState({
+                    alertMessage :processAlertError(extractErrorMessage(error)),
+                    isLoading: false,
+                })
+            }
+        } catch (error) {
+            const errMsg = extractErrorMessage(error);
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(errMsg)),
+                isLoading: false,
+            })
+        }
+    }
+
     useEffect(() => {
     
         if(adminDataQuery.data){
@@ -183,6 +239,7 @@ const EditBibleStudy= (props: any):JSX.Element => {
                 alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
             });
         }
+        fetchData();
         // Cleanup method
         return () => {
             setState({
@@ -191,36 +248,13 @@ const EditBibleStudy= (props: any):JSX.Element => {
         };
     }, [adminDataQuery.data]);
 
-
-    useEffect(() => {
-    
-        if(bibleStudyQuery.data){
-            const {getBibleStudyContent} = bibleStudyQuery.data;
-            setState({
-                formData:{
-                    topic: getBibleStudyContent?.topic,
-                    message: getBibleStudyContent?.message,
-                    minister:  getBibleStudyContent?.minister,
-                    memoryVerse: getBibleStudyContent?.memoryVerse,
-                    bibleText: getBibleStudyContent?.bibleText,
-                },
-                isLoading:false,
-            });
-        };
-
-        if(bibleStudyQuery.error){
-            setState({
-                alertMessage :processAlertError(extractErrorMessage(bibleStudyQuery.error)),
-                isLoading:false,
-            });
-        }
-        // Cleanup method
-        return () => {
-            setState({
-                ...initialState,
-            });
-        };
-    }, [bibleStudyQuery.data]);
+    const upDateBibleVerseText = (bibleVerseObj:any, index:number) => {
+      
+        // bibleVerseData[index] = bibleVerseObj;
+        setState({
+            bibleVerseData: {...bibleVerseObj},
+        })
+    };
 
     return(
         <>
@@ -278,17 +312,6 @@ const EditBibleStudy= (props: any):JSX.Element => {
                                         errorMessage={errors.memoryVerse}
                                     />
                                 </div>
-
-                                <div className="col-md-6 mb-4">
-                                    <FormGroupInput
-                                        placeholder="Bible text"
-                                        value={formData?.bibleText}
-                                        onChange={handleChange}
-                                        name="bibleText"
-                                        showError={errors.bibleText}
-                                        errorMessage={errors.bibleText}
-                                    />
-                                </div>
                     
                                 <div className="col-md-6 mb-1">
                                     <FormGroupSelect
@@ -299,6 +322,19 @@ const EditBibleStudy= (props: any):JSX.Element => {
                                         errorMessage={errors.minister} 
                                         selectOptions={adminData}
                                         defaultValue={{label: formData?.minister, value: formData?.minister}}
+                                    />
+                                </div>
+                                
+                                <div className="col-md-6 mb-4">
+                                    <CustomDatePicker
+                                        value={formData?.date}
+                                        //@ts-ignore
+                                        onChange={(e:any)=>handleDateChange(e)}
+                                        dayPlaceholder='Select'
+                                        monthPlaceholder='a'
+                                        yearPlaceholder='date'
+                                        showError={errors.date}
+                                        errorMessage={errors.date}
                                     />
                                 </div>
 
@@ -329,7 +365,7 @@ const EditBibleStudy= (props: any):JSX.Element => {
                         </>
                     ): (
                         <div className='row p-4'>
-                            <div className="col-md-5 d-flex justify-content-between align-items-center ">
+                            <div className="col-md-12 d-flex justify-content-between align-items-center ">
                                 <div>
                                     <PageTitle text='Review bible study update' />
                                 </div>
@@ -352,20 +388,19 @@ const EditBibleStudy= (props: any):JSX.Element => {
                             
 
                             <div className='col-md-12'>
-                                <div className=" px-2 mt-3">
-                                    <h5 className="m-0 name">Memory verse</h5>
-                                    <p className='font-italic'>{formData.memoryVerse}</p> 
-                                
-                                </div> 
-                            </div>
+                            <div className=" px-2 mt-3">
+                                <h5 className="m-0 name">Memory verse</h5>
+                                <p className='font-italic'>
+                                    <GetBiblePassage
+                                        biblePassage={formData?.memoryVerse}
+                                        updatePassageText={upDateBibleVerseText}
+                                        index={null}
+                                    />
+                                </p> 
+                               
+                            </div> 
+                        </div>
 
-                            <div className='col-md-12'>
-                                <div className=" px-2 mt-1  ">
-                                    <h5 className="m-0 name">Bible text</h5>
-                                    <p className='font-italic'>{formData.bibleText}</p> 
-                                
-                                </div> 
-                            </div>
 
                             <div className='col-md-12'>
                                 <div className="user-name px-2 mt-4">

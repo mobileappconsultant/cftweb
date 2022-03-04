@@ -22,7 +22,7 @@ export const GET_ALL_BRANCHES = gql`
 export const GET_ALL_GROUPS = gql`
   query GroupDTO {
     getAllGroups {
-      id
+      _id
       name
       group_head
       members{
@@ -47,12 +47,12 @@ export const GET_ALL_GROUPS = gql`
 export const GET_SINGLE_GROUP = gql`
   query GroupDTO ($groupId: String!) {
     getGroup(groupId: $groupId) {
-      id
+      _id
       name
       group_head
       members{
         email
-        id
+        _id
         phone
         full_name
         church_group
@@ -291,8 +291,8 @@ query PrayerDTO  ($prayerId: String!) {
 
 // BIBLE STUDY
 export const GET_ALL_BIBLE_STUDY_CONTENT = gql`
-query BibleStudyDTO($page: Float! $limit: Float!){
-  getAllBibleStudyContent(page:$page limit:$limit ){
+query BibleStudyDTO($flag: String! $page: Float! $limit: Float!){
+  getAllBibleStudyContent(flag:$flag page:$page limit:$limit ){
       _id
       topic
       minister
@@ -301,9 +301,6 @@ query BibleStudyDTO($page: Float! $limit: Float!){
         refrence
       }
       message
-      dayPublished
-      monthPublished
-      yearPublished
       published
       createdAt
       updatedAt
@@ -317,8 +314,11 @@ export const GET_SINGLE_BIBLE_STUDY_CONTENT = gql`
       _id
       topic
       minister
-      memoryVerse
-      bibleText
+      memoryVerse{
+        text
+        refrence
+      }
+      
       message
       createdAt
     }

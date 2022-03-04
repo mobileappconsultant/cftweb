@@ -9,7 +9,7 @@ import EditGroup from '../EditGroup';
 import branchIcon from 'assets/images/branch.png';
 import TableComponent from 'utilComponents/Table';
 import { GROUP_MEMBERS_HEADERS } from 'constants/tableHeaders';
-import {TableRow, TableCell} from '@mui/material';
+import {TableRow, TableCell, Tooltip} from '@mui/material';
 import CreateButton from 'utilComponents/CreateButton';
 import AddUserToGroup from './AddUserToGroup';
 
@@ -25,7 +25,7 @@ const ViewGroup = (props:any): JSX.Element => {
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {groupData, isLoading, showEditModal, showAddUserModal } = state;
     const { data, loading, error } = useQuery(GET_SINGLE_GROUP, {
-        variables: { groupId: props?.group?.id}
+        variables: { groupId: props?.group?._id}
     });
    
     useEffect(() => {
@@ -156,17 +156,19 @@ const ViewGroup = (props:any): JSX.Element => {
                 <div className='mx-3'>
                 <div className='mb-3 text-right'>
                     <div className="col-md-12 p-0 d-flex justify-content-end">
-                        <span 
-                            className={` pointer edit-button`}  
-                            onClick={toggleAddUserModal}
-                        >   
-                            <UserPlus
-                                className="button-icon"
-                                size={20}
-                                strokeWidth={1.5}
-                                color={'#FFF'}
-                            />
-                        </span>
+                        <Tooltip title="Add users to group" placement="right-start" arrow className='mx-3'>
+                            <span 
+                                className={` pointer edit-button`}  
+                                onClick={toggleAddUserModal}
+                            >   
+                                <UserPlus
+                                    className="button-icon"
+                                    size={20}
+                                    strokeWidth={1.5}
+                                    color={'#FFF'}
+                                />
+                            </span>
+                        </Tooltip>
                     </div>
                 </div>
                 <TableComponent

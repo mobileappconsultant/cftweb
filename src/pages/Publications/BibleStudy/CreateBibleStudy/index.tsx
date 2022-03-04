@@ -10,10 +10,10 @@ import TextEditor from 'utilComponents/TextEditor';
 import { useMutation, useQuery } from '@apollo/client';
 import { CREATE_BIBLE_STUDY } from 'GraphQl/Mutations';
 import Badges from 'utilComponents/Badges';
-import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
 import CloseButton from 'components/CloseButton';
 import { GET_ALL_ADMINS } from 'GraphQl/Queries';
+import CustomDatePicker from 'utilComponents/DatePicker';
 
 const CreateBibleStudy = (props: any):JSX.Element => {
     
@@ -23,12 +23,12 @@ const CreateBibleStudy = (props: any):JSX.Element => {
             message: '',
             minister: '',
             memoryVerse:'',
-            bibleText:'',
+            date:'',
 
         },
         payload:{},
         errors:{},
-        bibleVerseData:[],
+        bibleVerseData:{},
         isLoading: false,
         alertMessage:{},
         preview: false,
@@ -52,6 +52,25 @@ const CreateBibleStudy = (props: any):JSX.Element => {
                 [name]: '',
             }
         });
+    };
+
+    const handleDateChange = (e:any):void => {
+        if(e){
+            const date = formatDate(e);
+            setState({
+                formData:{
+                    ...formData,
+                    date: date,
+                }
+            });
+        }else{
+            setState({
+                formData:{
+                    ...formData,
+                    date: null,
+                }
+            });
+        }
     };
    
     const handleSelectChange = (e:{label?: string, value?: string|null|number}, name = '') :void  => {
@@ -107,7 +126,7 @@ const CreateBibleStudy = (props: any):JSX.Element => {
             'minister': 'required',
             'message':'required',
             'memoryVerse': 'required',
-            'bibleText': 'required',
+            'date': 'required',
         };
 
         const messages = {
@@ -115,7 +134,7 @@ const CreateBibleStudy = (props: any):JSX.Element => {
             'minister.required': 'Select a minister',
             'message.required': 'Message required',
             'memoryVerse.required': 'Memory verse required',
-            'bibleText.required': 'Bible text required',
+            'date.required': 'Date required',
         };
         const validate = await validateData(newFormData, rules, messages);
       
@@ -152,6 +171,8 @@ const CreateBibleStudy = (props: any):JSX.Element => {
         try {
             const payload = {
                 ...formData,
+                memoryVerse: bibleVerseData,
+
             };
             await createNewBibleStudy({variables:{input: payload}});
             setState({
@@ -174,6 +195,14 @@ const CreateBibleStudy = (props: any):JSX.Element => {
         setState({
             alertMessage:{},
         });
+    };
+
+    const upDateBibleVerseText = (bibleVerseObj:any, index:number) => {
+      
+        // bibleVerseData[index] = bibleVerseObj;
+        setState({
+            bibleVerseData: {...bibleVerseObj},
+        })
     };
 
     useEffect(() => {
@@ -255,7 +284,7 @@ const CreateBibleStudy = (props: any):JSX.Element => {
                                 />
                             </div>
 
-                            <div className="col-md-6 mb-4">
+                            {/* <div className="col-md-6 mb-4">
                                 <FormGroupInput
                                     placeholder="Bible text"
                                     value={formData?.bibleText}
@@ -264,7 +293,7 @@ const CreateBibleStudy = (props: any):JSX.Element => {
                                     showError={errors.bibleText}
                                     errorMessage={errors.bibleText}
                                 />
-                            </div>
+                            </div> */}
                  
                             <div className="col-md-6 mb-1">
                                 <FormGroupSelect
@@ -276,6 +305,19 @@ const CreateBibleStudy = (props: any):JSX.Element => {
                                     selectOptions={adminData}
                                 />
                             </div>
+
+                            <div className="col-md-6 mb-4">
+                                <CustomDatePicker
+                                    value={formData?.date}
+                                    //@ts-ignore
+                                    onChange={(e:any)=>handleDateChange(e)}
+                                    dayPlaceholder='Select'
+                                    monthPlaceholder='a'
+                                    yearPlaceholder='date'
+                                    showError={errors.date}
+                                    errorMessage={errors.date}
+                                />
+                            </div> 
 
                             <div className="col-md-12 mb-1">
                             <h6 className='mb-2'>Type message</h6>
@@ -329,18 +371,17 @@ const CreateBibleStudy = (props: any):JSX.Element => {
                         <div className='col-md-12'>
                             <div className=" px-2 mt-3">
                                 <h5 className="m-0 name">Memory verse</h5>
-                                <p className='font-italic'>{formData.memoryVerse}</p> 
+                                <p className='font-italic'>
+                                    <GetBiblePassage
+                                        biblePassage={formData?.memoryVerse}
+                                        updatePassageText={upDateBibleVerseText}
+                                        index={null}
+                                    />
+                                </p> 
                                
                             </div> 
                         </div>
 
-                        <div className='col-md-12'>
-                            <div className=" px-2 mt-1  ">
-                                <h5 className="m-0 name">Bible text</h5>
-                                <p className='font-italic'>{formData.bibleText}</p> 
-                               
-                            </div> 
-                        </div>
 
                         <div className='col-md-12'>
                             <div className="user-name px-2 mt-4">

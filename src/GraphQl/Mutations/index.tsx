@@ -329,8 +329,10 @@ export const CREATE_BIBLE_STUDY = gql`
       _id
       topic
       minister
-      memoryVerse
-      bibleText
+      memoryVerse{
+        text
+        refrence
+      }
       message
       createdAt
     }
@@ -343,10 +345,35 @@ export const UPDATE_BIBLE_STUDY = gql`
       _id
       topic
       minister
-      memoryVerse
-      bibleText
+      memoryVerse{
+        text
+        refrence
+      }
       message
       createdAt
+    }
+  }
+`;
+export const UNPUBLISH_BIBLE_STUDY =gql`
+  mutation unPublishBibleStudyContent($biibleStudyContentId: String!) {
+    unPublishBibleStudyContent(biibleStudyContentId: $biibleStudyContentId) {
+      _id
+    }
+  }
+`;
+
+export const PUBLISH_BIBLE_STUDY =gql`
+  mutation publishBibleStudyContent($biibleStudyContentId: String!) {
+    publishBibleStudyContent(biibleStudyContentId: $biibleStudyContentId) {
+      _id
+    }
+  }
+`;
+
+export const DELETE_BIBLE_STUDY =gql`
+  mutation deleteBibleStudyContent($bibleStudyContentId: String!) {
+    deleteBibleStudyContent(bibleStudyContentId: $bibleStudyContentId) {
+      msg
     }
   }
 `;

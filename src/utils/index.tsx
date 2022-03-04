@@ -458,9 +458,20 @@ export const splitBiblePassage = (biblePassageStr: String, version= 'niv') => {
     str = str.split(':');
     let verse = str[1];
     let book = str[0].split(' ');
+    let getBook:any = [...book];
+    getBook.pop();
+    let changeIndex = 0;
+    for (let index = 0; index < getBook.length; index++) {
+        let element = getBook[index];
+        if((/[a-zA-Z]/).test(element)){
+            changeIndex = index;
+        };
+    };
+    getBook[changeIndex] = capiitalizeFirstLetter(getBook[changeIndex]);
+    
     return {
-        book: capiitalizeFirstLetter(book[0]),
-        chapter: book[1],
+        book: getBook.join(' '),
+        chapter: book[book.length - 1],
         verse: verse,
         version
     };

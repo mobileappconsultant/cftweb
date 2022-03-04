@@ -172,7 +172,7 @@ const Groups = ():JSX.Element => {
                                     className={`
                                         d-flex pointer justify-content-between 
                                         align-items-start px-3 py-2 border-top border-bottom 
-                                        ${activeDataObj?.id === datum?.id? 'active-list':''}`
+                                        ${activeDataObj?._id === datum?._id? 'active-list':''}`
                                     }
                                     onClick={()=> setState({...state, activeDataObj: datum})}
                                 >
@@ -213,7 +213,7 @@ const Groups = ():JSX.Element => {
 
             </div>
             <div className="col-md-8 pl-0">
-                {activeDataObj?.id? (
+                {activeDataObj?._id? (
                     <>
                         <ViewGroup
                             group={activeDataObj}
