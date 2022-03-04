@@ -6,7 +6,7 @@ import { extractErrorMessage, processAlertError, splitBiblePassage } from 'utils
 
 interface propsObject {
     biblePassage : string;
-    index: number;
+    index: number| null;
     updatePassageText: Function;
   }
 const GetBiblePassage = (props: propsObject):JSX.Element => {

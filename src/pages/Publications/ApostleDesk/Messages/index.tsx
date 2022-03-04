@@ -191,7 +191,13 @@ const Messages = () => {
         <>
             {showAllMessages &&(
                 <div className="row py-0 px-0"> 
-                
+                        <div className='col-md-12 d-flex justify-content-end'>
+                            <Filter
+                                text="Show"
+                                selectOptions={publishOptions}
+                                changeEvent={changeStatus}
+                            />
+                        </div>
                         {isLoading? (
                             <div className='bg-white'>
                                 <CircularLoader />
@@ -200,13 +206,7 @@ const Messages = () => {
                         <>
                             
                          
-                            <div className='col-md-12 d-flex justify-content-end'>
-                                <Filter
-                                    text="Show"
-                                    selectOptions={publishOptions}
-                                    changeEvent={changeStatus}
-                                />
-                            </div>
+                            
 
                             {alertMessage?.text && (
                                  <div className='col-md-12 d-flex justify-content-end my-2'>

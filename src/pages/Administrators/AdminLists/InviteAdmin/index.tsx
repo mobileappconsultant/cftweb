@@ -110,7 +110,7 @@ const InviteAdmin = (props: any):JSX.Element => {
                     ...formData,
                     role: formData?.role
                 };
-                await inviteNewAdmin({variables:{input: payload}})
+                await inviteNewAdmin({variables: payload})
                
                 refreshForm();
                 props.addAlert(processAlertSuccess('Admin invited successfully'));
@@ -141,7 +141,7 @@ const InviteAdmin = (props: any):JSX.Element => {
             for (let index = 0; index < roleList.length; index++) {
                 const element = roleList[index];
                 element.label = element?.name;
-                element.value = element?.name;
+                element.value = element?.id;
             };
             setState({
                 roleOptions: roleList,

@@ -84,7 +84,12 @@ const Login = ():JSX.Element => {
             const responseData = loginData?.data?.login;
             dispatch(addUser(responseData?.admin));
             Cookies.set('access-token', responseData?.token);
-            history.push('/home');
+            if(responseData?.admin?.full_name){
+                history.push('/home');
+            }else{
+                history.push('/settings');
+            }
+           
           };
           
           setState({

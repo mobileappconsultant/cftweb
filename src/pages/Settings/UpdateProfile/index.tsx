@@ -78,14 +78,14 @@ const UpdateProfile = ():JSX.Element => {
             const validate = await validateFormData();
            
             if(validate){
-              
                 const response = await updateProfile({variables:{input: {full_name: formData?.full_name, phone: formData?.phone}}});
                 dispatch(addUser(response?.data?.updateadmin));
+                setState({
+                    isLoading: false,
+                    alertMessage: processAlertSuccess('Profile updated successfully'),
+                }); 
             };
-            setState({
-                isLoading: false,
-                alertMessage: processAlertSuccess('Profile updated successfully'),
-            }); 
+           
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
             setState({
@@ -108,7 +108,7 @@ const UpdateProfile = ():JSX.Element => {
                 email: userObject?.email,
                 full_name: userObject?.full_name,
                 phone:userObject?.phone,
-                role: userObject?.role[0],
+                role: userObject?.role[0]?.name?? '',
            }
        })
         // Cleanup method
@@ -118,7 +118,7 @@ const UpdateProfile = ():JSX.Element => {
             });
         };
     }, []);
-
+    
     return(
         <>
          
@@ -176,7 +176,7 @@ const UpdateProfile = ():JSX.Element => {
                     <FormGroupInput
                         placeholder="Role"
                         disabled={true}
-                        value={formData?.role}
+                        value={formData?.role? formData?.role: ''}
                         onChange={handleChange}
                         name="role"
                         showError={errors.role}

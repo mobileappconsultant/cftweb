@@ -23,14 +23,14 @@ const CreateDailyPrayer = (props: any):JSX.Element => {
             subtitle: '',
             day:'',
             content: '',
-            scripture:[],
+            scripture:'',
             supportingVerse: [],
             prayerPoints:'',
 
         },
         payload:{},
         errors:{},
-        bibleVerseData:[],
+        bibleVerseData:{},
         supportVerseData:[],
         isLoading: false,
         alertMessage:{},
@@ -99,7 +99,6 @@ const CreateDailyPrayer = (props: any):JSX.Element => {
     
     const validateFormData = async () => {
         const newFormData = {...formData};
-        newFormData.scripture = newFormData.scripture[0];
         newFormData.supportingVerse = newFormData.supportingVerse[0];
         const rules = {
             'heading': 'required',
@@ -117,7 +116,7 @@ const CreateDailyPrayer = (props: any):JSX.Element => {
             'day.required': 'Choose a day',
             'content.required': 'Content required',
             'supportingVerse.required':'Supporting verse required',
-            'scripture.required': 'Scripture(s) required',
+            'scripture.required': 'Scripture required',
             'prayerPoints.required': 'Prayer points required',
         };
         const validate = await validateData(newFormData, rules, messages);
@@ -184,9 +183,8 @@ const CreateDailyPrayer = (props: any):JSX.Element => {
 
     const upDateBibleVerseText = (bibleVerseObj:any, index:number) => {
       if(bibleVerseObj){
-        bibleVerseData[index] = bibleVerseObj;
         setState({
-            bibleVerseData: [...bibleVerseData],
+            bibleVerseData: bibleVerseObj,
         })
       }
        
@@ -272,8 +270,16 @@ const CreateDailyPrayer = (props: any):JSX.Element => {
                                 />
                             </div>
                             
-                            <div className="col-md-12 mb-4">
-                                <ReactTagInput 
+                            <div className="col-md-6 mb-4">
+                                <FormGroupInput
+                                    placeholder="Scripture"
+                                    value={formData?.scripture}
+                                    onChange={handleChange}
+                                    name="scripture"
+                                    showError={errors.scripture}
+                                    errorMessage={errors.scripture}
+                                />
+                                {/* <ReactTagInput 
                                     tags={formData?.scripture} 
                                     onChange={(newTags) => setTags(newTags, 'scripture')}
                                     placeholder='Type bible verse and press enter'
@@ -282,12 +288,12 @@ const CreateDailyPrayer = (props: any):JSX.Element => {
                                     <div className="small w-100 text-left text-danger">
                                         {errors.scripture}
                                     </div>
-                                )}
+                                )} */}
                             </div>
 
                             
                             
-                            <div className="col-md-12 mb-4">
+                            <div className="col-md-6 mb-4">
                                 <ReactTagInput 
                                     tags={formData?.supportingVerse} 
                                     onChange={(newTags) => setTags(newTags, 'supportingVerse')}
@@ -372,18 +378,12 @@ const CreateDailyPrayer = (props: any):JSX.Element => {
                         <div className='col-md-12'>
                             <div className="user-name px-2 mt-4">
                                 <h5 className="m-0 name">Scriptures</h5>
-                                    {formData?.scripture.map((item:string, index:number) => {
-                                        return(
-                                            <>
-                                                <GetBiblePassage
-                                                    biblePassage={item}
-                                                    updatePassageText={upDateBibleVerseText}
-                                                    index={index}
-                                                />
-                                            </>
-                                        )
-                                    })}
-                               
+                                    
+                                    <GetBiblePassage
+                                        biblePassage={formData?.scripture}
+                                        updatePassageText={upDateBibleVerseText}
+                                        index={null}
+                                    />
                             </div> 
                         </div>
 

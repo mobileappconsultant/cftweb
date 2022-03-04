@@ -69,6 +69,22 @@ mutation updateadmin($input: AdminInput!){
 }
 `;
 
+export const CHANGE_PASSWORD = gql`
+mutation updatePassword($newPassword: String! $oldPassword: String!){
+  updatePassword(newPassword: $newPassword oldPassword: $oldPassword) {
+    id
+    email
+    phone
+    full_name
+    code
+    status
+    createdAt
+    updatedAt
+  }
+}
+`;
+
+
 export const CREATE_ADMIN = gql`
   mutation register($input: AdminInput!){
       register(input: $input) {
@@ -84,9 +100,18 @@ export const CREATE_ADMIN = gql`
 `;
 
 export const INVITE_ADMIN =gql`
-  mutation inviteAdmin($role: String! $email: String!){
-    inviteAdmin(role:$role email:$email){
+  mutation inviteAdmin($email: String! $role: String!){
+    inviteAdmin(email:$email role:$role){
       msg
+    }
+  }
+`;
+
+// ROLES
+export const CREATE_ROLE =gql`
+  mutation createRole($permissions: [String!]! $name: String!){
+    createRole(permissions:$permissions name:$name){
+      id
     }
   }
 `;
@@ -215,22 +240,13 @@ export const CREATE_PRAYER = gql`
   }
 `;
 
-
-// DAILY PRAYERS
-export const CREATE_DAILY_PRAYER = gql`
-  mutation createDailyPrayer($input: DailyPrayerInput!) {
-    createDailyPrayer(input: $input ) {
-      day
+export const EDIT_PRAYER = gql`
+  mutation updatePrayer($prayerId: String! $input: PrayerInput!) {
+    updatePrayer(prayerId: $prayerId input: $input ) {
+      _id
+      title
       subtitle
-      scripture{
-        text
-        refrence
-      }
-      heading
-      content
-      supportingVerse
-      prayer_points
-      prayerMannerId
+      author
       createdAt
     }
   }
@@ -248,6 +264,60 @@ export const UNPUBLISH_PRAYER =gql`
   mutation unPublishPrayer($prayerId: String!) {
     unPublishPrayer(prayerId: $prayerId) {
       _id
+    }
+  }
+`;
+
+export const DELETE_PRAYER =gql`
+  mutation deletePrayer($prayerId: String!) {
+    deletePrayer(prayerId: $prayerId) {
+      msg
+    }
+  }
+`;
+
+
+// DAILY PRAYERS
+export const CREATE_DAILY_PRAYER = gql`
+  mutation createDailyPrayer($input: DailyPrayerInput!) {
+    createDailyPrayer(input: $input ) {
+      day
+      subtitle
+      scripture{
+        text
+        refrence
+      }
+      heading
+      content
+      supportingVerse{
+        text
+        refrence
+      }
+      prayer_points
+      prayerMannerId
+      createdAt
+    }
+  }
+`;
+
+export const EDIT_DAILY_PRAYER = gql`
+  mutation createDailyPrayer($input: DailyPrayerInput!) {
+    createDailyPrayer(input: $input ) {
+      day
+      subtitle
+      scripture{
+        text
+        refrence
+      }
+      heading
+      content
+      supportingVerse{
+        text
+        refrence
+      }
+      prayer_points
+      prayerMannerId
+      createdAt
     }
   }
 `;
@@ -303,6 +373,30 @@ mutation createSermon($input:SermonInput!) {
 }
 `;
 
+export const UNPUBLISH_SERMON =gql`
+  mutation unPublishSermon($sermonId: String!) {
+    unPublishSermon(sermonId: $sermonId) {
+      _id
+    }
+  }
+`;
+
+export const PUBLISH_SERMON =gql`
+  mutation publishSermon($sermonId: String!) {
+    publishSermon(sermonId: $sermonId) {
+      _id
+    }
+  }
+`;
+
+export const DELETE_SERMON =gql`
+  mutation deleteSermon($sermonId: String!) {
+    deleteSermon(sermonId: $sermonId) {
+      msg
+    }
+  }
+`;
+
 // Pastors forum
 export const CREATE_PASTOR_FORUM_MESSAGE = gql`
 mutation createMessageForPastorForum($input: PastorForumInput!) {
@@ -324,4 +418,49 @@ mutation createMessageForPastorForum($input: PastorForumInput!) {
   }
 }
 `;
+
+export const EDIT_PASTOR_FORUM_MESSAGE = gql`
+mutation uppdateMessageForPastorForum($messageId: String! $input: PastorForumInput!) {
+  uppdateMessageForPastorForum(messageId:$messageId input:$input ) {
+    _id
+    title
+    minister
+    image
+    bibleReading{
+      text
+      refrence
+    }
+    message
+    prayer_point
+    published
+    minuteRead
+    createdAt
+    updatedAt
+  }
+}
+`;
+export const UNPUBLISH_PASTOR_FORUM_MESSAGE =gql`
+  mutation publishMessageForPastorForum($messageId: String!) {
+    publishMessageForPastorForum(messageId: $messageId) {
+      _id
+    }
+  }
+`;
+
+export const PUBLISH_PASTOR_FORUM_MESSAGE =gql`
+  mutation punPublishMessageForPastorForum($messageId: String!) {
+    unPublishMessageForPastorForum(messageId: $messageId) {
+      _id
+    }
+  }
+`;
+
+export const DELETE_PASTOR_FORUM_MESSAGE =gql`
+  mutation deleteMessageForPastorForum($messageId: String!) {
+    deleteMessageForPastorForum(messageId: $messageId) {
+      msg
+    }
+  }
+`;
+
 

@@ -5,13 +5,13 @@ import PageTitle from 'components/PageTitle';
 import { useQuery } from '@apollo/client';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
-import { GET_SINGLE_SERMON } from 'GraphQl/Queries';
+import { GET_SINGLE_PASTORS_FORUM_MESSAGE } from 'GraphQl/Queries';
 import { DivLoader } from 'utilComponents/Loader';
 import UploadMessageImage from './UploadMessageImage';
 import { EditCircle } from 'tabler-icons-react';
 import CloseButton from 'components/CloseButton';
 
-const ViewSermon = (props: any):JSX.Element => {
+const ViewPastorsForumMessage = (props: any):JSX.Element => {
     const initialState = {
         formData: {
             title: '',
@@ -23,7 +23,7 @@ const ViewSermon = (props: any):JSX.Element => {
         payload:{},
         prayers:[''],
         bibleVerseData:[],
-        isLoading: false,
+        isLoading: true,
         alertMessage:{},
         preview: false,
         showImageModal:false,
@@ -31,8 +31,8 @@ const ViewSermon = (props: any):JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage,  preview, showImageModal, bibleVerseData} = state;
-    const { fetchMore } = useQuery(GET_SINGLE_SERMON, {
-        variables: { messageId: props?.messageId}
+    const { fetchMore } = useQuery(GET_SINGLE_PASTORS_FORUM_MESSAGE, {
+        variables: { id: props?.messageId}
     }); 
     
     const upDateBibleVerseText = (bibleVerseObj:any, index:number) => {
@@ -54,10 +54,10 @@ const ViewSermon = (props: any):JSX.Element => {
             isLoading:true,
         });
     
-        const apiData : any = await fetchMore({ variables: { messageId: props?.messageId} });
+        const apiData : any = await fetchMore({ variables: { id: props?.messageId} });
 
          if(apiData.data){
-            const response = apiData?.data?.getSermon;
+            const response = apiData?.data?.getMessageDetailFromPastorForum;
             const getBibleReading = () => {
                 const returnArr = [];
                 for (let index = 0; index < response?.bibleReading.length; index++) {
@@ -120,7 +120,7 @@ const ViewSermon = (props: any):JSX.Element => {
             {!preview && (
                 <div className="row justify-content-between align-items-start pt-4 px-4">
                 <div className="col-md-6">
-                    <PageTitle text='View Sermon' />
+                    <PageTitle text='View pastors forum message' />
                 </div>
                 <div className="col-md-6 d-flex justify-content-end">
                     
@@ -249,4 +249,4 @@ const ViewSermon = (props: any):JSX.Element => {
     )
 
 };
-export default ViewSermon;
+export default ViewPastorsForumMessage;

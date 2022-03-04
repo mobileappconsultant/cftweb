@@ -12,7 +12,7 @@ import TextEditor from 'utilComponents/TextEditor';
 import ReactTagInput from "@pathofdev/react-tag-input";
 import "@pathofdev/react-tag-input/build/index.css";
 import { useMutation, useQuery } from '@apollo/client';
-import { EDIT_MESSAGE } from 'GraphQl/Mutations';
+import { EDIT_MESSAGE, EDIT_PASTOR_FORUM_MESSAGE } from 'GraphQl/Mutations';
 import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
@@ -42,9 +42,9 @@ const EditSermon = (props: any):JSX.Element => {
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const [createNewMessage, loadingParams] = useMutation(EDIT_MESSAGE); 
+    const [updateForumMessage, loadingParams] = useMutation(EDIT_PASTOR_FORUM_MESSAGE); 
     const {formData, isLoading, alertMessage, errors, preview, adminData, bibleVerseData} = state;
-    const { data, loading, error } = useQuery(GET_SINGLE_PASTORS_FORUM_MESSAGE, {
+    const { fetchMore } = useQuery(GET_SINGLE_PASTORS_FORUM_MESSAGE, {
         variables: { id: props?.messageId}
     }); 
     const adminDataQuery = useQuery(GET_ALL_ADMINS);
@@ -125,7 +125,6 @@ const EditSermon = (props: any):JSX.Element => {
         newFormData.bible_verse = newFormData.bibleReading[0];
         const rules = {
             'title': 'required',
-            'category' : 'required',
             'minister': 'required',
             'message':'required',
             'bible_verse': 'required',
@@ -134,7 +133,6 @@ const EditSermon = (props: any):JSX.Element => {
 
         const messages = {
             'title.required': 'Enter a title',
-            'category.required': 'Select a category',
             'minister.required': 'Select a minister',
             'message.required': 'Message required',
             'bible_verse.required': 'Bible reading required',
@@ -177,14 +175,14 @@ const EditSermon = (props: any):JSX.Element => {
                 ...formData,
                 bibleReading:bibleVerseData,
             };
-            await createNewMessage({variables:{messageId: props?.messageId, input: payload}});
+            await updateForumMessage({variables:{messageId: props?.messageId, input: payload}});
             setState({
                 alertMessage:  processAlertSuccess('Message updated successfully'),
             });
             scrollTop();
             setTimeout(function () {
-                history.push('/apostle-desk')
-            }, 2000);
+                props.close();
+            }, 1000);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
             setState({
@@ -208,8 +206,9 @@ const EditSermon = (props: any):JSX.Element => {
         })
     };
 
-
-    useEffect(() => {
+    const fetchData = async() => {
+        const apiData:any = await fetchMore({variables: { messageId: props?.messageId}});
+        const {data, error, loading} = apiData;
         if(data){
             const response = data?.getMessageDetailFromPastorForum;
             const getBibleReading = () => {
@@ -230,7 +229,7 @@ const EditSermon = (props: any):JSX.Element => {
                     prayer_point: response?.prayer_point,
                 },
                 prayers: response?.prayer_point,
-                preview: true,
+                isLoading:false,
             });
             
           
@@ -242,19 +241,11 @@ const EditSermon = (props: any):JSX.Element => {
         };
 
         if(error){
-            
             setState({
                 alertMessage :processAlertError(extractErrorMessage(error)),
             })
         }
-
-        // Cleanup method
-        return () => {
-            setState({
-                ...initialState,
-            });
-        };
-    }, [data]);
+    }
 
     useEffect(() => {
         
@@ -267,18 +258,15 @@ const EditSermon = (props: any):JSX.Element => {
             };
             setState({
                 adminData: adminList,
-            
             });
-        
         };
         
         if(adminDataQuery.error){
-            
             setState({
                 alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
             })
         }
-
+        fetchData();
         // Cleanup method
         return () => {
             setState({
@@ -286,7 +274,6 @@ const EditSermon = (props: any):JSX.Element => {
             });
         };
     }, [adminDataQuery.data]);
-
 
     return(
         <>
@@ -324,7 +311,7 @@ const EditSermon = (props: any):JSX.Element => {
                         {!preview? (
                             <>
                                 <div className="row  pt-4 px-4">
-                                    <div className="col-md-6 mb-4">
+                                    <div className="col-md-12 mb-4">
                                         
                                         <FormGroupInput
                                             placeholder="Title of message"
@@ -335,18 +322,7 @@ const EditSermon = (props: any):JSX.Element => {
                                             errorMessage={errors.title}
                                         />
                                     </div>
-                                    <div className="col-md-6 mb-4">
-                                        
-                                        <FormGroupSelect
-                                            placeholder="Select category"
-                                            onChange={(e: object)=>handleSelectChange(e, 'category')}
-                                            name="category"
-                                            showError={errors.category}
-                                            errorMessage={errors.category} 
-                                            selectOptions={apostleDeskCategoryOptions}
-                                            defaultValue={{label: capiitalizeFirstLetter(formData?.category), value:formData?.category }}
-                                        />
-                                    </div>
+                                    
                                     <div className="col-md-6 mb-4">
                                         <ReactTagInput 
                                             tags={formData?.bibleReading} 
@@ -417,15 +393,13 @@ const EditSermon = (props: any):JSX.Element => {
                             </>
                         ): (
                             <div className='row p-4'>
-                                <div className='col-md-7 p-0'>
+                                <div className='col-md-12 p-0'>
                                     <div className='row'>
                                         <div className="col-md-12 d-flex justify-content-between align-items-start mb-4">
                                             <div>
-                                                <PageTitle text='Apostle desk' />
+                                                <PageTitle text='Review Message' />
                                             </div>
-                                            <div className='username small text-muted'>
-                                                <li>{formData?.category}</li>
-                                            </div>
+                                            
                                             <>
                                                 <Badges
                                                     text={'Pending'}
@@ -495,9 +469,9 @@ const EditSermon = (props: any):JSX.Element => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className='col-md-5'>
+                                {/* <div className='col-md-5'>
                                     xxxx
-                                </div>
+                                </div> */}
                                 
                             </div>
                         )}

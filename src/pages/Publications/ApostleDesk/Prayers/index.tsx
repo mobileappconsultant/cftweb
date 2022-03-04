@@ -13,8 +13,8 @@ import ViewApostlePrayer from './ViewPrayer';
 import Filter from 'components/Filter';
 import { publishOptions } from 'constants/index';
 import Pagination from 'utilComponents/TablePagination';
-import { PUBLISH_PRAYER, UNPUBLISH_PRAYER } from 'GraphQl/Mutations';
-
+import { PUBLISH_PRAYER, UNPUBLISH_PRAYER, DELETE_PRAYER } from 'GraphQl/Mutations';
+import DeleteModal from 'utilComponents/DeleteModal';
 const Prayers = () => {
     const initialState = {
         listView: true,
@@ -29,6 +29,7 @@ const Prayers = () => {
         showEditForm: false,
         showViewSinglePrayer: false,
         status: 'null',
+        showDeleteModal:false,
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
@@ -46,6 +47,7 @@ const Prayers = () => {
         showEditForm,
         showViewSinglePrayer,
         status,
+        showDeleteModal, 
     } = state;
     const { fetchMore } = useQuery(GET_ALL_PRAYERS,{
         variables: {
@@ -124,7 +126,7 @@ const Prayers = () => {
         };
     }, [page, rowsPerPage]);
 
-    const defaultView = () => {
+    const defaultView = (refresh= null) => {
         setState({
             showAllPrayers:true,
             showCreateForm: false,
@@ -132,6 +134,9 @@ const Prayers = () => {
             showViewSinglePrayer: false,
             activeId: null,
         });
+        if(refresh){
+            fetchData();
+        }
     };
 
     const unPublishData = async(id:number) => {
@@ -156,6 +161,24 @@ const Prayers = () => {
             });
             fetchData();
         }
+    };
+
+    const toggleDeleteModal = () => {
+        setState({
+            showDeleteModal: !showDeleteModal,
+        });
+    };
+
+    const handleAlertClose = () => {
+        setState({
+            alertMessage:{},
+        });
+    };
+
+    const addAlert = (alert:any) => {
+        setState({
+            alertMessage:alert,
+        });
     };
 
     return(
@@ -248,7 +271,12 @@ const Prayers = () => {
                                                             </>
                                                         }
                                                         className="edit-action "
-                                                        actionEvent={()=> console.log('me')}
+                                                        actionEvent={()=> {
+                                                            setState({
+                                                                showDeleteModal:true,
+                                                                activeId:datum?._id,
+                                                            });
+                                                        }}
                                                     />
                                                 </div>
                                             </div>
@@ -307,6 +335,18 @@ const Prayers = () => {
                 <ViewApostlePrayer
                     close={defaultView}
                     prayerId={activeId}
+                />
+            )}
+
+            {showDeleteModal && (
+                <DeleteModal
+                    refresh={fetchData}
+                    mutation={DELETE_PRAYER}
+                    handleModalToggle={toggleDeleteModal}
+                    showModal={showDeleteModal}
+                    parameterKey="prayerId"
+                    recordId={activeId}
+                    addAlert={addAlert}
                 />
             )}
         </>

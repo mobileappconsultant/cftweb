@@ -27,7 +27,7 @@ export const GET_ALL_GROUPS = gql`
       group_head
       members{
         email
-        id
+        _id
         phone
         full_name
         church_group
@@ -99,6 +99,17 @@ export const GET_ALL_ROLES = gql`
     getRoles{
       id
       name
+    }
+  }
+`;
+
+export const GET_ALL_PERMISSIONS = gql`
+  query PermissionDTO{
+    getPermissions{
+      id
+      name
+      description
+      module
     }
   }
 `;
@@ -316,8 +327,8 @@ export const GET_SINGLE_BIBLE_STUDY_CONTENT = gql`
 
 // SERMONS
 export const  GET_ALL_SERMONS = gql`
-query SermonDTO($page: Float! $limit: Float!){
-  getSermons(page:$page limit:$limit ){
+query SermonDTO($flag: String! $page: Float! $limit: Float!){
+  getAllSermons(flag:$flag page:$page limit:$limit ){
     _id
     title
     minister
@@ -359,8 +370,8 @@ query SermonDTO($messageId: String!) {
 `;
 // Pastors forum
 export const  GET_ALL_PASTORS_FORUM_MESSAGES = gql`
-query PastorForumDTO($page: Float! $limit: Float!){
-  getAllMessagesFromPastorForum(page:$page limit:$limit ){
+query PastorForumDTO($flag: String! $page: Float! $limit: Float!){
+  getAllMessagesFromPastorForum(flag:$flag page:$page limit:$limit ){
     _id
     title
     minister

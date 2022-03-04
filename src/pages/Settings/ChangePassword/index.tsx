@@ -6,6 +6,8 @@ import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
 import { ApiRequestClient } from 'apiClient';
 import { apiRoutes } from 'constants/index';
+import { useMutation } from '@apollo/client';
+import { CHANGE_PASSWORD } from 'GraphQl/Mutations';
 const ChangePassword = ():JSX.Element => {
     const initialState = {
         formData: {
@@ -20,6 +22,7 @@ const ChangePassword = ():JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, page, isLoading, alertMessage, errors} = state;
+    const [changePassword, loadingParams] = useMutation(CHANGE_PASSWORD); 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
         setState({
@@ -46,10 +49,17 @@ const ChangePassword = ():JSX.Element => {
             'new_password.required': 'New password is required',
             'confirm_password.required': 'Confirmation is required',
         };
-        const validate = await validateData(formData, rules, messages);
+        let validate = await validateData(formData, rules, messages);
+        if(formData.confirm_password.trim()){
+            if(formData.confirm_password !== formData.new_password){
+                    validate = {...validate, confirm_password: 'New password and confirmation should match'};
+            }
+        }
+        
         if (isObjectEmpty(validate)) {
             return true;
         } else {
+            
             setState({
                 ...state,
                 errors: validate,
@@ -68,7 +78,21 @@ const ChangePassword = ():JSX.Element => {
             const validate = await validateFormData();
            
             if(validate){
-                await ApiRequestClient.post(apiRoutes.CREATE_GROUP, formData);  
+            
+                    const payload = {
+                        newPassword: formData.new_password,
+                        oldPassword: formData.old_password,
+                      
+                    };
+            
+                    await changePassword({variables: payload})
+                    setState({
+                        isLoading: false,
+                        alertMessage: processAlertSuccess('Password updated successfully'),
+                    }); 
+                   
+                 
+               
             };
             setState({
                 isLoading: false,

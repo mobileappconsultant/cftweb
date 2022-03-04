@@ -11,7 +11,7 @@ import TextEditor from 'utilComponents/TextEditor';
 import { GET_ALL_ADMINS, GET_SINGLE_PRAYER } from 'GraphQl/Queries';
 import FormGroupTextarea from 'utilComponents/FormGroupTextarea';
 import { useMutation, useQuery } from '@apollo/client';
-import { CREATE_PRAYER } from 'GraphQl/Mutations';
+import { CREATE_PRAYER, EDIT_PRAYER } from 'GraphQl/Mutations';
 import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import CustomDatePicker from 'utilComponents/DatePicker';
@@ -40,7 +40,7 @@ const EditApostlePrayer = (props: any):JSX.Element => {
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage, errors, preview, adminData,  bibleVerseData} = state;
     // GraphQL
-    const [createNewPrayer, { data, loading, error }] = useMutation(CREATE_PRAYER);
+    const [createNewPrayer, { data, loading, error }] = useMutation(EDIT_PRAYER);
     const adminDataQuery = useQuery(GET_ALL_ADMINS); 
     const prayerQuery = useQuery(GET_SINGLE_PRAYER, {
         variables: { prayerId: props?.prayerId}
@@ -162,8 +162,7 @@ const EditApostlePrayer = (props: any):JSX.Element => {
         try {
             const payload = {
                 ...formData,
-                month: moment(new Date(formData?.date), "MM-DD-YYYY").month(),
-                year: moment(new Date(formData?.date), "MM-DD-YYYY").year(),
+                
             };
             delete payload.date;
             await createNewPrayer({variables:{input: payload}});
@@ -172,7 +171,7 @@ const EditApostlePrayer = (props: any):JSX.Element => {
             });
             scrollTop();
             setTimeout(function () {
-                history.push('/apostle-desk')
+                props.close();
             }, 2000);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
@@ -198,18 +197,47 @@ const EditApostlePrayer = (props: any):JSX.Element => {
     }
 
     useEffect(() => {
+        
+        if(adminDataQuery.data){
+            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin));
+            for (let index = 0; index < adminList.length; index++) {
+                const element = adminList[index];
+                element.label = element?.full_name;
+                element.value = element?.full_name;
+            };
+            setState({
+                adminData: adminList,
+            });
+        
+        };
+        
+
+        if(adminDataQuery.error){
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
+            });
+        }
+
+        // Cleanup method
+        return () => {
+            setState({
+                ...initialState,
+            });
+        };
+    }, [adminDataQuery.data]);
+
+
+    useEffect(() => {
         if(prayerQuery.data){
             const{getPrayer} = prayerQuery?.data;
-            console.log(getPrayer);
             setState({
                 formData:{
                     title: getPrayer?.title,
                     subtitle: getPrayer?.subtitle,
                     author: getPrayer?.author,
-                    content: getPrayer?.content,
+                    preface: getPrayer?.preface,
+                    date: getPrayer?.date,
                 },
-                
-                date: null,
                 isLoading: false,
             });
         };
@@ -228,42 +256,6 @@ const EditApostlePrayer = (props: any):JSX.Element => {
             });
         };
     }, [prayerQuery.data]);
-
-    useEffect(() => {
-        
-        if(adminDataQuery.data){
-            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin));
-            for (let index = 0; index < adminList.length; index++) {
-                const element = adminList[index];
-                element.label = element?.full_name;
-                element.value = element?.full_name;
-            };
-            setState({
-                adminData: adminList,
-            });
-        
-        };
-        if(!adminDataQuery.loading){
-            // setState({
-            //     isLoading: false,
-            // });
-        };
-
-        if(adminDataQuery.error){
-            
-            setState({
-                alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
-                isLoading: false,
-            })
-        }
-
-        // Cleanup method
-        return () => {
-            setState({
-                ...initialState,
-            });
-        };
-    }, [adminDataQuery.data]);
 
     return(
         <>
@@ -347,16 +339,16 @@ const EditApostlePrayer = (props: any):JSX.Element => {
                             </div>
                             
                             <div className="col-md-12 mb-4">
-                            <h6 className='mb-2'>Type prayer content</h6>
+                            <h6 className='mb-2'>Prayer preface</h6>
                                 <TextEditor
                                     //@ts-ignore
-                                    text={formData?.content}
+                                    text={formData?.preface}
                                     handleChange={handleEditorChange}
-                                    placeholder="Type prayer content"
+                                    placeholder="Type prayer preface"
                                 />
-                                {errors.content && (
+                                {errors.preface && (
                                     <div className="small w-100 text-left text-danger">
-                                        {errors.content}
+                                        {errors.preface}
                                     </div>
                                 )}
                             </div>

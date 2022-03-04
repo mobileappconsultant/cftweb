@@ -2,16 +2,20 @@ import moment from 'moment';
 import React, {useReducer, useEffect} from 'react'
 import ActionButton from 'utilComponents/ActionButton';
 import Badges from 'utilComponents/Badges';
-import { capiitalizeFirstLetter, extractErrorMessage, processAlertError, truncateMultilineText } from 'utils';
+import { capiitalizeFirstLetter, changeOptionsToBool, extractErrorMessage, processAlertError, processAlertSuccess, truncateMultilineText } from 'utils';
 import Filter from 'components/Filter';
 import CreatePastorsForum from './CreatePastorsForum';
 import EditPastorsForum from './EditPastorsForum';
 import ViewPastorsForum from './ViewPastorsForum';
 import Pagination from 'utilComponents/TablePagination';
 import CircularLoader from 'utilComponents/Loader';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { GET_ALL_PASTORS_FORUM_MESSAGES } from 'GraphQl/Queries';
+import { DELETE_PASTOR_FORUM_MESSAGE, PUBLISH_PASTOR_FORUM_MESSAGE, UNPUBLISH_PASTOR_FORUM_MESSAGE } from 'GraphQl/Mutations';
 import CreateButton from 'utilComponents/CreateButton';
+import { publishOptions } from 'constants/index';
+import AlertComponent from 'components/AlertComponent';
+import DeleteModal from 'utilComponents/DeleteModal';
 
 const PastorsForum =() => {
     const initialState = {
@@ -25,7 +29,9 @@ const PastorsForum =() => {
         showAllSermons:true,
         showCreateForm: false,
         showEditForm: false,
-        showViewSingleSermon: false,
+        showViewSingleMessage: false,
+        status: 'null',
+        showDeleteModal:false,
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
 
@@ -41,14 +47,33 @@ const PastorsForum =() => {
         showAllSermons,
         showCreateForm,
         showEditForm,
-        showViewSingleSermon,
+        showViewSingleMessage,
+        status,
+        showDeleteModal, 
     } = state;
     const { fetchMore } = useQuery(GET_ALL_PASTORS_FORUM_MESSAGES, {
         variables: {
-          page: 0,
-          limit: 10
+            page: 0,
+            limit: 10,
+            flag:status,
         },
     });
+
+    const [unPublishMessageData] = useMutation(UNPUBLISH_PASTOR_FORUM_MESSAGE);
+    const [publishMessageData] = useMutation(PUBLISH_PASTOR_FORUM_MESSAGE);
+
+    const defaultView = (refresh= null) => {
+        setState({
+            showAllSermons:true,
+            showCreateForm: false,
+            showEditForm: false,
+            showViewSingleMessage: false,
+            activeId: null,
+        });
+        if(refresh){
+            fetchData();
+        }
+    };
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
         
@@ -67,7 +92,15 @@ const PastorsForum =() => {
         fetchData();
     };
 
-    const fetchData =  async () => {
+    const changeStatus = (e:any) => {
+        const option = changeOptionsToBool(e?.target?.value);
+        setState({
+            status: option,
+        });
+        fetchData(option);
+    };
+
+    const fetchData =  async (flag= status) => {
         setState({
             isLoading:true,
         });
@@ -76,6 +109,7 @@ const PastorsForum =() => {
                     variables:{
                         page: page? page: 0,
                         limit: rowsPerPage? rowsPerPage : 10,
+                        flag: flag,
                     }
                 });
          if(apiData.data){
@@ -98,16 +132,6 @@ const PastorsForum =() => {
         }
     };
 
-    const defaultView = () => {
-        setState({
-            showAllSermons:true,
-            showCreateForm: false,
-            showEditForm: false,
-            showViewSingleSermon: false,
-            activeId: null,
-        });
-    };
-
     useEffect(() => {
         fetchData();
         
@@ -118,18 +142,78 @@ const PastorsForum =() => {
             });
         };
     }, [page, rowsPerPage]);
+
+    const unPublishData = async(id:number) => {
+        // eslint-disable-next-line no-restricted-globals
+        if(confirm("This will unpublish this message, click ok to continue")){
+            await unPublishMessageData({variables:{messageId: id}});
+            setState({
+                alertMessage :processAlertSuccess('Message unpublished'),
+                isLoading: false,
+            });
+            fetchData();
+        }
+    };
+
+    const publishData = async (id:number) => {
+        // eslint-disable-next-line no-restricted-globals
+        if(confirm("This will publish this message, click ok to continue")){
+            await publishMessageData({variables:{messageId: id}});
+            setState({
+                alertMessage :processAlertSuccess('Message published'),
+                isLoading: false,
+            });
+            fetchData();
+        }
+    };
+
+    const handleAlertClose = () => {
+        setState({
+            alertMessage:{},
+        });
+    };
+
+    const addAlert = (alert:any) => {
+        setState({
+            alertMessage:alert,
+        });
+    };
+
+    const toggleDeleteModal = () => {
+        setState({
+            showDeleteModal: !showDeleteModal,
+        });
+    };
     return (
 
         <>
             {showAllSermons &&( 
                 <>
                     <div className='row p-4'>
-                    {isLoading? (
+                        <div className='col-md-12 d-flex justify-content-end'>
+                            <Filter
+                                text="Show"
+                                selectOptions={publishOptions}
+                                changeEvent={changeStatus}
+                            />
+                        </div>
+                        {isLoading? (
                             <div className='bg-white'>
                                 <CircularLoader />
                             </div>
                         ) :(
                         <>
+
+                            {alertMessage?.text && (
+                                 <div className='col-md-12 d-flex justify-content-end my-2'>
+                                    <AlertComponent
+                                        text={alertMessage.text}
+                                        type={alertMessage.type}
+                                        onClose={handleAlertClose}
+                                    />
+                                </div>
+                            )}
+
                             {dataArr.map((datum: any, _i:number) => {
                                 return(
                                     <div className="col-md-12 border-top py-3">
@@ -142,7 +226,7 @@ const PastorsForum =() => {
                                                         showAllSermons:false,
                                                         showCreateForm: false,
                                                         showEditForm: false,
-                                                        showViewSingleSermon: true,
+                                                        showViewSingleMessage: true,
                                                         activeId:datum?._id,
                                                     });
                                                 }}
@@ -159,10 +243,19 @@ const PastorsForum =() => {
                                             <div className='col-md-2 text-right' >
                                                 <div className='d-flex flex-row-reverse'>
                                                     
-                                                    <Badges
-                                                        text="Published"
-                                                        type="success"
-                                                    />
+                                                    {datum?.published?(
+                                                        <Badges
+                                                            clickEvent={()=>unPublishData(datum?._id)}
+                                                            text="Published"
+                                                            type="success"
+                                                        />
+                                                    ):(
+                                                        <Badges
+                                                            clickEvent={()=>publishData(datum?._id)}
+                                                            text="Not Published"
+                                                            type="pending"
+                                                        />
+                                                    )}
                                                 </div>
                                                 <div className='d-flex flex-row-reverse published-time-posted mt-3'>
                                                 {moment(new Date()).format("DD/MM/YYYY, hh:mm:ss")}
@@ -182,7 +275,7 @@ const PastorsForum =() => {
                                                                 showAllSermons:false,
                                                                 showCreateForm: false,
                                                                 showEditForm: true,
-                                                                showViewSingleSermon: false,
+                                                                showViewSingleMessage: false,
                                                                 activeId:datum?._id,
                                                             });
                                                         }}
@@ -196,7 +289,12 @@ const PastorsForum =() => {
                                                             </>
                                                         }
                                                         className="edit-action "
-                                                        actionEvent={()=> console.log('me')}
+                                                        actionEvent={()=> {
+                                                            setState({
+                                                                showDeleteModal:true,
+                                                                activeId:datum?._id,
+                                                            });
+                                                        }}
                                                     />
                                                 </div>
                                             </div>
@@ -219,7 +317,7 @@ const PastorsForum =() => {
                                     showAllSermons: false,
                                     showCreateForm: true,
                                     showEditForm: false,
-                                    showViewSingleSermon: false,
+                                    showViewSingleMessage: false,
                                     activeId: null,
                                 })
                             }
@@ -259,7 +357,7 @@ const PastorsForum =() => {
                     />
                 </div>
             )}  
-            {showViewSingleSermon && (
+            {showViewSingleMessage && (
                 <div className="px-4">
                     <ViewPastorsForum
                         close={defaultView}
@@ -267,6 +365,18 @@ const PastorsForum =() => {
                     />
                 </div>
             )}
+
+            {showDeleteModal && (
+                <DeleteModal
+                    refresh={fetchData}
+                    mutation={DELETE_PASTOR_FORUM_MESSAGE}
+                    handleModalToggle={toggleDeleteModal}
+                    showModal={showDeleteModal}
+                    parameterKey="messageId"
+                    recordId={activeId}
+                    addAlert={addAlert}
+                />
+            )}      
         </>
     )
 };

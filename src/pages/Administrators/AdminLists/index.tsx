@@ -141,8 +141,8 @@ const AdministratorsList = ():JSX.Element => {
                         <div className="col-md-6">
                             <div className="my-2">
                             <UserCard
-                                name={datum?.full_name}
-                                role={datum?.role}
+                                name={datum?.full_name?? 'n/a'}
+                                role={datum?.role[0]?datum?.role[0]?.name : ''}
                                 time={'22/03/2022'}
                                 avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
                                 active={datum?.status}

@@ -17,8 +17,9 @@ import GetBiblePassage from 'components/GetBiblePassage';
 import {GET_SINGLE_PRAYER } from 'GraphQl/Queries';
 import { DivLoader } from 'utilComponents/Loader';
 import CloseButton from 'components/CloseButton';
-import { CirclePlus } from 'tabler-icons-react';
+import { CirclePlus, Edit } from 'tabler-icons-react';
 import CreateDailyPrayer from './Dailyprayers/CreateDailyPrayer';
+import Tooltip from '@mui/material/Tooltip';
 
 const ViewApostlePrayer = (props: any):JSX.Element => {
   
@@ -237,27 +238,28 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
                                 <div className="user-name  w-100 mt-4 mb-3 d-flex align-items-center gap-30">
                                     <h5 className="m-0 name h6 ">Daily&nbsp;prayers</h5>
                                     <div className="col-md-12 p-0 d-flex justify-content-start">
-                                
-                                        <span 
-                                            className={` pointer edit-button`}  
-                                            onClick={()=>{
-                                                setState({
-                                                    showCreateDailyPrayerPage: true,
-                                                    showUpdateDailyPrayerPage:false,
-                                                    showViewDailyPrayerPage:false,
-                                                    showViewAllDailyPrayerPage:false,
-                                                    
-                                                })
-                                            }}
-                                        >   
-                                            
-                                            <CirclePlus
-                                                className="button-icon"
-                                                size={20}
-                                                strokeWidth={1.5}
-                                                color={'#FFF'}
-                                            />
-                                        </span>
+                                        <Tooltip title="Add daily prayer" placement="right-start" arrow>
+                                            <span 
+                                                className={` pointer edit-button`}  
+                                                onClick={()=>{
+                                                    setState({
+                                                        showCreateDailyPrayerPage: true,
+                                                        showUpdateDailyPrayerPage:false,
+                                                        showViewDailyPrayerPage:false,
+                                                        showViewAllDailyPrayerPage:false,
+                                                        
+                                                    })
+                                                }}
+                                            >   
+                                                
+                                                <CirclePlus
+                                                    className="button-icon"
+                                                    size={20}
+                                                    strokeWidth={1.5}
+                                                    color={'#FFF'}
+                                                />
+                                            </span>
+                                        </Tooltip>
                                     </div>
                                 </div>
                             
@@ -288,10 +290,32 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
                             {activeDailyPrayer && (
                                 <div className='col-md-12 mt-4'>
                                     <>
-                                        <div className='py-3'>
+                                        <div className='py-3 d-flex align-items-center'>
                                             <h4 className='small font-weight-bold'>
                                                 {activeDailyPrayer.heading}
                                             </h4>
+                                                <Tooltip title="Edit this daily prayer" placement="right-start" arrow className='mx-3'>
+                                                <span 
+                                                    className={` pointer edit-button`}  
+                                                    onClick={()=>{
+                                                        setState({
+                                                            showCreateDailyPrayerPage: true,
+                                                            showUpdateDailyPrayerPage:false,
+                                                            showViewDailyPrayerPage:false,
+                                                            showViewAllDailyPrayerPage:false,
+                                                            
+                                                        })
+                                                    }}
+                                                >   
+                                                    
+                                                    <Edit
+                                                        className="button-icon"
+                                                        size={20}
+                                                        strokeWidth={1.5}
+                                                        color={'#FFF'}
+                                                    />
+                                                </span>
+                                            </Tooltip>
                                         </div>
 
                                         <div className='py-3'>

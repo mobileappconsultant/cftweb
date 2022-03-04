@@ -83,17 +83,36 @@ const DashboardLayout = (props: any): JSX.Element => {
         {sideBarRoutes.map((route, index) =>{
             return(
                 <>
+                    
                     <div className="w-100 sidebar-section-title py-2 mt-3">
                         {route?.title}
                     </div>
                     {route.children.map((routeChild, _i) => {
                         return(
                             <>
+                            {user?.full_name && (
                                 <div className="w-100 sidebar-section-link py-2 px-2 ">
                                     <Link to={routeChild.path} className={`sidebar-navlink ${getMatch(routeChild?.match)? 'text-primary': ''}`}>
                                         {routeChild?.icon}  {routeChild?.text}
                                     </Link>
                                 </div>
+                            )}
+
+                            {!user?.full_name && ( 
+                                <>
+                                    {routeChild?.path === '/settings' && (
+                                        <div className="w-100 sidebar-section-link py-2 px-2 ">
+                                            <Link to={routeChild.path} className={`sidebar-navlink ${getMatch(routeChild?.match)? 'text-primary': ''}`}>
+                                                {routeChild?.icon}  {routeChild?.text}
+                                            </Link>
+                                        </div>
+                                    )}
+
+                                </>
+                            )}
+
+
+                                
                             </>
                         );
                     })}

@@ -13,10 +13,11 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { GET_ALL_ROLES } from 'GraphQl/Queries';
 import { useQuery } from '@apollo/client';
-import { extractErrorMessage, processAlertError } from 'utils';
+import { capiitalizeFirstLetter, extractErrorMessage, processAlertError } from 'utils';
 import CircularLoader from 'utilComponents/Loader';
 import CreateButton from 'utilComponents/CreateButton';
 import { Eye } from 'tabler-icons-react';
+import CreateRole from './CreateRole';
 
 
 const Roles = ():JSX.Element => {
@@ -27,13 +28,41 @@ const Roles = ():JSX.Element => {
         alertMessage:{},
         activeReportComponent: 0,
         dataArr:[], 
-        isLoading:true,       
+        isLoading:true, 
+        showAllRoles: true,
+        showCreateForm: false,
+        showEditForm: false,
+        showViewSingleRole: false,      
     };
    
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr} = state;
+    const {
+        listView, 
+        page, 
+        rowsPerPage, 
+        isLoading, 
+        alertMessage, 
+        dataArr,
+        showAllRoles,
+        showCreateForm,
+        showEditForm,
+        showViewSingleRole,   
+    } = state;
     const { fetchMore } = useQuery(GET_ALL_ROLES);
+
+    const defaultView = (refresh= null) => {
+        setState({
+            showAllRoles:true,
+            showCreateForm: false,
+            showEditForm: false,
+            showViewSingleRole: false,
+            activeId: null,
+        });
+        if(refresh){
+            fetchData();
+        }
+    };
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
       
@@ -95,88 +124,100 @@ const Roles = ():JSX.Element => {
         <>
         
         {alertMessage?.text && (
-            <>
+            <div className=' px-2 pt-2' >
                 <AlertComponent
                     text={alertMessage.text}
                     type={alertMessage.type}
                     onClose={handleAlertClose}
                 />
-            </>
+            </div>
         )}
-        {isLoading? (
+
+        {showAllRoles && (
             <>
-                <CircularLoader />
-            </>
-        ):(
-                <div className="">
-                    <div className="d-flex justify-content-between py-3 ">
-                        <div className={`col-md-12 bg-white d-flex justify-content-between px-0 `}>
-                            <div className="py-3 px-2 w-100 overflow-auto">
-                                <TableContainer component={Paper}>
-                                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                                        <TableHead>
-                                        <TableRow>
-                                            <TableCell className="table-th">#SN</TableCell>
-                                            <TableCell align="left" className="table-th">Name</TableCell>
-                                            <TableCell align="left" className="table-th">Action</TableCell>
-                                        </TableRow>
-                                        </TableHead>
-                                        <TableBody>
+       
+                {isLoading? (
+                    <>
+                        <CircularLoader />
+                    </>
+                ):(
+                        <div className="">
+                            <div className="d-flex justify-content-between py-3 ">
+                                <div className={`col-md-12 bg-white d-flex justify-content-between px-0 `}>
+                                    <div className="py-3 px-2 w-100 overflow-auto">
+                                        <TableContainer component={Paper}>
+                                            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                                <TableHead>
+                                                <TableRow>
+                                                    <TableCell className="table-th">#SN</TableCell>
+                                                    <TableCell align="left" className="table-th">Name</TableCell>
+                                                    <TableCell align="left" className="table-th">Action</TableCell>
+                                                </TableRow>
+                                                </TableHead>
+                                                <TableBody>
 
-                                        {dataArr.map((row:any, index: number) => (
-                                            <TableRow
-                                            //   key={row.name}
-                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                            >
-                                            <TableCell component="th" scope="row">
-                                                {index + 1}
-                                            </TableCell>
-                                            <TableCell align="left">{row.name}</TableCell>
-                                            <TableCell align="left">
-                                                <Eye
-                                                    size={24}
-                                                    strokeWidth={1.5}
-                                                    color={'#0d6efd'}
-                                                    className='pointer'
-                                                />
-                                            </TableCell>
-                                            </TableRow>
-                                        ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                                <Pagination
-                                    count={dataArr.length?? 0}
-                                    page={0}
-                                    rowsPerPage={10}
-                                    onPageChange={handleChangePage}
-                                    handleChangeRowsPerPage={handleChangeRowsPerPage}
-                                />
+                                                {dataArr.map((row:any, index: number) => (
+                                                    <TableRow
+                                                    //   key={row.name}
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                    >
+                                                    <TableCell component="th" scope="row">
+                                                        {index + 1}
+                                                    </TableCell>
+                                                    <TableCell align="left">{capiitalizeFirstLetter(row.name)}</TableCell>
+                                                    <TableCell align="left">
+                                                        <Eye
+                                                            size={24}
+                                                            strokeWidth={1.5}
+                                                            color={'#0d6efd'}
+                                                            className='pointer'
+                                                        />
+                                                    </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                        <Pagination
+                                            count={dataArr.length?? 0}
+                                            page={0}
+                                            rowsPerPage={10}
+                                            onPageChange={handleChangePage}
+                                            handleChangeRowsPerPage={handleChangeRowsPerPage}
+                                        />
+                                    </div>
+                                
+
+                                </div>
+                                
                             </div>
-                        
-
-                        </div>
+                            <CreateButton
+                                actionEvent={()=> 
+                                    setState({
+                                        showAllRoles: false,
+                                        showCreateForm: true,
+                                        showEditForm: false,
+                                        showViewSingleRole: false,
+                                        activeId: null,
+                                    })
+                                }
+                                text={'Create Role'}
+                                float
+                            />
                         
                     </div>
-                    <CreateButton
-                        actionEvent={()=> 
-                            setState({
-                                showAllRoles: false,
-                                showCreateForm: true,
-                                showEditForm: false,
-                                showViewSingleRole: false,
-                                activeId: null,
-                            })
-                        }
-                        text={'Create Role'}
-                        float
-                    />
-                
-            </div>
 
+                )}
+             </>
         )}
-       
-            
+        {showCreateForm && (
+            <>
+                <CreateRole 
+                    close={defaultView}
+                    addAlert={addAlert}
+                />
+            </>
+        )}
         </>
     )
 

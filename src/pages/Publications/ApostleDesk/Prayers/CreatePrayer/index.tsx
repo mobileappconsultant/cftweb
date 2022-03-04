@@ -286,6 +286,7 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                                     value={formData?.date}
                                     //@ts-ignore
                                     onChange={(e:any)=>handleDateChange(e)}
+                                    placeholder="Select publish date"
                                     dayPlaceholder='Select'
                                     monthPlaceholder='publish'
                                     yearPlaceholder='date'
@@ -370,11 +371,11 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
 
                         <div className='col-md-12'>
                             <div className="user-name px-2 mt-4">
-                                <h5 className="m-0 name">Prayer content</h5>
+                                <h5 className="m-0 name">Prayer preface</h5>
                             </div>
                             <div 
                                 className="text-dark mt-1 small px-2"
-                                dangerouslySetInnerHTML={{ __html: formData?.content || 'N/A' }}       
+                                dangerouslySetInnerHTML={{ __html: formData?.preface || 'N/A' }}       
                             /> 
                         </div>
 

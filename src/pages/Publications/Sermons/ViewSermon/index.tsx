@@ -73,8 +73,9 @@ const ViewSermon = (props: any):JSX.Element => {
                     minister: response?.minister,
                     bibleReading: getBibleReading(),
                     image: response?.image,
+                    prayer_point: response?.prayer_point,
                 },
-                prayers: response?.prayer_point,
+               
             }); 
           
         };
@@ -225,8 +226,6 @@ const ViewSermon = (props: any):JSX.Element => {
                                 /> 
                                 
                             </div>
-
-                            
 
                         </div>
                         
