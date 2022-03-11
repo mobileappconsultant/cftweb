@@ -6,11 +6,12 @@ import { Link } from 'react-router-dom';
 import AlertComponent from 'components/AlertComponent';
 import Pagination from 'utilComponents/TablePagination';
 import InviteAdmin from './InviteAdmin';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { GET_ALL_ADMINS } from 'GraphQl/Queries';
-import { extractErrorMessage, formatInitialDateValue, processAlertError } from 'utils';
+import { extractErrorMessage, processAlertError, processAlertSuccess } from 'utils';
 import Filter from 'components/Filter';
 import CircularLoader from 'utilComponents/Loader';
+import { ACTIVATE_ADMIN, DEACTIVATE_ADMIN } from 'GraphQl/Mutations';
 
 const AdministratorsList = ():JSX.Element => {
     const initialState = {
@@ -26,11 +27,8 @@ const AdministratorsList = ():JSX.Element => {
     const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr} = state;
     const { data, loading, error } = useQuery(GET_ALL_ADMINS);
 
-    const changeListView = () => {
-        setState({
-            listView: !listView,
-        });
-    };
+    const [activateAdmin] = useMutation(ACTIVATE_ADMIN);
+    const [deactivateAdmin] = useMutation(DEACTIVATE_ADMIN);
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
         setState({
@@ -92,6 +90,30 @@ const AdministratorsList = ():JSX.Element => {
             });
         };
     }, [data]);
+
+    const deactivateAdministrator = async(id:number) => {
+        // eslint-disable-next-line no-restricted-globals
+        if(confirm("This action will deactivate the selected admin account, click ok to continue")){
+            await deactivateAdmin({variables:{messageId: id}});
+            setState({
+                alertMessage :processAlertSuccess('Admin account deactivated'),
+                isLoading: false,
+            });
+            // fetchData();
+        }
+    };
+
+    const activateAdministrator = async (id:number) => {
+        // eslint-disable-next-line no-restricted-globals
+        if(confirm("This action will activate the selected admin account, click ok to continue")){
+            await activateAdmin({variables:{messageId: id}});
+            setState({
+                alertMessage :processAlertSuccess('Admin account activated'),
+                isLoading: false,
+            });
+            // fetchData();
+        }
+    };
     
     const paginatedData = (dataArr:any) => {
         const splicedIndex = page * rowsPerPage;
@@ -147,6 +169,7 @@ const AdministratorsList = ():JSX.Element => {
                                 avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
                                 active={datum?.status}
                                 id="2"
+                                // active
                             />
                             </div>
                         </div>
@@ -179,3 +202,4 @@ const AdministratorsList = ():JSX.Element => {
 
 };
 export default AdministratorsList;
+

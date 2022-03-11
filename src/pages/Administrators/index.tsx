@@ -1,13 +1,11 @@
 
 import PageTitle from 'components/PageTitle';
 import React, {useReducer} from 'react';
-
 // icons
-import apostleDeskIcon from 'assets/images/newspaper-folding.svg';
-import sermonsIcon from 'assets/images/entertainment.svg';
-import { Lock, Users } from 'tabler-icons-react';
+import { Lock, MailForward, Users } from 'tabler-icons-react';
 import AdministratorsList from './AdminLists';
 import Roles from './Roles';
+import Invites from './Invites';
 
 
 
@@ -36,8 +34,13 @@ const Administrators = ():JSX.Element => {
             icon: <Lock size={24} strokeWidth={2} color={'black'} />,
             component: <><Roles /> </>,
             title: 'Roles',
-        }
-
+        },
+        {
+            path:'',
+            icon: <MailForward size={24} strokeWidth={2} color={'black'} />,
+            component: <><Invites /> </>,
+            title: 'Invites',
+        },
     ]
 
     return(

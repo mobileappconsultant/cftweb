@@ -92,6 +92,30 @@ export const GET_ALL_ADMINS = gql`
   }
 `;
 
+// Admins
+export const GET_ALL_INVITED_ADMINS = gql`
+  query AdminDTO{
+    getAllInvitedAdmin{
+      email
+      phone
+      full_name
+      role{
+        id
+        name
+        permissions{
+          id
+          name
+          description
+          module
+        }
+      }
+      status
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 // Roles
 
 export const GET_ALL_ROLES = gql`
@@ -102,6 +126,22 @@ export const GET_ALL_ROLES = gql`
     }
   }
 `;
+export const GET_SINGLE_ROLE = gql`
+  query RoleDTO($id: String!){
+    getRole(id:$id){
+      id
+      name
+      permissions{
+        id
+        name
+        description
+        module
+        moduleName
+      }
+    }
+  }
+`;
+
 
 export const GET_ALL_PERMISSIONS = gql`
   query PermissionDTO{
@@ -110,10 +150,10 @@ export const GET_ALL_PERMISSIONS = gql`
       name
       description
       module
+      moduleName
     }
   }
 `;
-
 
 // Members
 export const GET_ALL_MEMBERS = gql`

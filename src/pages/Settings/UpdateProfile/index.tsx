@@ -30,7 +30,6 @@ const UpdateProfile = ():JSX.Element => {
     const{userObject} = reduxState?.reducer;
     // GraphQL
     const [updateProfile, { data, loading, error }] = useMutation(UPDATE_PROFILE);
-
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;

@@ -16,8 +16,10 @@ import { useQuery } from '@apollo/client';
 import { capiitalizeFirstLetter, extractErrorMessage, processAlertError } from 'utils';
 import CircularLoader from 'utilComponents/Loader';
 import CreateButton from 'utilComponents/CreateButton';
-import { Eye } from 'tabler-icons-react';
+import { EditCircle, Eye } from 'tabler-icons-react';
 import CreateRole from './CreateRole';
+import EditRole from './EditRole';
+import ViewRole from './ViewRole';
 
 
 const Roles = ():JSX.Element => {
@@ -33,6 +35,7 @@ const Roles = ():JSX.Element => {
         showCreateForm: false,
         showEditForm: false,
         showViewSingleRole: false,      
+        activeId:null,
     };
    
 
@@ -48,6 +51,7 @@ const Roles = ():JSX.Element => {
         showCreateForm,
         showEditForm,
         showViewSingleRole,   
+        activeId,
     } = state;
     const { fetchMore } = useQuery(GET_ALL_ROLES);
 
@@ -166,12 +170,40 @@ const Roles = ():JSX.Element => {
                                                     </TableCell>
                                                     <TableCell align="left">{capiitalizeFirstLetter(row.name)}</TableCell>
                                                     <TableCell align="left">
-                                                        <Eye
-                                                            size={24}
-                                                            strokeWidth={1.5}
-                                                            color={'#0d6efd'}
-                                                            className='pointer'
-                                                        />
+                                                        <div className='d-flex'>
+                                                            <Eye
+                                                                size={24}
+                                                                strokeWidth={1.5}
+                                                                color={'#0d6efd'}
+                                                                className='pointer mx-3 ml-0'
+                                                                onClick={()=>{
+                                                                    setState({
+                                                                        showAllRoles: false,
+                                                                        showCreateForm: false,
+                                                                        showEditForm: false,
+                                                                        showViewSingleRole: true,
+                                                                        activeId:row?.id,
+                                                                    })
+                                                                }}
+                                                            />
+                                                            <EditCircle
+                                                                size={24}
+                                                                strokeWidth={1.5}
+                                                                color={'#0d6efd'}
+                                                                className='pointer mx-2'
+                                                                onClick={()=>{
+                                                                    setState({
+                                                                        activeId:row?.id,
+                                                                        showEditForm:true,
+                                                                        showAllRoles:false,
+                                                                        showCreateForm: false,
+                                                                        showViewSingleRole: false,
+                                                                        
+                                                                    })
+                                                                }}
+                                                            />
+                                                            
+                                                        </div>
                                                     </TableCell>
                                                     </TableRow>
                                                 ))}
@@ -218,6 +250,28 @@ const Roles = ():JSX.Element => {
                 />
             </>
         )}
+
+    {showEditForm && (
+            <>
+                <EditRole 
+                    close={defaultView}
+                    addAlert={addAlert}
+                    roleId={activeId}
+
+                />
+            </>
+    )}
+
+    {showViewSingleRole && (
+        <>
+            <ViewRole
+                close={defaultView}
+                addAlert={addAlert}
+                roleId={activeId}
+
+            />
+        </>
+    )}
         </>
     )
 

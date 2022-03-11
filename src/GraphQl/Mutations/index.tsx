@@ -60,7 +60,16 @@ mutation updateadmin($input: AdminInput!){
     phone
     full_name
     code
-    role
+    role{
+      id
+      name
+      permissions{
+        id
+        name
+        description
+        module
+      }
+  }
     status
     createdAt
     updatedAt
@@ -115,6 +124,65 @@ export const CREATE_ROLE =gql`
     }
   }
 `;
+export const EDIT_ROLE =gql`
+  mutation updateRole($permissions: [String!]! $id: String! $name: String!){
+    updateRole(permissions:$permissions id:$id name:$name){
+      id
+    }
+  }
+`;
+
+export const ACTIVATE_ADMIN =gql`
+  mutation activateAdmin($adminID: String!){
+    activateAdmin(permissions:$permissions name:$name){
+      id
+      email
+      phone
+      full_name
+      code
+      role{
+        id
+        name
+        permissions{
+          id
+          name
+          description
+          module
+        }
+      }
+      status
+      createdAt
+      updatedAt
+  
+    }
+  }
+`;
+export const DEACTIVATE_ADMIN =gql`
+  mutation deactivateAdmin($adminID: String!){
+    deactivateAdmin(permissions:$permissions id:$id name:$name){
+      id
+      email
+      phone
+      full_name
+      code
+      role{
+        id
+        name
+        permissions{
+          id
+          name
+          description
+          module
+        }
+      }
+      status
+      createdAt
+      updatedAt
+  
+    }
+  }
+`;
+
 
 export const CREATE_BRANCH = gql`
   mutation createBranch($input:  BranchInput!) {
