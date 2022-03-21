@@ -7,7 +7,7 @@ import Filter from 'components/Filter';
 import Pagination from 'utilComponents/TablePagination';
 import CircularLoader from 'utilComponents/Loader';
 import { useMutation, useQuery } from '@apollo/client';
-import { GET_ALL_DAILY_BIBLE_READING } from 'GraphQl/Queries';
+import { GET_ALL_DAILY_BIBLE_READING, GET_ALL_BIBLE_VERSIONS } from 'GraphQl/Queries';
 import CreateButton from 'utilComponents/CreateButton';
 import { DELETE_DAILY_BIBLE_READING, } from 'GraphQl/Mutations';
 import { publishOptions } from 'constants/index';
@@ -16,6 +16,7 @@ import DeleteModal from 'utilComponents/DeleteModal';
 import CreateDailyBibleReading from './CreateDailyBibleReading';
 import calendarDot from 'assets/images/calendar-dot.svg';
 import EditDailyBibleReading from './EditDailyBibleReading';
+import ViewAllBibleReadingComponent from './ViewAllBibleReadingComponent';
 
 const DailyBibleReading =() => {
     const initialState = {
@@ -32,11 +33,12 @@ const DailyBibleReading =() => {
         showViewSingleSermon: false,
         status: 'null',
         showDeleteModal:false,
+        bibleVersions: [],
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
 
     const {
-        listView, 
+        bibleVersions, 
         page, 
         isLoading, 
         rowsPerPage, 
@@ -57,6 +59,8 @@ const DailyBibleReading =() => {
           flag:status,
         },
     });
+    const getAllBibleVersions = useQuery(GET_ALL_BIBLE_VERSIONS, {
+        variables: {}});
 
     const defaultView = (refresh= null) => {
         setState({
@@ -120,6 +124,31 @@ const DailyBibleReading =() => {
         }
     };
 
+    const getBibleVersions =  async () => {
+        setState({
+            isLoading:true,
+        });
+        const apiData : any =  await getAllBibleVersions?.fetchMore({ variables:{ }});
+         if(apiData.data){
+            setState({
+                bibleVersions: apiData?.data?.getBibleBookVersions,
+            }); 
+        };
+
+        if(!apiData.loading){
+            setState({
+                isLoading: false,
+            });
+        };
+
+        if(apiData.error){
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(apiData?.error)),
+                isLoading: false,
+            });
+        }
+    };
+
     const changeStatus = (e:any) => {
         const option = changeOptionsToBool(e?.target?.value);
         setState({
@@ -131,7 +160,7 @@ const DailyBibleReading =() => {
 
     useEffect(() => {
         fetchData();
-        
+        getBibleVersions();
         // Cleanup method
         return () => {
             setState({
@@ -205,13 +234,12 @@ const DailyBibleReading =() => {
                                                         className='col-md-8 pointer border-left'
                                                     >
                                                         
-                                                        <h6 className='apostle-desk-post-header d-flex pl-3 _gap-4 align-items-center'>Verse of the day
-                                                            <p className='user-name font-weight-light mb-0 font-italic'>:{datum?.verseOfTheDayText}</p>
-                                                        </h6>
-                                                        <p className='apostle-desk-post-body' >
-                                                            {datum?.verseContent}
-                                                        </p>
-                                                        
+                                                        <ViewAllBibleReadingComponent
+                                                            verse={datum?.verseOfTheDayText}
+                                                            content={datum?.verseContent}
+                                                            default="niv"
+                                                            bibleVersions={bibleVersions}
+                                                        />
                                                     
                                                     </div>
                                                     <div className='col-md-2 text-right' >

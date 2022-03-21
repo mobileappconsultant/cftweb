@@ -20,7 +20,6 @@ import CreateCalendarEvent from 'pages/Calendar/CreateCalendarEvent';
 import { Redirect } from 'react-router-dom';
 import Publications from 'pages/Publications';
 import Transactions from 'pages/Transactions';
-import Merchandise from 'pages/Merchandise';
 import EditEvent from 'pages/Calendar/EditCalendarEvent';
 import Terms from 'pages/Legal/Terms';
 
@@ -58,5 +57,4 @@ export const privateRoutes = [
 	{path:"/calendar/edit-event/:id", exact: true, component: EditEvent},
 	{path:"/publications", exact: true, component: Publications},
 	{path:"/transactions", exact: true, component: Transactions},
-	{path:"/merchandise", exact: true, component: Merchandise},
 ];

@@ -18,7 +18,6 @@ import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
 import CloseButton from 'components/CloseButton';
 import { GET_ALL_ADMINS } from 'GraphQl/Queries';
-import CustomDateTimePicker from 'utilComponents/DateTimePicker';
 
 const CreateApostleMessage = (props: any):JSX.Element => {
     
@@ -30,8 +29,6 @@ const CreateApostleMessage = (props: any):JSX.Element => {
             bibleReading:[],
             category:'',
             prayer_point:'',
-            // dateTime: null,
-
         },
         payload:{},
         errors:{},
@@ -115,27 +112,6 @@ const CreateApostleMessage = (props: any):JSX.Element => {
             }
         });
     };
-
-    const handleDateChange = (e:any):void => {
-        if(e){
-            const date = formatDate(e);
-            setState({
-                formData:{
-                    ...formData,
-                    dateTime: date,
-                }
-            });
-        }else{
-            setState({
-                formData:{
-                    ...formData,
-                    dateTime: null,
-                }
-            });
-        }
-    };
-
-
     
     const validateFormData = async () => {
         const newFormData = {...formData};
@@ -159,7 +135,6 @@ const CreateApostleMessage = (props: any):JSX.Element => {
         };
         const validate = await validateData(newFormData, rules, messages);
       
-     
         if (isObjectEmpty(validate)) {
             return true;
         } else {
@@ -169,7 +144,6 @@ const CreateApostleMessage = (props: any):JSX.Element => {
             return false;
         }
     };
-
 
     const submit = async (e : React.SyntheticEvent<Element, Event>) => {
         e.preventDefault();
@@ -234,9 +208,7 @@ const CreateApostleMessage = (props: any):JSX.Element => {
             };
             setState({
                 adminData: adminList,
-            
             });
-        
         };
 
         if(adminDataQuery.error){
@@ -315,8 +287,6 @@ const CreateApostleMessage = (props: any):JSX.Element => {
                                 )}
                             </div>
                         
-
-                            
                             <div className="col-md-6 mb-4">
                                 <FormGroupSelect
                                     placeholder="Select minister"
@@ -328,16 +298,6 @@ const CreateApostleMessage = (props: any):JSX.Element => {
                                 />
                             </div>
 
-                            {/* <div className="col-md-6 mb-4">
-                                <CustomDateTimePicker
-                                    value={formData?.dateTime}
-                                    //@ts-ignore
-                                    onChange={(e:any)=>handleDateChange(e)}
-                                    placeholder="Select publish date"
-                                    showError={errors.dateTime}
-                                    errorMessage={errors.dateTime}
-                                />
-                            </div> */}
                             <div className="col-md-12 mb-4">
                             <h6 className='mb-2'>Type message</h6>
                                 <TextEditor

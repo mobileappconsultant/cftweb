@@ -69,13 +69,7 @@ export const sideBarRoutes = [
                 icon: <Calendar />,
                 path:'/calendar',
                 match:/^\/calendar/,
-            },
-            {
-                text: 'Merchandise',
-                icon: <Archive />,
-                path:'/merchandise',
-                match:/^\/merchandise/,
-            },
+            }
         ],
     },
     {

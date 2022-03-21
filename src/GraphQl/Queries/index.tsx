@@ -1,5 +1,12 @@
 import { gql } from '@apollo/client';
 
+export const GET_ALL_BIBLE_VERSIONS = gql`
+  query VersionDTO {
+    getBibleBookVersions {
+      translation
+    }
+  }
+`;
 export const GET_ALL_BRANCHES = gql`
   query BranchDTO {
     getAllBranch {
