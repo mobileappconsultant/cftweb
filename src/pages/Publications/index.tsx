@@ -14,6 +14,7 @@ import sermonsIcon from 'assets/images/entertainment.svg';
 import bibleStudyIcon from 'assets/images/book-one.svg';
 import dailyBibleReadingIcon from 'assets/images/sunny.svg';
 import pastorForumIcom from 'assets/images/peoples-two.svg';
+import DailyBibleReading from './DailyBibleReading';
 
 
 const Publications = ():JSX.Element => {
@@ -51,7 +52,7 @@ const Publications = ():JSX.Element => {
         {
             path:'/requests',
             icon: dailyBibleReadingIcon,
-            component: <><Prayers /></>,
+            component: <div className='bible-study'>< DailyBibleReading /></div>,
             title: 'Daily bible reading',
         },
         {

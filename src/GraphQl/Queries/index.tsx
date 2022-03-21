@@ -452,3 +452,34 @@ query PastorForumDTO($id: String!){
   }
 }
 `;
+// Daily bible reading
+
+export const  GET_ALL_DAILY_BIBLE_READING = gql`
+query DailyBibleReadingDTO($flag: String! $page: Float! $limit: Float!){
+  getAllDailyBibleContent(flag:$flag page:$page limit:$limit ){
+    _id
+    verseContent
+    verseOfTheDayText
+    bibleText
+    published
+    publishedAt
+    createdAt
+    updatedAt
+  }
+}
+`;
+
+export const  GET_SINGLE_DAILY_BIBLE_READING = gql`
+query DailyBibleReadingDTO($biibleReadingContentId: String!){
+  getDailyBibleContent(biibleReadingContentId:$biibleReadingContentId ){
+    _id
+    verseContent
+    verseOfTheDayText
+    bibleText
+    published
+    publishedAt
+    createdAt
+    updatedAt
+  }
+}
+`;

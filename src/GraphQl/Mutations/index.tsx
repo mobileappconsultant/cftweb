@@ -558,4 +558,40 @@ export const DELETE_PASTOR_FORUM_MESSAGE =gql`
   }
 `;
 
+// daily bible reading
+export const CREATE_DAILY_BIBLE_READING = gql`
+mutation createDailyBibleContent($input:  DailyBibleReadingInput!) {
+  createDailyBibleContent(input: $input) {
+    _id
+    verseContent
+    verseOfTheDayText
+    bibleText
+    published
+    publishedAt
+    createdAt
+    updatedAt
+  }
+}
+`;
+export const EDIT_DAILY_BIBLE_READING = gql`
+mutation updateDailyBibleContent($input:  DailyBibleReadingInput! $biibleReadingContentId: String!) {
+  updateDailyBibleContent (input: $input biibleReadingContentId: $biibleReadingContentId) {
+    _id
+    verseContent
+    verseOfTheDayText
+    bibleText
+    published
+    publishedAt
+    createdAt
+    updatedAt
+  }
+}
+`;
+export const DELETE_DAILY_BIBLE_READING =gql`
+  mutation deleteDailyBibleContent($biibleReadingContentId: String!) {
+    deleteDailyBibleContent(biibleReadingContentId: $biibleReadingContentId) {
+      msg
+    }
+  }
+`;
 
