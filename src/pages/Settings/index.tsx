@@ -4,6 +4,7 @@ import AlertComponent from 'components/AlertComponent';
 import { User ,Key } from 'tabler-icons-react';
 import UpdateProfile from './UpdateProfile';
 import ChangePassword from './ChangePassword';
+import './settings.scss';
 
 const Settings = ():JSX.Element => {
     const initialState = {

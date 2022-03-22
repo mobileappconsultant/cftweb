@@ -79,6 +79,7 @@ export const GET_SINGLE_GROUP = gql`
 export const GET_ALL_ADMINS = gql`
   query AdminDTO{
     getAllAdmin{
+      id
       email
       phone
       full_name
@@ -165,8 +166,8 @@ export const GET_ALL_PERMISSIONS = gql`
 // Members
 export const GET_ALL_MEMBERS = gql`
   query UserDTO{
-    getAllMembers{
-      id
+    getAllUser{
+      _id
       email
       phone
       full_name

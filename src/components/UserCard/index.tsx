@@ -10,21 +10,36 @@ interface propsObject {
     id? : string;
     role?: string;
     active?: boolean;
+    disableAccount: any;
+    activateAccount: any;
   }
-const UserCard = (props: propsObject):JSX.Element => {
-    const {name, userName, time, role, avatar, active} = props;
+const UserCard = (props: any):JSX.Element => {
+    const {name, userName, time, role, avatar, active, disableAccount, activateAccount,id } = props;
     return(
         <div className={`card user-card w-100 p-3 mb-3`}>   
             <div className='d-flex justify-content-end'>
                 {active? (
-                    <Badges
-                        text={'Active'}
-                        type='success'
-                    />
+                    <>
+                    {name? (
+                        <Badges
+                            text={'Active'}
+                            type='success'
+                            clickEvent={()=>disableAccount(id)}
+                        />
+                    ):(
+                        <Badges
+                            text={'Inactive'}
+                            type='pending'
+                            clickEvent={()=>activateAccount(id)}
+                        />
+                    )}
+                        
+                    </>
                 ):(
                     <Badges
                         text={'Inactive'}
                         type='pending'
+                        clickEvent={()=>activateAccount(id)}
                     />
                 )}
                 

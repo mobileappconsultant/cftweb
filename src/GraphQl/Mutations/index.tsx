@@ -11,6 +11,11 @@ export const SERMON_IMAGE_UPLOAD = gql`
     uploadSermonContentImage(sermonId: $sermonId file: $file) 
   }
 `;
+export const UPLOAD_AVATAR = gql`
+  mutation uploadAvatar($file: Upload!) {
+    uploadAvatar(file: $file) 
+  }
+`;
 export const LOGIN = gql`
   mutation login($creds:  LoginInput!) {
     login(creds: $creds ) {
@@ -134,7 +139,7 @@ export const EDIT_ROLE =gql`
 
 export const ACTIVATE_ADMIN =gql`
   mutation activateAdmin($adminID: String!){
-    activateAdmin(permissions:$permissions name:$name){
+    activateAdmin(adminID:$adminID){
       id
       email
       phone
@@ -159,7 +164,7 @@ export const ACTIVATE_ADMIN =gql`
 `;
 export const DEACTIVATE_ADMIN =gql`
   mutation deactivateAdmin($adminID: String!){
-    deactivateAdmin(permissions:$permissions id:$id name:$name){
+    deactivateAdmin(adminID:$adminID){
       id
       email
       phone

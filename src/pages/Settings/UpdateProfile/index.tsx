@@ -9,6 +9,8 @@ import { Dispatch } from "redux";
 import { useMutation } from '@apollo/client';
 import { UPDATE_PROFILE } from 'GraphQl/Mutations';
 import { addUser } from "store/actionCreators";
+import { EditCircle } from 'tabler-icons-react';
+import UploadAvatar from './UploadAvatar';
 const UpdateProfile = ():JSX.Element => {
     const initialState = {
         formData: {
@@ -20,14 +22,16 @@ const UpdateProfile = ():JSX.Element => {
         errors:{},
         alertMessage:{},
         isLoading: false,
+        showImageModal: false,
     };
     // State
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {formData, page, isLoading, alertMessage, errors} = state;
+    const {formData, page, isLoading, alertMessage, errors, showImageModal } = state;
     // Redux
     const dispatch: Dispatch = useDispatch();
     const reduxState = useSelector( (state:any) => state);
     const{userObject} = reduxState?.reducer;
+    console.log(userObject);
     // GraphQL
     const [updateProfile, { data, loading, error }] = useMutation(UPDATE_PROFILE);
     
@@ -99,6 +103,11 @@ const UpdateProfile = ():JSX.Element => {
             alertMessage:{},
         });
     };
+    const toggleUploadImageModal = () => {
+        setState({
+            showImageModal: !showImageModal,
+        });
+    };
 
     useEffect(() => {
     
@@ -117,6 +126,12 @@ const UpdateProfile = ():JSX.Element => {
             });
         };
     }, []);
+
+    const addAlert = (alert:any) => {
+        setState({
+            alertMessage: alert,
+        });
+    };
     
     return(
         <>
@@ -132,9 +147,22 @@ const UpdateProfile = ():JSX.Element => {
         )}
         <div className="bg-white">
             <div className="user-account mt-4 pt-2 text-center mx-auto">
-                <div className="avatar mx-auto">
-                    <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20(3).jpg" />
-                    <span className="avatar-badge"><div className="avatar-badge-container"><img alt="Remy Sharp" src="https://mdbootstrap.com/img/Photos/Avatars/img%20(3).jpg" className="MuiAvatar-img css-1hy9t21" /></div></span>
+                <div className="mx-auto">
+                    {/* <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20(3).jpg" /> */}
+                    <div className="">
+                        <div className="avatar-badge-container mx-auto">
+                            <img alt="Remy Sharp" src="https://mdbootstrap.com/img/Photos/Avatars/img%20(3).jpg"  />
+                            <div className="upload-icon edit-button" onClick={()=>{toggleUploadImageModal()}}>
+                            
+                                <EditCircle
+                                    className="button-icon"
+                                    size={20}
+                                    strokeWidth={1.5}
+                                    color={'#FFF'}
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 
@@ -193,6 +221,15 @@ const UpdateProfile = ():JSX.Element => {
                     </div>
             </div>
         </div>
+        {showImageModal && (
+            <UploadAvatar
+                showModal={showImageModal}
+                toggleModal={toggleUploadImageModal}
+                messageId={userObject?.id}
+                addAlert={addAlert}
+                // reload={fetchData}
+            />
+        )}
         </>
     )
 

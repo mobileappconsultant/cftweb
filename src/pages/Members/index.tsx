@@ -69,7 +69,7 @@ const Administrators = ():JSX.Element => {
     useEffect(() => {
         if(data){
             setState({
-                dataArr: data?.getAllMembers,
+                dataArr: data?.getAllUser,
             });
         };
         if(!loading){

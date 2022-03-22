@@ -25,7 +25,7 @@ const AdministratorsList = ():JSX.Element => {
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr} = state;
-    const { data, loading, error } = useQuery(GET_ALL_ADMINS);
+    const { fetchMore }  = useQuery(GET_ALL_ADMINS);
 
     const [activateAdmin] = useMutation(ACTIVATE_ADMIN);
     const [deactivateAdmin] = useMutation(DEACTIVATE_ADMIN);
@@ -60,28 +60,54 @@ const AdministratorsList = ():JSX.Element => {
             alertMessage: alertObj,
         });
     };
-
-    
-
-    useEffect(() => {
-        if(data){
-            setState({
-                dataArr: data?.getAllAdmin,
-            });
-           
-        };
-        if(!loading){
-            setState({
-                isLoading: false,
-            });
-        };
-
-        if(error){
-            
+    const fetchData = async() => {
+        try {
+             
+            const apiData : any = await fetchMore({variables:{}});
+            const {data, loading, error} = apiData;
+            if(data){
+                setState({
+                    dataArr: data?.getAllAdmin,
+                });
+            };
+            if(!loading){
+                setState({
+                    isLoading: false,
+                });
+            };
+            if(error){
+                setState({
+                    alertMessage :processAlertError(extractErrorMessage(error)),
+                });
+            };
+        } catch (error) {
             setState({
                 alertMessage :processAlertError(extractErrorMessage(error)),
-            })
+                isLoading: false,
+            });
         }
+    };
+    
+    useEffect(() => {
+        fetchData();
+        // if(data){
+        //     setState({
+        //         dataArr: data?.getAllAdmin,
+        //     });
+           
+        // };
+        // if(!loading){
+        //     setState({
+        //         isLoading: false,
+        //     });
+        // };
+
+        // if(error){
+            
+        //     setState({
+        //         alertMessage :processAlertError(extractErrorMessage(error)),
+        //     })
+        // }
 
         // Cleanup method
         return () => {
@@ -89,29 +115,29 @@ const AdministratorsList = ():JSX.Element => {
                 ...initialState,
             });
         };
-    }, [data]);
+    }, []);
 
     const deactivateAdministrator = async(id:number) => {
         // eslint-disable-next-line no-restricted-globals
         if(confirm("This action will deactivate the selected admin account, click ok to continue")){
-            await deactivateAdmin({variables:{messageId: id}});
+            await deactivateAdmin({variables:{adminID: id}});
             setState({
                 alertMessage :processAlertSuccess('Admin account deactivated'),
                 isLoading: false,
             });
-            // fetchData();
+            fetchData();
         }
     };
 
     const activateAdministrator = async (id:number) => {
         // eslint-disable-next-line no-restricted-globals
         if(confirm("This action will activate the selected admin account, click ok to continue")){
-            await activateAdmin({variables:{messageId: id}});
+            await activateAdmin({variables:{adminID: id}});
             setState({
                 alertMessage :processAlertSuccess('Admin account activated'),
                 isLoading: false,
             });
-            // fetchData();
+            fetchData();
         }
     };
     
@@ -160,19 +186,24 @@ const AdministratorsList = ():JSX.Element => {
                 
                 return(
                     <>
-                        <div className="col-md-6">
-                            <div className="my-2">
-                            <UserCard
-                                name={datum?.full_name?? 'n/a'}
-                                role={datum?.role[0]?datum?.role[0]?.name : ''}
-                                time={'22/03/2022'}
-                                avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
-                                active={datum?.status}
-                                id="2"
-                                // active
-                            />
+                        {datum?.full_name &&(
+                            <div className="col-md-6">
+                                <div className="my-2">
+                                    <UserCard
+                                        name={datum?.full_name?? null}
+                                        role={datum?.role[0]?datum?.role[0]?.name : ''}
+                                        time={'22/03/2022'}
+                                        avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
+                                        active={datum?.status}
+                                        id={datum.id}
+                                        disableAccount={deactivateAdministrator}
+                                        activateAccount={activateAdministrator}
+                                        // active
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        ) }
+                        
                     </>
                 );
             })}
