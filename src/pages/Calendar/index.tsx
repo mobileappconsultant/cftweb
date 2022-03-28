@@ -1,23 +1,26 @@
 import PageTitle from 'components/PageTitle';
+import './calendar.scss';
 import React, {useReducer, useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import AlertComponent from 'components/AlertComponent';
-import ExportComponent from 'utilComponents/ExportComponent';
-import TableListView from 'utilComponents/TableListView';
 import Pagination from 'utilComponents/TablePagination';
 import { ApiRequestClient } from 'apiClient';
 import { apiRoutes } from 'constants/index';
-import CreateButton from 'utilComponents/CreateButton';
-import { Plus } from 'tabler-icons-react';
 import { history } from 'helpers';
-import Badges from 'utilComponents/Badges';
-import { DateRangePicker } from 'react-date-range';
-import { addDays } from 'date-fns';
 import ActionButton from 'utilComponents/ActionButton';
 import CircularLoader from 'utilComponents/Loader';
-import moment from 'moment';
+import CreateEvent from './CreateCalendarEvent';
+import { addDays, format } from 'date-fns';
+import { DateRange, DayPicker } from 'react-day-picker';
+import OneweekCalendar from 'utilComponents/OneweekCalendar';
+
+const pastMonth = new Date();
 
 const Calendar = ():JSX.Element => {
+    const defaultSelected: DateRange = {
+        from: pastMonth,
+        to: addDays(pastMonth, 4)
+    };
     const initialState = {
         listView: true,
         rowsPerPage:5,
@@ -25,20 +28,12 @@ const Calendar = ():JSX.Element => {
         alertMessage:{},
         data:[
             {
-                name: 'Thanksgiving Service',
-                body: `Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                quis nostrud exercitation ullamco laboris nisi ut......
-                `,
-                date: 'Sent on 22nd February',
+                title: 'Overcomers Night Vigil',
+                date: 'November 15th, 2021',
             },
             {
-                name: 'Thanksgiving Service 2',
-                body: `Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                quis nostrud exercitation ullamco laboris nisi ut......
-                `,
-                date: 'Sent on 25th February',
+                title: 'Bible Study',
+                date: 'November 35th, 2021',
             },
         ],
         dateState: [
@@ -49,12 +44,13 @@ const Calendar = ():JSX.Element => {
             }
         ],
         isLoading: false,
+        range: defaultSelected,
         
     };
    
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView,isLoading, page, rowsPerPage, dateState, alertMessage, data} = state;
+    const {listView,isLoading, page, rowsPerPage, dateState, alertMessage, data, range } = state;
 
     const changeListView = () => {
         setState({
@@ -97,7 +93,7 @@ const Calendar = ():JSX.Element => {
             const response = await ApiRequestClient.get(apiRoutes.GET_ALL_CALENDAR_EVENT);
           
             setState({
-                data: response?.data?.data,
+                // data: response?.data?.data,
                 isLoading: false,
             });
         } catch (error) {
@@ -109,7 +105,7 @@ const Calendar = ():JSX.Element => {
     };
 
     useEffect(() => {
-        fetchData();
+        // fetchData();
 
         // Cleanup method
         return () => {
@@ -118,19 +114,21 @@ const Calendar = ():JSX.Element => {
             });
         };
     }, []);
-   console.log(data);
+
+    const setRange= (date :any) => {
+        setState({
+            ...state,
+            range: date,
+        });
+    };
+
     return(
         <>
         <div className="row justify-content-between align-items-end">
         <div className="col-md-6">
             <PageTitle text='Events' />
         </div>
-        <div className="col-md-6 d-flex justify-content-end">
-            <TableListView
-                isActive={listView}
-                actionEvent={changeListView}
-            />
-        </div>
+       
         </div>
         {alertMessage?.text && (
             <>
@@ -145,52 +143,72 @@ const Calendar = ():JSX.Element => {
             <CircularLoader/>
         ):(
             <>
-                <div className="">
+                <div className="calendar-module">
                     <div className="row justify-content-between py-3 px-2">
-                        {data?.map((item: any, index: number) => {
-                            return(
+                        <div className="col-md-8 bg-white py-3" >
+                            <OneweekCalendar
+                                showDetailsHandle={true}
+                            />
+                            {data?.map((item: any, index: number) => {
+                                return(
 
-                                    <div className="col-md-9 bg-white py-3" key={index}>
-                                        <div className="w-100 shadow p-3 border-left my-2">
-                                            <h6 className="font-weight-bold mb-3">{item?.title}</h6>
-                                            <div className="small user-name text-muted mt-2">
-                                              <span>Start time:</span>  {moment(item?.event_start_time).format('YYYY-MM-DD hh:mm:ss')}
-                                            </div>
-                                            <div className=" user-name text-muted mt-3">Church: {item?.church}</div>
-                                            <div className=" user-name text-muted mt-2">Branch: {item?.branch}</div>
-                                            <div className="d-flex justify-content-between">
-                                                <div className="small user-name text-muted mt-2">Event type:{item?.event_type}</div>
-                                           
-                                            <div>
+                                        <div className="w-100  calendar-listing-card" key={index}>
+                                            <div >
+                                                <div className='d-flex justify-content-between align-items-end'>
+                                                    <div>
+                                                        <h6 className="event-name">{item?.title}</h6>
+                                                        <div className="date">
+                                                            {item?.date}
+                                                        </div>
+                                                        <div className="time m-0">
+                                                            9:00 PM - 01:00 AM
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className='d-flex'>
+                                                        <ActionButton
+                                                            text={
+                                                                <>
+                                                                    Edit
+                                                                </>
+                                                            }
+                                                            className="mx-2 edit-action"
                                             
-                                                <ActionButton
-                                                    text={
-                                                        <>
-                                                            Edit
-                                                        </>
-                                                    }
-                                                    className="mx-2 edit-action"
-                                    
-                                                    actionEvent={()=> history.push('/calendar/edit-event/'+ item?._id)}
-                                                />
-                                                <ActionButton
-                                                    text={
-                                                        <>
-                                                            Delete
-                                                        </>
-                                                    }
-                                                    className="delete-action"
-                                    
-                                                    actionEvent={()=> history.push('/announcements/create')}
-                                                />
+                                                            actionEvent={()=> history.push('/calendar/edit-event/'+ item?._id)}
+                                                        />
+                                                        <ActionButton
+                                                            text={
+                                                                <>
+                                                                    Delete
+                                                                </>
+                                                            }
+                                                            className="delete-action"
+                                            
+                                                            actionEvent={()=> history.push('/announcements/create')}
+                                                        />
+                                                    </div>
+                                                </div>
                                             </div>
-                                            </div>
-                                        
                                         </div>
-                                    </div>
-                            )
-                        })}
-                        
+                                            
+                                        
+                            
+                                )
+                            })}
+                        </div>
+                        <div className="col-md-4">
+                            <h6>Filter by start and end date range </h6>
+                            <div className=" mx-auto">
+                                
+                                <DayPicker
+                                    mode="range"
+                                    defaultMonth={new Date()}
+                                    selected={range}
+                                    footer={<></>}
+                                    onSelect={setRange}
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </>
@@ -204,11 +222,11 @@ const Calendar = ():JSX.Element => {
                 handleChangeRowsPerPage={handleChangeRowsPerPage}
             />
         <div>
-            <ExportComponent
-                actionEvent={()=> console.log('me')}
-            />
-
-        <CreateButton
+        <div className='calendar-create-module'>
+            <CreateEvent />
+        </div> 
+        
+        {/* <CreateButton
             text={
                 <>
                     <Plus
@@ -222,7 +240,7 @@ const Calendar = ():JSX.Element => {
             }
             float
             actionEvent={()=> history.push('/calendar/create-event')}
-        />
+        /> */}
            
         </div>
        

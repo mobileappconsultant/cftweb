@@ -10,8 +10,10 @@ interface propsObject {
     footer?: JSX.Element;
     children?: ReactChild | ReactChildren;
     className?: string;
+    dialogClassName?: string;
+    fullscreen?: boolean;
 }
-const Modal = ({ show, onClosed, title, toggle, footer, children, ...rest }: propsObject):JSX.Element  => {
+const Modal = ({ show, onClosed, title, toggle, footer, children, dialogClassName, ...rest }: propsObject):JSX.Element  => {
     return (
         <ReactstrapModal
             backdrop="static"
@@ -19,6 +21,7 @@ const Modal = ({ show, onClosed, title, toggle, footer, children, ...rest }: pro
             isOpen={show}
             keyboard={false}
             onClosed={onClosed}
+            dialogClassName= {dialogClassName?? ''}
             {...rest}
         >
             <ModalHeader toggle={toggle ? toggle : ''}>{title ? title : 'Modal title'}</ModalHeader>

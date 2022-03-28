@@ -2,9 +2,10 @@ import React from 'react';
 import { render } from "react-dom"
 import './index.css';
 import { Provider } from "react-redux";
+import 'react-day-picker/dist/style.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import App from "./App";
 import { ApolloProvider } from '@apollo/client';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { PersistGate } from 'redux-persist/integration/react';
 import {store, persistor} from 'store/configureStore';
 import 'react-calendar/dist/Calendar.css';

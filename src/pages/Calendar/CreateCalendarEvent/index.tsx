@@ -1,44 +1,37 @@
-import PageTitle from 'components/PageTitle';
-import React, {useReducer, useEffect } from 'react';
+import React, {useReducer} from 'react';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
 import AlertComponent from 'components/AlertComponent';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes, eventOptions } from 'constants/index';
+import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
-import { extractErrorMessage, formatDate, formatDate2, isNotEmptyArray, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
-import { CirclePlus, TrashOff } from 'tabler-icons-react';
-import Chip from '@mui/material/Chip';
-import Autocomplete from '@mui/material/Autocomplete';
-import { history, validateData } from 'helpers';
-import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import moment from 'moment';
-import { FormHelperText } from '@mui/material';
+import FormGroupInput from 'utilComponents/FormGroupInput';
+import { CREATE_GROUP } from 'GraphQl/Mutations';
+import { useMutation } from '@apollo/client';
+import { Plus } from 'tabler-icons-react';
+import '../calendar.scss';
 import { DateRangePicker } from 'react-date-range';
+import EventInput from 'utilComponents/EventInput';
+import DateDiv from '../DateDiv';
+import { addDays, format } from 'date-fns';
+import { DateRange, DayPicker } from 'react-day-picker';
 
+const pastMonth = new Date();
 
-const CreateEvent = ():JSX.Element => {
+const CreateEvent = (props: any):JSX.Element => {
+
+    const defaultSelected: DateRange = {
+        from: pastMonth,
+        to: addDays(pastMonth, 4)
+    };
     const initialState = {
-        alertMessage:{},
-        formData:{
-            church: '',
-            branch:'',
-            event_type:'',
-            date:  null,
-            ministers:[],
-            title:'',
+        formData: {
+            name: '',
+            group_head:'',
         },
-        activities:[
-            {
-                item:'',
-                duration:'',
-            }
-        ],
-        branchData:[],
-        adminData:[],
         errors:{},
+        isLoading: false,
+        alertMessage:{},
+        showModal: false,
         dateState: [
             {
               startDate: new Date(),
@@ -46,11 +39,12 @@ const CreateEvent = ():JSX.Element => {
               key: 'selection'
             }
         ],
+        range: defaultSelected,
+
     };
-
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {errors, alertMessage, formData, branchData, adminData, activities, dateState} = state;
-
+    const {formData, isLoading, alertMessage, errors, showModal, dateState, range} = state;
+    const [createNewGroup, { data, loading, error }] = useMutation(CREATE_GROUP);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
         setState({
@@ -65,159 +59,79 @@ const CreateEvent = ():JSX.Element => {
         });
     };
 
-    const handleActivityChange = (e: any, itemIndex: number): void => {
-        const {name, value} = e.target;
-        const current = activities[itemIndex];
-        current[name] = value;
-        setState({
-            activities: [...activities],
-        });
-    };
-    
-    const handleAlertClose = () => {
-        setState({
-            alertMessage:{},
-        });
-    };
 
-    const addAlert = (alertObj:{text: string, type: string}) => {
-        setState({
-            alertMessage: alertObj,
-        });
-    };
+    const handleModalToggle = () => {
+        setState({showModal: !showModal});
+        refreshForm();
+    }
 
-    const fetchData = async () => {
-        setState({
-            isLoading: true,
-        });
+    const validateFormData = async () => {
+        const rules = {
+            'name': 'required',
+            'group_head' : 'required',   
+        };
 
-        try {
-            const response = await Promise.all([
-                ApiRequestClient.get(apiRoutes.GET_ALL_ADMINS),
-                ApiRequestClient.get(apiRoutes.GET_ALL_BRANCHES),
-            ]);
-            for (let index = 0; index < response[0]?.data?.data.length; index++) {
-                const element = response[0]?.data?.data[index];
-                element.text = element?.full_name;
-                element.id = element?._id;
-            };
-
-            for (let i = 0; i < response[1]?.data?.data.length; i++) {
-                const el = response[1]?.data?.data[i];
-                el.label = el?.name;
-                el.value = el?.name;
-            };
-    
+        const messages = {
+            'name.required': 'Group name is required',
+            'group_head.required': 'Group head is required',
+        };
+        const validate = await validateData(formData, rules, messages);
+        if (isObjectEmpty(validate)) {
+            return true;
+        } else {
             setState({
-                branchData: response[1]?.data?.data,
-                adminData: response[0]?.data?.data,
-                isLoading: false,
+                ...state,
+                errors: validate,
             });
-        } catch (error) {
-            setState({
-                isLoading: false,
-            });
+            return false;
         }
 
-    };
-  
-    const handleAutoCompleteSelection = (event:any, newValue:any): void => {
-     
-        setState({
-            formData:{
-                ...formData,
-                ministers: newValue,
-            },
-            errors:{
-                ...state.errors,
-                ministers: '',
-            }
-        });
+
     };
 
-    const addActivityToEvent = () => {
+    const refreshForm = () => {
         setState({
-            activities:[...activities, {
-                item:'',
-                duration:'',
-            }]
+            formData: {
+                name: '',
+                group_head:'',
+            },
+            errors:{},
         })
     };
 
-    const removeActivityFromEvent = (index: number) => {
-        activities.splice(index, 1);
-        setState({
-            activities:[ ...activities],
-        });
-    };
-
-    const handleSubmit = async(e: React.SyntheticEvent<Element, Event>) => {
+    const submit = async (e : React.SyntheticEvent<Element, Event>) => {
         e.preventDefault();
         setState({
             isLoading: true,
         })
         try {
             const validate = await validateFormData();
+           
             if(validate){
-                const payload = {
-                    ...formData,
-                    date: moment(formData?.date).format('MM-DD-YYY'),
-                    event_start_time: dateState[0]?.startDate,
-                    event_end_time: dateState[0]?.endDate,
-                    event_itenary: activities,
-                };
-                
-                await ApiRequestClient.post(apiRoutes.CREATE_CALENDAR_EVENT, payload); 
-                setTimeout(function(){
-                    history.push('/calendar');
-                }, 2000); 
-                setState({
-                    isLoading: false,
-                    alertMessage: processAlertSuccess('Event created successfully'),
-                });
+                const newGroup = await createNewGroup({variables:{input:formData}});
+                refreshForm();
+
+                props.refresh(newGroup?.data?.createGroup);
+                props.addAlert(processAlertSuccess('Group added successfully'));
+                handleModalToggle();
             };
-            
-             
+            setState({
+                isLoading: false,
+            }); 
         } catch (error) {
+          
             const errorMsg = extractErrorMessage(error);
             setState({
                 alertMessage:  processAlertError(errorMsg),
                 isLoading: false,
             });
         }
+        
     };
-
-
-    const validateFormData = async () => {
-        const validatInputs = {
-            ...state.formData,
-            ministers: !isNotEmptyArray(state.formData?.ministers[0]) ? state.formData?.ministers[0] : '',
-        };
-        const rules = {
-            'title': 'required',
-            'date': 'required',
-            'ministers' : 'required',
-            'branch': 'required',
-            'church': 'required',  
-            'event_type': 'required',
-        };
-        const messages = {
-            'title.required': 'Enter event title',
-            'date.required': 'Date required',
-            'ministers.required': "Select or type a ministers' name",
-            'branch.required': 'Select a branch',
-            'church.required': 'Enter church',
-            'event_type.required': 'Select event type',
-        };
-        const validate = await validateData(validatInputs, rules, messages);
-        if (isObjectEmpty(validate)) {
-            return true;
-        } else {
-            setState({
-                errors: validate,
-            });
-            return false;
-        }
+    const handleAlertClose = () => {
+        setState({
+            alertMessage:{},
+        });
     };
 
     const setDateState = (date :any) => {
@@ -226,273 +140,129 @@ const CreateEvent = ():JSX.Element => {
                 dateState: [date],
         });
     };
-
-    useEffect(() => {
-        fetchData();
-        // Cleanup method
-        return () => {
-            setState({
-                ...initialState,
-            });
-        };
-    }, []);
-
+    const setRange= (date :any) => {
+        console.log(date);
+        setState({
+            ...state,
+            range: date,
+        });
+    };
+  
     return(
-        <>
-        <div className="row justify-content-between align-items-end">
-        <div className="col-md-6">
-            <PageTitle text="Create Calendar Event" />
-        </div>
+        <div className='calendar-module '>
+        <Modal
+            title="Create Events"
+            isOpen={showModal} 
+            onHide={() => handleModalToggle()}
+            fullscreen={true}
+            keyboard={false}
+            dialogClassName="modal-90w"
+            aria-labelledby="example-custom-modal-styling-title"
+            size="xl"
         
-        </div>
-        {alertMessage?.text && (
+        >
             <>
-                <AlertComponent
-                    text={alertMessage.text}
-                    type={alertMessage.type}
-                    onClose={handleAlertClose}
-                />
-            </>
-        )}
-        <div className="row">
-            <div className=" col-md-8">
-                <div className="pt-1"/>
-                <div className="mx-3 my-2 bg-white shadow">
-                    <div className="row  py-4 px-4 justify-content-center">
-                        <div className="col-md-12 mb-3">
-                            <TextField  
-                                label="Title of event" 
-                                variant="outlined" 
-                                className='w-100'
-                                name="title"
-                                InputLabelProps={{ shrink: true, required: true }}
-                                value={formData?.title}
-                                onChange={handleChange}
-                                helperText={errors.title}
-                                error={errors.title}
-                            />
-                            
-                        </div>
-                        <div className="col-md-6 mb-3">
-                            
-                            <TextField  
-                                label="Date" 
-                                variant="outlined" 
-                                className='w-100'
-                                name="date"
-                                type='date'
-                                InputLabelProps={{ shrink: true, required: true }}
-                                value={formData?.date}
-                                onChange={handleChange}
-                                helperText={errors.date}
-                                error={errors.date}
-                            />
-                        </div>
-
-                        <div className="col-md-6 mb-3">
-                            
-                            <TextField  
-                                label="Church" 
-                                variant="outlined" 
-                                className='w-100'
-                                name="church"
-                                InputLabelProps={{ shrink: true, required: true }}
-                                value={formData?.church}
-                                onChange={handleChange}
-                                helperText={errors.church}
-                                error={errors.church}
-                            />
-                        </div>
-
-                        <div className="col-md-6 mb-3 mt-2">
-                            <FormControl fullWidth>
-                                <InputLabel id="demo-simple-select-label">Branch</InputLabel>
-                                <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                InputLabelProps={{ shrink: true, required: true }}
-                                value={formData?.branch}
-                                label="Branch"
-                                name="branch"
-                                error={errors?.branch}
-                                //@ts-ignore
-                                onChange={handleChange}
-                                >
-                                
-                                {branchData?.map((branch:any, index:any)=>{
-                                    return(
-                                    
-                                        <MenuItem value={branch?.name} key={index}>{branch?.name}</MenuItem>
-                                    
-                                    );
-                                })}
-                                </Select>
-                                {errors?.branch && (<FormHelperText className="text-danger">{errors?.branch} </FormHelperText>)}
-                            </FormControl>
-                            
-                        </div>
-                        <div className="col-md-6 mb-3 mt-2">
-                            
-                            <FormControl fullWidth>
-                                <InputLabel id="demo-simple-select-label">Select event type</InputLabel>
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    value={formData?.event_type}
-                                    label="Event type"
-                                    name="event_type"
-                                    //@ts-ignore
+                {alertMessage?.text && (
+                    <>
+                        <AlertComponent
+                            text={alertMessage.text}
+                            type={alertMessage.type}
+                            onClose={handleAlertClose}
+                        />
+                    </>
+                )}
+                <div className="modal-content-container">
+                    <div className='form-content bg-white'>
+                        <div className="row">
+                            <div className="col-md-12 mb-3">
+                                <EventInput
+                                    placeholder="Enter event name"
+                                    label='Create a new event'
+                                    value={formData?.name}
                                     onChange={handleChange}
-                                    error={errors?.event_type}
-                                >
-                                
-                                {eventOptions?.map((item:any, index:any)=>{
-                                    return(
-                                    
-                                        <MenuItem value={item?.value} key={index}>{item?.label}</MenuItem>
-                                    
-                                    );
-                                })}
-                                </Select>
-                                {errors?.event_type && (<FormHelperText className="text-danger">{errors?.event_type} </FormHelperText>)}
-                            </FormControl>
-                        </div>
-
-
-                        <div className="col-md-12 mb-3 mt-2">
-                            
-                            <Autocomplete
-                                multiple
-                                id="tags-outlined"
-                                className="bg-white"
-                                options={adminData.map((option:any) => option.full_name)}
-                                onChange={(event, newValue) => {
-                                    handleAutoCompleteSelection(event, newValue)
-                                    
-                                }}
-                                renderTags={(value, getTagProps) =>
-                                value.map((option, index) => (
-                                    <Chip 
-                                        
-                                        //@ts-ignore
-                                        label={option} 
-                                        {...getTagProps({ index })} 
-                                    />
-                                ))
-                            
-                                }
-                                
-                                renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    variant="filled"
-                                    label="Select Ministers"
-                                    placeholder="Ministers"
+                                    name="name"
+                                    showError={errors.name}
+                                    errorMessage={errors.name}
                                 />
-                                )}
-                            />
-                            {errors?.ministers && (<FormHelperText className="text-danger">{errors?.ministers} </FormHelperText>)}
-                        </div>
-
-                        <div className="col-md-12 mb-3 mt-2">
-                            <h5>Add activities to event
-                            <button
-                                className={`border-0 pointer edit-button mx-3 pb-1 px-1`}  
-                                onClick={()=>{addActivityToEvent()}}
-                            >   
-                                <CirclePlus
-                                    className="button-icon "
-                                    size={20}
-                                    strokeWidth={1.5}
-                                    color={'#FFF'}
-                                />
-                            </button> 
-                            
-                            </h5>
-                        </div>
-                    
-                    {activities.map((activity:any, _i:any)=>{
-                        return(
-                            <div className="row my-2">
-                                <div className="col-md-8 mb-2">
-                                    <h6 className='d-flex align-items-center'>Activity {_i + 1}
-                                    {_i !== 0 && (
-                                        <button
-                                        className={`border-0 pointer edit-button mx-3 pb-1 px-1`}  
-                                        onClick={()=>{removeActivityFromEvent(_i)}}
-                                            >   
-                                                <TrashOff
-                                                    className="button-icon "
-                                                    size={20}
-                                                    strokeWidth={1.5}
-                                                    color={'#FFF'}
-                                                />
-                                            </button> 
-                                    )}
-                                    
-                                    </h6>
-                                    </div>
-                                <div className="col-md-6">
-                                        <TextField  
-                                            label="Activity" 
-                                            variant="outlined" 
-                                            className='w-100'
-                                            name="item"
-                                            InputLabelProps={{ shrink: true, required: true }}
-                                            value={activity?.item}
-                                            onChange={(e)=>handleActivityChange(e, _i)}
-                                            // helperText={errors.church}
-                                            // error={errors.church}
-                                        />
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <TextField  
-                                            label="Duration (in minutes)" 
-                                            variant="outlined" 
-                                            className='w-100'
-                                            name="duration"
-                                            // type="number"
-                                            InputLabelProps={{ shrink: true, required: true }}
-                                            value={activity?.duration}
-                                            onChange={(e)=>handleActivityChange(e, _i)}
-                                            // helperText={errors.church}
-                                            // error={errors.church}
-                                        />
-                                    </div>
-
                             </div>
-                        )
-                    })}
-
+                            <div className="col-md-12 mb-3 d-flex selected-date-container align-items-center">
+                                <DateDiv
+                                    title="Start Date"
+                                    date="02, May 2021"
+                                />
+                                <div>to</div>
+                                <DateDiv
+                                    title="End Date"
+                                    date="02, May 2021"
+                                />
+                                {/* <FormGroupInput
+                                    placeholder="Group head"
+                                    value={formData?.group_head}
+                                    onChange={handleChange}
+                                    name="group_head"
+                                    showError={errors.group_head}
+                                    errorMessage={errors.group_head}
+                                /> */}
+                            </div>
+                            
+                            
+                            <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
+                            <CreateButton
+                                text={'Submit'}
+                                actionEvent={(e)=>{submit(e)}}
+                                disabled={isLoading}
+                                loading={isLoading}
+                            />
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div className="pb-2"/>
-                <CreateButton
-                    text={'Post now'}
-                    float
-                    actionEvent={(e)=>{handleSubmit(e)}}
-                />
+                    <div>
+                    <div className="">
+                        <h6>Select start and end date </h6>
+                        <div className=" mx-auto">
+                            {/* <DateRangePicker
+                                    editableDateInputs={true}
+                                    //@ts-ignore
+                                    onChange={item => setDateState(item.selection)}
+                                    moveRangeOnFirstSelection={false}
+                                    ranges={dateState}
+                                //onChange={item => setDateState([item.selection])}
+                                //@ts-ignore
+                                
+                                //direction="horizontal"
+                            /> */}
+                            
+                            <DayPicker
+                                mode="range"
+                                defaultMonth={new Date()}
+                                selected={range}
+                                footer={<></>}
+                                onSelect={setRange}
+                            />
+                        </div>
             </div>
-
-            <div className="col-md-4">
-                <h6>Select start and end date </h6>
-                <div className=" mx-auto">
-                    <DateRangePicker
-                            editableDateInputs={true}
-                            //@ts-ignore
-                            onChange={item => setDateState(item.selection)}
-                            moveRangeOnFirstSelection={false}
-                            ranges={dateState}
-                        //onChange={item => setDateState([item.selection])}
-                        //@ts-ignore
-                        
-                        //direction="horizontal"
+                    </div>
+                    
+                </div>
+            </>
+        </Modal>
+        <CreateButton
+            text={
+                <>
+                    <Plus
+                        size={20}
+                        strokeWidth={2}
+                        color={'white'}
                     />
-                </div>
-            </div>
+                    &nbsp;
+                    Create New Eventz
+                </>
+            }
+            float
+            actionEvent={()=>{handleModalToggle()}}
+        />
         </div>
-       
-        </>
+
     )
 
 };
