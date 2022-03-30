@@ -1,4 +1,4 @@
-import React, {useReducer} from 'react';
+import React, {useEffect, useReducer} from 'react';
 import Modal from 'utilComponents/Modal';
 import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
 import AlertComponent from 'components/AlertComponent';
@@ -6,7 +6,9 @@ import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
 import { CREATE_GROUP } from 'GraphQl/Mutations';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import FormSelectOrCreate from 'utilComponents/FormSelectOrCreate';
+import { GET_ALL_ADMINS } from 'GraphQl/Queries';
 
 
 const CreateGroup = (props: any):JSX.Element => {
@@ -15,6 +17,7 @@ const CreateGroup = (props: any):JSX.Element => {
             name: '',
             group_head:'',
         },
+        adminData:[],
         errors:{},
         isLoading: false,
         alertMessage:{},
@@ -22,8 +25,9 @@ const CreateGroup = (props: any):JSX.Element => {
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {formData, isLoading, alertMessage, errors, showModal} = state;
+    const {formData, isLoading, alertMessage, errors, showModal, adminData} = state;
     const [createNewGroup, { data, loading, error }] = useMutation(CREATE_GROUP);
+    const adminDataQuery = useQuery(GET_ALL_ADMINS); 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
         setState({
@@ -112,6 +116,65 @@ const CreateGroup = (props: any):JSX.Element => {
             alertMessage:{},
         });
     };
+
+    const handleSelectChange = (
+        newValue: any,
+        actionMeta: any,
+      ) => {
+        if (newValue) {
+            setState({
+                formData: {
+                    ...state.formData,
+                    group_head: newValue.value,
+                },
+                errors: {
+                    ...state.errors,
+                    group_head: '',
+                },
+            });
+        }
+      };
+    const  handleInputChange = (inputValue: any, actionMeta: any) => {
+        if (inputValue) {
+            setState({
+                formData: {
+                    ...state.formData,
+                    group_head: inputValue,
+                },
+                errors: {
+                    ...state.errors,
+                    group_head: '',
+                },
+            });
+        }
+        
+      };
+      useEffect(() => {
+        
+        if(adminDataQuery.data){
+            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin));
+            for (let index = 0; index < adminList.length; index++) {
+                const element = adminList[index];
+                element.label = element?.full_name;
+                element.value = element?.full_name;
+            };
+            setState({
+                adminData: adminList,
+            });
+        };
+
+        if(adminDataQuery.error){
+            setState({
+                alertMessage:processAlertError(extractErrorMessage(adminDataQuery.error)),
+            })
+        }
+        // Cleanup method
+        return () => {
+            setState({
+                ...initialState,
+            });
+        };
+    }, [adminDataQuery.data]);
   
     return(
         <>
@@ -143,13 +206,15 @@ const CreateGroup = (props: any):JSX.Element => {
                         />
                     </div>
                     <div className="col-md-12 mb-3">
-                        <FormGroupInput
+                        <FormSelectOrCreate
                             placeholder="Group head"
-                            value={formData?.group_head}
-                            onChange={handleChange}
                             name="group_head"
                             showError={errors.group_head}
                             errorMessage={errors.group_head}
+                            onChange={handleSelectChange}
+                            // @ts-ignore
+                            onInputChange={handleInputChange}
+                            selectOptions={adminData}
                         />
                     </div>
                     

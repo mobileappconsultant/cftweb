@@ -11,6 +11,11 @@ export const SERMON_IMAGE_UPLOAD = gql`
     uploadSermonContentImage(sermonId: $sermonId file: $file) 
   }
 `;
+export const PASTOR_FORUM_IMAGE_UPLOAD = gql`
+  mutation uploadContentImageForPastorForumMessage($messageId: String! $file: Upload!) {
+    uploadContentImageForPastorForumMessage(messageId: $messageId file: $file) 
+  }
+`;
 export const UPLOAD_AVATAR = gql`
   mutation uploadAvatar($file: Upload!) {
     uploadAvatar(file: $file) 
@@ -228,7 +233,18 @@ export const UPDATE_BRANCH = gql`
 export const CREATE_GROUP = gql`
   mutation createGroup($input:  GroupInput!) {
     createGroup(input: $input ) {
-      id
+      _id
+      name
+      group_head
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const UPDATE_GROUP = gql`
+  mutation updateGroup($input:  GroupInput! $groupId: String!) {
+    updateGroup(input: $input groupId:$groupId ) {
+      _id
       name
       group_head
       createdAt
@@ -374,8 +390,8 @@ export const CREATE_DAILY_PRAYER = gql`
 `;
 
 export const EDIT_DAILY_PRAYER = gql`
-  mutation createDailyPrayer($input: DailyPrayerInput!) {
-    createDailyPrayer(input: $input ) {
+  mutation updateDailyPrayer($input: DailyPrayerInput! $dailyPrayerId: String!) {
+    updateDailyPrayer(input: $input dailyPrayerId: $dailyPrayerId) {
       day
       subtitle
       scripture{

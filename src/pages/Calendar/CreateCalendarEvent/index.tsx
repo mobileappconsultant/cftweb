@@ -255,7 +255,7 @@ const CreateEvent = (props: any):JSX.Element => {
                         color={'white'}
                     />
                     &nbsp;
-                    Create New Eventz
+                    Create New Event
                 </>
             }
             float

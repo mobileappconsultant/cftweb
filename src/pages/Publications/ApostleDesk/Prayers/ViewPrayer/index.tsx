@@ -20,6 +20,7 @@ import CloseButton from 'components/CloseButton';
 import { CirclePlus, Edit } from 'tabler-icons-react';
 import CreateDailyPrayer from './Dailyprayers/CreateDailyPrayer';
 import Tooltip from '@mui/material/Tooltip';
+import EditDailyPrayer from './Dailyprayers/UpdateDailyPrayer';
 
 const ViewApostlePrayer = (props: any):JSX.Element => {
   
@@ -299,8 +300,8 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
                                                     className={` pointer edit-button`}  
                                                     onClick={()=>{
                                                         setState({
-                                                            showCreateDailyPrayerPage: true,
-                                                            showUpdateDailyPrayerPage:false,
+                                                            showCreateDailyPrayerPage: false,
+                                                            showUpdateDailyPrayerPage: true,
                                                             showViewDailyPrayerPage:false,
                                                             showViewAllDailyPrayerPage:false,
                                                             
@@ -343,6 +344,16 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
                                     prayerId={props?.prayerId}
                                 />
                            </div>
+                       )}
+
+                       {showUpdateDailyPrayerPage && (
+                           <div className='px-2'>
+                            <EditDailyPrayer
+                                close={()=> closePages()}
+                                prayerId={props?.prayerId}
+                                dailyPrayer={activeDailyPrayer}
+                            />
+                            </div>
                        )}
 
                        

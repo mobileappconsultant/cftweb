@@ -12,7 +12,7 @@ import CreateBranch from './CreateBranch';
 import EditBranch from './EditBranch';
 import MakeSelection from 'utilComponents/MakeSelectionIcon';
 import ViewBranch from './ViewBranch';
-import { extractErrorMessage, formatInitialDateValue, processAlertError } from 'utils';
+import { extractErrorMessage, formatDate2, formatInitialDateValue, processAlertError } from 'utils';
 import CircularLoader from 'utilComponents/Loader';
 import Badges from 'utilComponents/Badges';
 import { useQuery } from '@apollo/client';
@@ -144,7 +144,7 @@ const Branches = ():JSX.Element => {
                                 className={`
                                     d-flex pointer justify-content-between 
                                     align-items-start px-3 py-2 border-top border-bottom 
-                                    ${activeDataObj?.id === datum?.id? 'active-list':''}`
+                                    ${activeDataObj?._id === datum?._id? 'active-list':''}`
                                 }
                                 onClick={()=> setState({...state, activeDataObj: datum})}
                             >
@@ -156,7 +156,7 @@ const Branches = ():JSX.Element => {
                                     </div>
                                     <div className="user-name px-2">
                                         <h6 className="m-0 name">{datum?.name}</h6>
-                                        <span className="small email">{formatInitialDateValue(new Date(parseInt(datum?.createdAt)))}</span>
+                                        <span className="small email">{formatDate2(new Date(datum?.createdAt))}</span>
                                     </div>
                                 </div>
                                 <div className="justify-content-end py-0 my-0 pt-1 ">
@@ -184,7 +184,7 @@ const Branches = ():JSX.Element => {
 
             </div>
             <div className="col-md-8 pl-0">
-                {activeDataObj?.id? (
+                {activeDataObj?._id? (
                     <>
                     <div className="d-flex justify-content-between align-items-center border-bottom w-100">
                         <div className=" py-3 px-3">

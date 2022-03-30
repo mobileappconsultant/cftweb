@@ -477,3 +477,21 @@ export const splitBiblePassage = (biblePassageStr: String, version= 'niv') => {
     };
 
 };
+
+export const getScripture = (scriptureData:any) => {
+    const data = scriptureData?.refrence ? scriptureData?.refrence : '';
+    return data;
+};
+
+export const getSupportingVerses = (supportingverseData:any) => {
+    const confirmDataValidity = isNotEmptyArray(supportingverseData);
+    if(confirmDataValidity){
+        const returnArr = [];
+        for (let index = 0; index < supportingverseData.length; index++) {
+            const element = supportingverseData[index];
+                returnArr.push(element?.refrence);
+        }
+        return returnArr;
+    }
+    return [];
+};

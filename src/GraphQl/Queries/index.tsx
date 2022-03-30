@@ -10,7 +10,7 @@ export const GET_ALL_BIBLE_VERSIONS = gql`
 export const GET_ALL_BRANCHES = gql`
   query BranchDTO {
     getAllBranch {
-      id
+      _id
       name
       branch_president
       geo_point{
@@ -505,4 +505,19 @@ query DailyBibleReadingDTO($flag: String! $page: Float! $limit: Float!){
     updatedAt
   }
 }
+`;
+
+// Transactions
+export const GET_ALL_TRANSACTIONS = gql`
+  query TransactionDTO($page: Float! $limit: Float!){
+    getAllTransactions(page:$page limit:$limit ){
+      _id
+      paymentType
+      transactionId
+      amount
+      paymentPlatform
+      transactionDate
+      status
+    }
+  }
 `;

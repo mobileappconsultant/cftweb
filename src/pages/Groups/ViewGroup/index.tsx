@@ -10,8 +10,8 @@ import branchIcon from 'assets/images/branch.png';
 import TableComponent from 'utilComponents/Table';
 import { GROUP_MEMBERS_HEADERS } from 'constants/tableHeaders';
 import {TableRow, TableCell, Tooltip} from '@mui/material';
-import CreateButton from 'utilComponents/CreateButton';
 import AddUserToGroup from './AddUserToGroup';
+import AlertComponent from 'components/AlertComponent';
 
 const ViewGroup = (props:any): JSX.Element => {
     const initialState = {
@@ -23,7 +23,7 @@ const ViewGroup = (props:any): JSX.Element => {
         
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {groupData, isLoading, showEditModal, showAddUserModal } = state;
+    const {groupData, isLoading, showEditModal, showAddUserModal, alertMessage } = state;
     const { data, loading, error } = useQuery(GET_SINGLE_GROUP, {
         variables: { groupId: props?.group?._id}
     });
@@ -75,6 +75,12 @@ const ViewGroup = (props:any): JSX.Element => {
         });
     };
    
+    const handleAlertClose = () => {
+        setState({
+            alertMessage:{},
+        });
+    };
+    
     return(
         <>
         {isLoading? (
@@ -106,6 +112,15 @@ const ViewGroup = (props:any): JSX.Element => {
                             
                         </div>
                 </div>
+                {alertMessage?.text && (
+                    <div className='px-3'>
+                        <AlertComponent
+                            text={alertMessage.text}
+                            type={alertMessage.type}
+                            onClose={handleAlertClose}
+                        />
+                    </div>
+                )}
                 <div className="pt-2 pb-4 px-3 mt-2">
                     <div className="d-flex justify-content-between align-items-center mb-2 w-100">
                             <div className="user-account  d-flex align-items-center">
@@ -140,35 +155,11 @@ const ViewGroup = (props:any): JSX.Element => {
                             </span>
                     </div>
                     
-                    <div className="my-3">
-                        <InfoDivHeader
-                            label="PHONE NUMBER"
-                            text="09067980987"
-                        />
-                    </div>
-                    <div className="my-3">
-                        <InfoDivHeader
-                            label="ADDRESS"
-                            text="32a Charlseton Close, off Priya Road"
-                        />
-                    </div>
                 </div>
                 <div className='mx-3'>
                 <div className='mb-3 text-right'>
                     <div className="col-md-12 p-0 d-flex justify-content-end">
-                        <Tooltip title="Add users to group" placement="right-start" arrow className='mx-3'>
-                            <span 
-                                className={` pointer edit-button`}  
-                                onClick={toggleAddUserModal}
-                            >   
-                                <UserPlus
-                                    className="button-icon"
-                                    size={20}
-                                    strokeWidth={1.5}
-                                    color={'#FFF'}
-                                />
-                            </span>
-                        </Tooltip>
+                        
                     </div>
                 </div>
                 <TableComponent
@@ -218,6 +209,17 @@ const ViewGroup = (props:any): JSX.Element => {
                      toggleModal={toggleAddUserModal}
                      groupId={props?.group?.id}
                      addAlert={addAlert}
+                />
+            </>
+        )}
+        {showEditModal && (
+            <>
+        
+                <EditGroup
+                    showModal={showEditModal}
+                    toggleModal={toggleEditModal}
+                    addAlert={addAlert}
+                    group={groupData}
                 />
             </>
         )}

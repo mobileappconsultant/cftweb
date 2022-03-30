@@ -1,14 +1,14 @@
-import React, {useReducer} from 'react';
+import React, {useEffect, useReducer} from 'react';
 import Modal from 'utilComponents/Modal';
-import { Link } from 'react-router-dom';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
-import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
+import { capiitalizeFirstLetter, extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
-
+import { GET_ALL_ADMINS } from 'GraphQl/Queries';
+import { useMutation, useQuery } from '@apollo/client';
+import { UPDATE_GROUP } from 'GraphQl/Mutations';
+import FormSelectOrCreate from 'utilComponents/FormSelectOrCreate';
 
 const EditGroup = (props: any):JSX.Element => {
     const initialState = {
@@ -19,12 +19,15 @@ const EditGroup = (props: any):JSX.Element => {
         errors:{},
         isLoading: false,
         alertMessage:{},
-        showModal: false,
+        showModal: props?.showModal || false,
+        adminData:[],
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {formData, isLoading, alertMessage, errors, showModal} = state;
-    const {show, toggleModal} = props;
+    const {formData, isLoading, alertMessage, errors, adminData} = state;
+    const {showModal, toggleModal} = props;
+    const [updateGroup, { data, loading, error }] = useMutation(UPDATE_GROUP);
+    const adminDataQuery = useQuery(GET_ALL_ADMINS); 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -89,8 +92,10 @@ const EditGroup = (props: any):JSX.Element => {
             const validate = await validateFormData();
            
             if(validate){
-                await ApiRequestClient.post(apiRoutes.CREATE_GROUP, formData);  
-                refreshForm();
+                const newGroup = await updateGroup({variables:{input:formData, groupId: props?.group?._id}});
+                // refreshForm();
+
+                // props.refresh(newGroup?.data?.createGroup);
                 props.addAlert(processAlertSuccess('Group updated successfully'));
                 handleModalToggle();
             };
@@ -98,6 +103,7 @@ const EditGroup = (props: any):JSX.Element => {
                 isLoading: false,
             }); 
         } catch (error) {
+          
             const errorMsg = extractErrorMessage(error);
             setState({
                 alertMessage:  processAlertError(errorMsg),
@@ -106,17 +112,78 @@ const EditGroup = (props: any):JSX.Element => {
         }
         
     };
+
     const handleAlertClose = () => {
         setState({
             alertMessage:{},
         });
     };
+
+    const handleSelectChange = (
+        newValue: any,
+        actionMeta: any,
+      ) => {
+        if (newValue) {
+            setState({
+                formData: {
+                    ...state.formData,
+                    group_head: newValue.value,
+                },
+                errors: {
+                    ...state.errors,
+                    group_head: '',
+                },
+            });
+        }
+      };
+    const  handleInputChange = (inputValue: any, actionMeta: any) => {
+        if (inputValue) {
+            setState({
+                formData: {
+                    ...state.formData,
+                    group_head: inputValue,
+                },
+                errors: {
+                    ...state.errors,
+                    group_head: '',
+                },
+            });
+        }
+        
+      };
+
+    useEffect(() => {
+        
+        if(adminDataQuery.data){
+            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin));
+            for (let index = 0; index < adminList.length; index++) {
+                const element = adminList[index];
+                element.label = element?.full_name;
+                element.value = element?.full_name;
+            };
+            setState({
+                adminData: adminList,
+            });
+        };
+
+        if(adminDataQuery.error){
+            setState({
+                alertMessage:processAlertError(extractErrorMessage(adminDataQuery.error)),
+            })
+        }
+        // Cleanup method
+        return () => {
+            setState({
+                ...initialState,
+            });
+        };
+    }, [adminDataQuery.data]);
   
     return(
         <>
         <Modal
             title="Update Group"
-            show={show} 
+            show={showModal} 
             toggle={toggleModal}
         >
             <>
@@ -142,13 +209,16 @@ const EditGroup = (props: any):JSX.Element => {
                         />
                     </div>
                     <div className="col-md-12 mb-3">
-                        <FormGroupInput
+                        <FormSelectOrCreate
                             placeholder="Group head"
-                            value={formData?.group_head}
-                            onChange={handleChange}
                             name="group_head"
                             showError={errors.group_head}
                             errorMessage={errors.group_head}
+                            onChange={handleSelectChange}
+                            // @ts-ignore
+                            onInputChange={handleInputChange}
+                            selectOptions={adminData}
+                            defaultValue={{label: capiitalizeFirstLetter(formData?.group_head), value:formData?.group_head }}
                         />
                     </div>
                     

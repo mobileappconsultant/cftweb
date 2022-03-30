@@ -1,7 +1,6 @@
 import PageTitle from 'components/PageTitle';
 import React, {useReducer, useEffect} from 'react';
 import { Link } from 'react-router-dom';
-import AlertComponent from 'components/AlertComponent';
 import Pagination from 'utilComponents/TablePagination';
 import { ApiRequestClient } from 'apiClient';
 import { apiRoutes } from 'constants/index';
@@ -18,6 +17,11 @@ import donationsIcon from 'assets/images/donations.png';
 import titheIcon from 'assets/images/people.png';
 import salesIcon from 'assets/images/shopping-bag.png';
 import Badges from 'utilComponents/Badges';
+import { useQuery } from '@apollo/client';
+import AlertComponent from 'components/AlertComponent';
+import { GET_ALL_TRANSACTIONS } from 'GraphQl/Queries';
+import { capiitalizeFirstLetter, changeOptionsToBool, extractErrorMessage, processAlertError } from 'utils';
+import TotalRevenue from 'pages/Home/Charts/TotalRevenue';
 
 function createData(transId:String, type:String, username: any, phone: any, method: any, date: any, status: any, amount: any) {
   return {transId, type, username, phone, method, date, status, amount };
@@ -37,76 +41,30 @@ const rows = [
 
 ];
 
- function BasicTable():JSX.Element {
-  return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell className="table-th">Transaction ID</TableCell>
-            <TableCell align="left" className="table-th">Type</TableCell>
-            <TableCell align="left" className="table-th">Username</TableCell>
-            <TableCell align="left" className="table-th">Phone&nbsp;No.</TableCell>
-            <TableCell align="left" className="table-th">Method</TableCell>
-            <TableCell align="left" className="table-th">Date</TableCell>
-            <TableCell align="left" className="table-th">Status</TableCell>
-            <TableCell align="left" className="table-th">Amount</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-
-          {rows.map((row) => (
-            <TableRow
-            //   key={row.name}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {row.transId}
-              </TableCell>
-              <TableCell align="left">{row.type}</TableCell>
-              <TableCell align="left">{row.username}</TableCell>
-              <TableCell align="left">{row.phone}</TableCell>
-              <TableCell align="left">{row.method}</TableCell>
-              <TableCell align="left">{row.date}</TableCell>
-              <TableCell align="left">
-                    <Badges
-                        text="Pending"
-                        type="pending"
-                    />
-                </TableCell>
-              <TableCell align="left">{row.amount}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-}
 
 const Transactions = ():JSX.Element => {
     const initialState = {
         listView: true,
-        rowsPerPage:5,
+        rowsPerPage: 10,
         page:0,
         alertMessage:{},
+        dataArr:[],
         activeReportComponent: 0,
-        data:[
-            
-        ],
         openChart: false,
+        
         
     };
    
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, activeReportComponent, openChart, alertMessage, data} = state;
+    const {listView, page, rowsPerPage, activeReportComponent, openChart, alertMessage, dataArr} = state;
 
-    const changeListView = () => {
-        setState({
-            listView: !listView,
-        });
-    };
-
+    const { fetchMore } = useQuery(GET_ALL_TRANSACTIONS, {
+        variables: {
+          page: 0,
+          limit: 10,
+        },
+    });
     const openCharts = () => {
         setState({
                 ...state,
@@ -114,13 +72,6 @@ const Transactions = ():JSX.Element => {
         });
     };
 
-    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-      
-      };
-    
-    const handleChangeRowsPerPage = (event: React.SyntheticEvent): void => {
-        
-    };
     const handleAlertClose = () => {
         setState({
             alertMessage:{},
@@ -133,36 +84,74 @@ const Transactions = ():JSX.Element => {
         });
     };
 
-    const fetchData = async () => {
+    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
+        
         setState({
-            isLoading: true,
+            page: newPage,
         });
+        fetchData();
+        
+    };
+  
+    const handleChangeRowsPerPage = (event: any): void => {
+        
+        setState({
+            rowsPerPage: event?.target?.value,
+        });
+        fetchData();
+    };
 
-        try {
-            const response = await ApiRequestClient.get(apiRoutes.GET_ALL_ADMINS);
-    
+    const fetchData =  async () => {
+        setState({
+            isLoading:true,
+        });
+        const apiData : any = 
+        await fetchMore({
+                    variables:{
+                        page: page? page: 0,
+                        limit: rowsPerPage? rowsPerPage : 10,
+                        
+                    }
+                });
+         if(apiData.data){
             setState({
-                data: response?.data?.data,
+                dataArr: apiData?.data?.getAllTransactions,
+            }); 
+        };
+
+        if(!apiData.loading){
+            setState({
                 isLoading: false,
             });
-        } catch (error) {
+        };
+
+        if(apiData.error){
             setState({
+                alertMessage :processAlertError(extractErrorMessage(apiData?.error)),
                 isLoading: false,
             });
         }
+    };
 
+    const changeStatus = (e:any) => {
+        const option = changeOptionsToBool(e?.target?.value);
+        setState({
+            status: option,
+        });
+        fetchData();
     };
 
     useEffect(() => {
-        //fetchData();
-
+        fetchData();
+        
         // Cleanup method
         return () => {
             setState({
                 ...initialState,
             });
         };
-    }, []);
+    }, [page, rowsPerPage]);
+
 
     const reportCardsAndComponents = () => {
         return [
@@ -183,6 +172,57 @@ const Transactions = ():JSX.Element => {
             },
         ]
     };
+
+    const transactionTable = ():JSX.Element => {
+        return (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell className="table-th">Transaction ID</TableCell>
+                  <TableCell align="left" className="table-th">Type</TableCell>
+                  <TableCell align="left" className="table-th">Method</TableCell>
+                  <TableCell align="left" className="table-th">Date</TableCell>
+                  <TableCell align="left" className="table-th">Status</TableCell>
+                  <TableCell align="left" className="table-th">Amount</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+      
+                {dataArr.map((row:any) => (
+                  <TableRow
+                  //   key={row.name}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {row.transactionId}
+                    </TableCell>
+                    <TableCell align="left">{capiitalizeFirstLetter(row.paymentType)}</TableCell>
+                    <TableCell align="left">{capiitalizeFirstLetter(row.paymentPlatform)}</TableCell>
+                    <TableCell align="left">{row.transactionDate}</TableCell>
+                    <TableCell align="left">
+                        {row.status === "Successful"? (
+                            <Badges
+                                text="Successful"
+                                type="success"
+                            />
+                        ):(
+                            <Badges
+                              text="Failed"
+                              type="error"
+                          />
+                        )}
+                          
+                      </TableCell>
+                    <TableCell align="left">{row.amount}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        );
+      }
+
     const dashBoardCards = reportCardsAndComponents();
    
     return(
@@ -206,9 +246,9 @@ const Transactions = ():JSX.Element => {
             <div className="d-flex justify-content-between py-3 ">
                 <div className={`${openChart? 'col-md-7': 'col-md-10'} openchart bg-white d-flex justify-content-between px-0 `}>
                     <div className="py-3 px-2 w-96">
-                        <BasicTable />
+                        {transactionTable()}
                         <Pagination
-                            count={data.length?? 0}
+                            count={dataArr.length?? 0}
                             page={0}
                             rowsPerPage={10}
                             onPageChange={handleChangePage}
@@ -243,13 +283,17 @@ const Transactions = ():JSX.Element => {
                                     </>
                                 )
                             })}
+                            <div className='my-4 '>
+                                <TotalRevenue />
+                            </div>
                         </div>
+                        
                     </div>
                 )}
                 
             </div>
         </div>
-            
+        
         </>
     )
 

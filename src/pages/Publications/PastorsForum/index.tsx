@@ -218,9 +218,25 @@ const PastorsForum =() => {
                                 return(
                                     <div className="col-md-12 border-top py-3">
                                         <div className='d-flex row align-items-start'>
-                                            
+                                        <div className='col-md-2'>
+                                                <div className='banner-container'>
+                                                    {datum?.image? (
+                                                        <img 
+                                                        className='img-fluid pointer w-100'
+                                                        src={datum?.image} 
+                                                        alt="Message banner"
+                                                    />
+                                                    ):(
+                                                        <img 
+                                                        className='img-fluid pointer w-100'
+                                                        src='https://thumbs.dreamstime.com/z/smile-god-love-you-text-wood-cycle-face-40762828.jpg' 
+                                                        alt="Message banner"
+                                                    />
+                                                    )}
+                                                </div>
+                                            </div>
                                             <div 
-                                                className='col-md-10 pointer'
+                                                className='col-md-8 pointer'
                                                 onClick={()=> {
                                                     setState({
                                                         showAllSermons:false,

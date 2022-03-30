@@ -3,7 +3,7 @@ import Modal from 'utilComponents/Modal';
 import { extractErrorMessage, processAlertError, processAlertSuccess, validateImage } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import CreateButton from 'utilComponents/CreateButton';
-import { SERMON_IMAGE_UPLOAD } from 'GraphQl/Mutations';
+import { PASTOR_FORUM_IMAGE_UPLOAD } from 'GraphQl/Mutations';
 import { useMutation } from '@apollo/client';
 import DropZone from 'utilComponents/DropZone';
 
@@ -25,7 +25,7 @@ const UploadMessageImage = (props: any):JSX.Element => {
     const {isLoading, alertMessage, fileError, file} = state;
     const {showModal, toggleModal} = props;
 
-    const [uploadImage, { loading, error }] = useMutation(SERMON_IMAGE_UPLOAD);
+    const [uploadImage, { loading, error }] = useMutation(PASTOR_FORUM_IMAGE_UPLOAD);
    
 
 
@@ -59,7 +59,7 @@ const UploadMessageImage = (props: any):JSX.Element => {
         try {
             const validate = validateFormData();
             if(validate){
-                await uploadImage({variables: {sermonId :props?.messageId, file: file[0]}});
+                await uploadImage({variables: {messageId :props?.messageId, file: file[0]}});
                 props.addAlert(processAlertSuccess('Image added successfully'));
                 toggleModal();
                 props.reload();
@@ -87,7 +87,7 @@ const UploadMessageImage = (props: any):JSX.Element => {
     return(
         <>
         <Modal
-            title="Upload sermon banner"
+            title="Upload message banner"
             show={showModal} 
             toggle={toggleModal}
         >
