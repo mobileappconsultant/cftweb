@@ -267,6 +267,18 @@ export const GET_BIBLE_PASSAGE = gql`
   }
 `;
 
+export const GET_BIBLE_FULL_CHAPTER = gql`
+  query ChapterDTO ($chapter: String! $book: String! $version:String!) {
+    getBibleBookChapter( chapter:$chapter book:$book version:$version) {
+      verse{
+        num
+        text
+        }
+      num
+    }
+  }
+`;
+
 // Prayers
 export const GET_ALL_PRAYERS = gql`
 query PrayerDTO ($flag: String! $page: Float! $limit: Float!){

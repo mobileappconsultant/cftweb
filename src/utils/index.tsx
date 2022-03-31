@@ -468,14 +468,14 @@ export const splitBiblePassage = (biblePassageStr: String, version= 'niv') => {
         };
     };
     getBook[changeIndex] = capiitalizeFirstLetter(getBook[changeIndex]);
-    
-    return {
-        book: getBook.join(' '),
-        chapter: book[book.length - 1],
-        verse: verse,
-        version
-    };
-
+    let checkmultipleVerse = verse.split('');
+        return {
+            book: getBook.join(' '),
+            chapter: book[book.length - 1],
+            verse: verse,
+            version,
+            multipleVerses: !checkmultipleVerse.includes("-")? false: true,
+        };
 };
 
 export const getScripture = (scriptureData:any) => {
