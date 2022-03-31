@@ -470,7 +470,7 @@ export const splitBiblePassage = (biblePassageStr: String, version= 'niv') => {
     getBook[changeIndex] = capiitalizeFirstLetter(getBook[changeIndex]);
     let checkmultipleVerse = verse.split('');
         return {
-            book: getBook.join(' '),
+            book: getBook.join(' ').trim(),
             chapter: book[book.length - 1],
             verse: verse,
             version,
