@@ -22,6 +22,7 @@ import Publications from 'pages/Publications';
 import Transactions from 'pages/Transactions';
 import EditEvent from 'pages/Calendar/EditCalendarEvent';
 import Terms from 'pages/Legal/Terms';
+import Support from 'pages/Legal/Support';
 
 export const authRoutes = [
 	{path: '/', component: () => <Redirect to="/login" />},
@@ -36,8 +37,8 @@ export const authRoutes = [
 
 export const publicRoutes = [
 	{ path:	"/privacy-policy", component: PrivacyPolicy},
-	{ path: "/terms-and-conditions", component: Terms}
-
+	{ path: "/terms-and-conditions", component: Terms},
+	{ path: "/support", component: Support},
 ];
 
 export const privateRoutes = [
