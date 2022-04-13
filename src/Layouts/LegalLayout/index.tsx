@@ -1,4 +1,4 @@
-import React, {useReducer} from 'react';
+import React, {useReducer, useState} from 'react';
 import logoImage from 'assets/images/christ_faith_logo.svg';
 import footerLogo from 'assets/images/footer_logo.svg';
 import facebookLogo from 'assets/images/facebook.svg';
@@ -8,8 +8,10 @@ import twitterLogo from 'assets/images/twitter.svg';
 import { Link } from 'react-router-dom';
 
 import './legal_layout.scss';
+import { Menu2 } from 'tabler-icons-react';
 const LegalLayout = (props: any): JSX.Element => {
-    
+    const [menuOpen, setMenuOpen]  = useState(false);
+
     const getMatch = (item:any) => {
         if(window.location.pathname.match(item)){
           return true;
@@ -19,11 +21,11 @@ const LegalLayout = (props: any): JSX.Element => {
     return(
        <div className='legal-layout p-0 m-0'>
         <header>
-            <nav className='d-flex align-items-end justify-content-between'>
+            <nav className='d-flex align-items-end justify-content-between nav-menu'>
                 <div className='logo-container'>
                     <img src={logoImage} alt="Christ Faith Church"/>
                 </div>
-                <ul className='d-flex'>
+                <ul className='d-flex ul-links'>
                     <li>
                         <Link to="/privacy-policy" className={`${getMatch(/^\/privacy-policy/)? 'active-nav': 'non-active-nav'}`}>Privacy Policy</Link>
                     </li>  
@@ -40,7 +42,39 @@ const LegalLayout = (props: any): JSX.Element => {
                         <Link to="/support" className={`${getMatch(/^\/support/)? 'active-nav': 'non-active-nav'}`}>Support</Link>
                     </li>
                 </ul>
+                 {/* @ts-ignore */}
+                <div className="mobile-menu" onClick={() =>setMenuOpen(!menuOpen)}>
+
+                    <Menu2
+                        size={30}
+                        strokeWidth={2}
+                        color={'black'}
+                    />
+                </div>
+                
             </nav>
+            {menuOpen && (
+                <div className='mobile-link-container'>
+                    <ul className='mobile-menu-links'>
+                        <li>
+                            <Link to="/privacy-policy" className={`${getMatch(/^\/privacy-policy/)? 'active-nav': 'non-active-nav'}`}>Privacy Policy</Link>
+                        </li>  
+                        <li>
+                        
+                            <Link to="/declaration-of-faith" className={`${getMatch(/^\/declaration-of-faith/)? 'active-nav': 'non-active-nav'}`}>Declaration of Faith</Link>
+                        </li>
+                        <li>
+                        
+                            <Link to="/terms-and-conditions" className={`${getMatch(/^\/terms-and-conditions/)? 'active-nav': 'non-active-nav'}`}>Terms and conditions</Link>
+                        </li>
+                        <li>
+                        
+                            <Link to="/support" className={`${getMatch(/^\/support/)? 'active-nav': 'non-active-nav'}`}>Support</Link>
+                        </li>
+                    </ul>
+                </div>
+            )}
+            
         </header>
             <div className='mark-down-content'>
                 {props.children}

@@ -12,7 +12,7 @@ const Support = () => {
         <div className='support-container'>
             <h4>CFT HELP CENTER</h4>
             <div className='d-flex justify-content-center'>
-                <div className='support-body'>
+                <div className='support-body w-100'>
                    <div className='mb-3 text-center'> Hello there! How can we help? </div>
                    <SearchInput />
                    <div className="support-cards">

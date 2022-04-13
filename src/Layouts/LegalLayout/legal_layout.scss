@@ -8,6 +8,7 @@
         position: sticky;
         // z-index: 2;
         background-color: white;
+        z-index: 2 !important;
     }
     nav{
         max-width: 90vw;
@@ -93,6 +94,28 @@
             object-fit: fill;
         }
     }
-    
-    
+    .mobile-menu{
+        display: none;
+    }
+     
 }
+
+ /* Responsiveness */
+ @media (max-width: 930px){
+    .ul-links{
+        display: none !important;
+    }
+    .mobile-menu{
+        display: block !important;
+    }
+    .nav-menu{
+        align-items: center !important;
+    }
+    .mobile-link-container{
+        padding-left: 20px;
+        margin-top: 20px;
+        li{
+            padding-bottom: 10px;
+        }
+    }
+  }
