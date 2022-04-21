@@ -193,6 +193,40 @@ export const DEACTIVATE_ADMIN =gql`
   }
 `;
 
+export const ACTIVATE_USER =gql`
+  mutation unSuspendUser($userID: String!){
+    unSuspendUser(userID:$userID){
+      _id
+      email
+      phone
+      full_name
+      code
+      avartar:
+      branch
+      status
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const DEACTIVATE_USER =gql`
+  mutation suspendUser($userID: String!){
+    suspendUser(userID:$userID){
+      _id
+      email
+      phone
+      full_name
+      code
+      avartar:
+      branch
+      status
+      createdAt
+      updatedAt
+  
+    }
+  }
+`;
+
 
 export const CREATE_BRANCH = gql`
   mutation createBranch($input:  BranchInput!) {

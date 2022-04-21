@@ -6,13 +6,14 @@ import AlertComponent from 'components/AlertComponent';
 import ExportComponent from 'utilComponents/ExportComponent';
 import TableListView from 'utilComponents/TableListView';
 import Pagination from 'utilComponents/TablePagination';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { GET_ALL_MEMBERS } from 'GraphQl/Queries';
-import { extractErrorMessage, formatInitialDateValue, processAlertError } from 'utils';
+import { extractErrorMessage, formatDate2, processAlertError, processAlertSuccess } from 'utils';
 import Filter from 'components/Filter';
 import { Printer } from 'tabler-icons-react';
 import CircularLoader from 'utilComponents/Loader';
 import userIcon from 'assets/images/user.png';
+import { ACTIVATE_USER, DEACTIVATE_USER } from 'GraphQl/Mutations';
 const Administrators = ():JSX.Element => {
     const initialState = {
         listView: true,
@@ -25,8 +26,10 @@ const Administrators = ():JSX.Element => {
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr} = state;
-    const { data, loading, error } = useQuery(GET_ALL_MEMBERS);
+    const { fetchMore }  = useQuery(GET_ALL_MEMBERS);
 
+    const [activateMember] = useMutation(ACTIVATE_USER);
+    const [deactivateMember] = useMutation(DEACTIVATE_USER);
 
     const changeListView = () => {
         setState({
@@ -66,30 +69,67 @@ const Administrators = ():JSX.Element => {
         });
     };
 
-    useEffect(() => {
-        if(data){
-            setState({
-                dataArr: data?.getAllUser,
-            });
-        };
-        if(!loading){
-            setState({
-                isLoading: false,
-            });
-        };
-        if(error){
-            
+    const fetchData = async() => {
+        try {
+             
+            const apiData : any = await fetchMore({variables:{}});
+            const {data, loading, error} = apiData;
+            if(data){
+                setState({
+                    dataArr: data?.getAllUser,
+                });
+            };
+            if(!loading){
+                setState({
+                    isLoading: false,
+                });
+            };
+            if(error){
+                setState({
+                    alertMessage :processAlertError(extractErrorMessage(error)),
+                });
+            };
+        } catch (error) {
             setState({
                 alertMessage :processAlertError(extractErrorMessage(error)),
-            })
+                isLoading: false,
+            });
         }
+    };
+
+    useEffect(() => {
+        fetchData();
         // Cleanup method
         return () => {
             setState({
                 ...initialState,
             });
         };
-    }, [data]);
+    }, []);
+
+    const deactivateMemberAccount = async(id:number) => {
+        // eslint-disable-next-line no-restricted-globals
+        if(confirm("This action will deactivate the selected user account, click ok to continue")){
+            await deactivateMember({variables:{userID: id}});
+            setState({
+                alertMessage : processAlertSuccess('User account deactivated'),
+                isLoading: false,
+            });
+            fetchData();
+        }
+    };
+
+    const activateMemberAccount = async (id:number) => {
+        // eslint-disable-next-line no-restricted-globals
+        if(confirm("This action will activate the selected user account, click ok to continue")){
+            await activateMember({variables:{userID: id}});
+            setState({
+                alertMessage :processAlertSuccess('User account activated'),
+                isLoading: false,
+            });
+            fetchData();
+        }
+    };
 
     const paginatedData = (dataArr:any) => {
         const splicedIndex = page * rowsPerPage;
@@ -143,30 +183,40 @@ const Administrators = ():JSX.Element => {
                 </div>
                 
             </div>
-            <div className="row  py-4 px-4"> 
-                {dataArr.map((datum: any, _i: number)=> {
-                    return(
-                        <>
+                {isLoading? (
+                    <>
+                        <CircularLoader/>
+                    </>
+                ):(
+                    <>
+           
+                        <div className="row  py-4 px-4"> 
+                            {dataArr.map((datum: any, _i: number)=> {
+                                return(
+                                    <>
+                                        
+                                        <div className="col-md-6">
+                                            <div className="my-2">
+                                            <UserCard
+                                                name={datum?.full_name}
+                                                active={datum?.status}
+                                                role={datum?.role}
+                                                //@ts-ignore
+                                                time={formatDate2(new Date(datum?.createdAt))}
+                                                avatar={datum?.avartar?datum?.avartar : userIcon}
+                                                disableAccount={deactivateMemberAccount}
+                                                activateAccount={activateMemberAccount}
+                                                id={datum?._id}
+                                            />
+                                            </div>
+                                        </div>
+                                    </>
+                                );
+                            })}
                             
-                            <div className="col-md-6">
-                                <div className="my-2">
-                                <UserCard
-                                    name={datum?.full_name}
-                                    active={datum?.status}
-                                    role={datum?.role}
-                                    //@ts-ignore
-                                    time={formatInitialDateValue(new Date(parseInt(datum?.createdAt)))}
-                                    avatar={datum?.avartar?datum?.avartar : userIcon}
-                                   
-                                    id={datum?.id}
-                                />
-                                </div>
-                            </div>
-                        </>
-                    );
-                })}
-                
-            </div>
+                        </div>
+                    </>
+                )}
                 <Pagination
                     count={dataArr.length?? 0}
                     page={page}

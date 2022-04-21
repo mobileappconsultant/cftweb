@@ -90,25 +90,7 @@ const AdministratorsList = ():JSX.Element => {
     
     useEffect(() => {
         fetchData();
-        // if(data){
-        //     setState({
-        //         dataArr: data?.getAllAdmin,
-        //     });
-           
-        // };
-        // if(!loading){
-        //     setState({
-        //         isLoading: false,
-        //     });
-        // };
-
-        // if(error){
-            
-        //     setState({
-        //         alertMessage :processAlertError(extractErrorMessage(error)),
-        //     })
-        // }
-
+    
         // Cleanup method
         return () => {
             setState({
