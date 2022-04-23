@@ -3,7 +3,6 @@ import UserCard from 'components/UserCard';
 import React, {useReducer, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AlertComponent from 'components/AlertComponent';
-import ExportComponent from 'utilComponents/ExportComponent';
 import TableListView from 'utilComponents/TableListView';
 import Pagination from 'utilComponents/TablePagination';
 import { useMutation, useQuery } from '@apollo/client';
@@ -14,7 +13,9 @@ import { Printer } from 'tabler-icons-react';
 import CircularLoader from 'utilComponents/Loader';
 import userIcon from 'assets/images/user.png';
 import { ACTIVATE_USER, DEACTIVATE_USER } from 'GraphQl/Mutations';
-const Administrators = ():JSX.Element => {
+import ViewSingleMember from './ViewSingleMember';
+
+const Members = ():JSX.Element => {
     const initialState = {
         listView: true,
         rowsPerPage:10,
@@ -22,10 +23,12 @@ const Administrators = ():JSX.Element => {
         alertMessage:{},
         dataArr:[],
         isLoading:true,
+        viewSingle: false,
+        userId: null,
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr} = state;
+    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr, viewSingle, userId} = state;
     const { fetchMore }  = useQuery(GET_ALL_MEMBERS);
 
     const [activateMember] = useMutation(ACTIVATE_USER);
@@ -135,10 +138,15 @@ const Administrators = ():JSX.Element => {
         const splicedIndex = page * rowsPerPage;
         let spilceStop = rowsPerPage+ splicedIndex;
         const newArr = dataArr.slice(splicedIndex, spilceStop);
-        
         return newArr;
-
     };
+    const viewUserProfile = (id:any) => {
+            setState({
+                viewSingle: !viewSingle,
+                userId: id,
+            });
+    };
+
     const paginateData = paginatedData(dataArr);
 
     return(
@@ -155,75 +163,89 @@ const Administrators = ():JSX.Element => {
         </div>
         </div>
         {alertMessage?.text && (
-                    <>
-                        <AlertComponent
-                            text={alertMessage.text}
-                            type={alertMessage.type}
-                            onClose={handleAlertClose}
-                        />
-                    </>
-                )}
-        <div className="bg-white">
-            <div className="row  pt-4 px-4 justify-content-between"> 
-                <div className='col-md-3'>
-                    <Filter
-                        text="Status"
-                    />
-                </div>
-                <div className='col-md-1 text-right row justify-content-end'> 
-                    <Printer
-                        size={34}
-                        strokeWidth={2}
-                        color={'#000000'}
-                        className='pointer'
-                    />
-                </div>
-                <div className='col-md-12'>
-                    <PageTitle text='Members List' />
-                </div>
-                
-            </div>
-                {isLoading? (
-                    <>
-                        <CircularLoader/>
-                    </>
-                ):(
-                    <>
-           
-                        <div className="row  py-4 px-4"> 
-                            {dataArr.map((datum: any, _i: number)=> {
-                                return(
-                                    <>
-                                        
-                                        <div className="col-md-6">
-                                            <div className="my-2">
-                                            <UserCard
-                                                name={datum?.full_name}
-                                                active={datum?.status}
-                                                role={datum?.role}
-                                                //@ts-ignore
-                                                time={formatDate2(new Date(datum?.createdAt))}
-                                                avatar={datum?.avartar?datum?.avartar : userIcon}
-                                                disableAccount={deactivateMemberAccount}
-                                                activateAccount={activateMemberAccount}
-                                                id={datum?._id}
-                                            />
-                                            </div>
-                                        </div>
-                                    </>
-                                );
-                            })}
-                            
-                        </div>
-                    </>
-                )}
-                <Pagination
-                    count={dataArr.length?? 0}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
-                    onPageChange={handleChangePage}
-                    handleChangeRowsPerPage={handleChangeRowsPerPage}
+            <>
+                <AlertComponent
+                    text={alertMessage.text}
+                    type={alertMessage.type}
+                    onClose={handleAlertClose}
                 />
+            </>
+        )}
+        <div className="bg-white">
+            {!viewSingle? (
+                <>
+                    <div className="row  pt-4 px-4 justify-content-between"> 
+                        <div className='col-md-3'>
+                            <Filter
+                                text="Status"
+                            />
+                        </div>
+                        <div className='col-md-1 text-right row justify-content-end'> 
+                            <Printer
+                                size={34}
+                                strokeWidth={2}
+                                color={'#000000'}
+                                className='pointer'
+                            />
+                        </div>
+                        <div className='col-md-12'>
+                            <PageTitle text='Members List' />
+                        </div>
+                        
+                    </div>
+                        {isLoading? (
+                            <>
+                                <CircularLoader/>
+                            </>
+                        ):(
+                            <>
+                
+                                <div className="row  py-4 px-4"> 
+                                    {dataArr.map((datum: any, _i: number)=> {
+                                        return(
+                                            <>
+                                                
+                                                <div className="col-md-6">
+                                                    <div className="my-2">
+                                                    <UserCard
+                                                        name={datum?.full_name}
+                                                        active={datum?.status}
+                                                        role={datum?.role}
+                                                        //@ts-ignore
+                                                        time={formatDate2(new Date(datum?.createdAt))}
+                                                        avatar={datum?.avartar?datum?.avartar : userIcon}
+                                                        disableAccount={deactivateMemberAccount}
+                                                        activateAccount={activateMemberAccount}
+                                                        id={datum?._id}
+                                                        viewProfile={viewUserProfile}
+                                                    />
+                                                    </div>
+                                                </div>
+                                            </>
+                                        );
+                                    })}
+                                    
+                                </div>
+                            </>
+                        )}
+                        <Pagination
+                            count={dataArr.length?? 0}
+                            page={page}
+                            rowsPerPage={rowsPerPage}
+                            onPageChange={handleChangePage}
+                            handleChangeRowsPerPage={handleChangeRowsPerPage}
+                        />
+                </>
+            ):(
+                <>
+                    <ViewSingleMember
+                        userId={userId}
+                        close={viewUserProfile}
+                        listingReload={fetchData}
+                    />
+                </>
+            )}
+            
             </div>
                 
             <div>
@@ -234,4 +256,4 @@ const Administrators = ():JSX.Element => {
     )
 
 };
-export default Administrators;
+export default Members;

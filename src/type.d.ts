@@ -8,7 +8,8 @@ interface LoggedInUserObject {
     status?: boolean
     updatedAt?: boolean
     __v?: number
-    _id?: string
+    _id?: string,
+    avatar?: string
   }
   
   type AuthState = {

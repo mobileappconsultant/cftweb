@@ -30,6 +30,7 @@ export const LOGIN = gql`
         phone
         full_name
         code
+        avatar
         role{
             id
             name

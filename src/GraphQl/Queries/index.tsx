@@ -184,6 +184,26 @@ export const GET_ALL_MEMBERS = gql`
     }
   }
 `;
+export const GET_SINGLE_MEMBER = gql`
+  query UserDTO($userID: String!){
+    getUser(userID: $userID){
+      _id
+      email
+      phone
+      full_name
+      church_group
+      code
+      avartar
+      branch
+      country
+      account_verification
+      reset_password
+      status
+      createdAt
+      updatedAt
+    }
+  }
+`;
 
 // Messages
 export const GET_ALL_MESSAGES = gql`

@@ -20,6 +20,8 @@ import { GET_ALL_ADMINS, GET_SINGLE_MESSAGE } from 'GraphQl/Queries';
 import { DivLoader } from 'utilComponents/Loader';
 import CloseButton from 'components/CloseButton';
 import TimePicker from 'react-time-picker';
+import UploadMessageImage from '../ViewMessage/UploadMessageImage';
+import { EditCircle } from 'tabler-icons-react';
 
 const EditApostleMessage = (props: any):JSX.Element => {
   
@@ -31,7 +33,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
             bibleReading:[],
             category:'',
             prayer_point:'',
-
+            image:''
         },
         payload:{},
         errors:{},
@@ -39,11 +41,12 @@ const EditApostleMessage = (props: any):JSX.Element => {
         isLoading: true,
         alertMessage:{},
         preview: false,
+        showImageModal:false,
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const [createNewMessage, loadingParams] = useMutation(EDIT_MESSAGE); 
-    const {formData, isLoading, alertMessage, errors, preview, adminData, bibleVerseData} = state;
+    const {formData, isLoading, alertMessage, errors, preview, adminData, bibleVerseData, showImageModal} = state;
     const { fetchMore } = useQuery(GET_SINGLE_MESSAGE, {
         variables: { messageId: props?.messageId}
     }); 
@@ -231,6 +234,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                         bibleReading: getBibleReading(),
                         category: response?.category,
                         prayer_point: response?.prayer_point,
+                        image: response?.image,
                     },
                     isLoading: false,
                 
@@ -281,6 +285,18 @@ const EditApostleMessage = (props: any):JSX.Element => {
             });
         };
     }, [adminDataQuery.data]);
+
+    const toggleUploadImageModal = () => {
+        setState({
+            showImageModal: !showImageModal,
+        });
+    };
+    
+    const addAlert = (alert:any) => {
+        setState({
+            alertMessage: alert,
+        });
+    };
 
 
     return(
@@ -411,6 +427,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                                 </div>
                             </>
                         ): (
+                            <>
                             <div className='row p-4'>
                                 <div className='col-md-7 p-0'>
                                     <div className='row'>
@@ -429,9 +446,37 @@ const EditApostleMessage = (props: any):JSX.Element => {
                                             </>
                                             
                                         </div>
-                                        <div className='col-md-12'>
-                                            <img src={missionIcon} />
+                                        
+
+                                        {/*  */}
+                                        <div className='col-md-12  d-flex position-relative'>
+                                            {formData?.image? (
+                                                <div className='message-img-container'> 
+                                                    <img src={formData?.image} className='w-100'/> 
+                                                </div>
+                                            ):(
+                                                <img src={missionIcon} className='w-100'/> 
+                                            )}
+                                            
+                                            <div className='position-absolute upload-img-icon'>
+                                            <div
+                                                    className={` pointer edit-button mx-3`}  
+                                                    onClick={()=>{toggleUploadImageModal()}}
+                                                >   
+                                                <div>
+                                        
+                                                    <EditCircle
+                                                        className="button-icon"
+                                                        size={20}
+                                                        strokeWidth={1.5}
+                                                        color={'#FFF'}
+                                                    />
+                                                </div>
+                                            </div>
+                                            
+                                            </div>
                                         </div>
+                                        {/*  */}
 
                                         <div className='col-md-12'>
                                             <div className="user-name px-2 mt-4">
@@ -495,7 +540,17 @@ const EditApostleMessage = (props: any):JSX.Element => {
                                 </div>
                                 
                             </div>
+                            {showImageModal && (
+                                <UploadMessageImage 
+                                    showModal={showImageModal}
+                                    toggleModal={toggleUploadImageModal}
+                                    messageId={ props?.messageId}
+                                    addAlert={addAlert}
+                                />
+                            )}
+                            </>
                         )}
+                        
                     </>
                 )}
                     

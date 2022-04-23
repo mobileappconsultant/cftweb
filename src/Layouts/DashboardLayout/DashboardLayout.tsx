@@ -8,6 +8,7 @@ import Modal from 'utilComponents/Modal';
 import {Animated} from "react-animated-css";
 import { history } from 'helpers';
 import { connect } from 'react-redux';
+import userIcon from 'assets/images/user.png';
 
 const DashboardLayout = (props: any): JSX.Element => {
     const initialState = {
@@ -73,7 +74,7 @@ const DashboardLayout = (props: any): JSX.Element => {
         <div className="d-flex align-content-between flex-wrap px-3 overflow-auto sidebar-nav-content">
         <div className="user-account mt-4 pt-2 d-flex align-items-center">
             <div className="avatar">
-                <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20(3).jpg" />
+                <img src={user?.avatar? user?.avatar : userIcon } alt="user avatar" />
             </div>
             <div className="user-name px-2">
                 <h6 className="m-0 name">{user?.full_name}</h6>

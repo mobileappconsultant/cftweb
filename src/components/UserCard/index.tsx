@@ -12,9 +12,10 @@ interface propsObject {
     active?: boolean;
     disableAccount: any;
     activateAccount: any;
+    viewProfile?:any;
   }
 const UserCard = (props: any):JSX.Element => {
-    const {name, userName, time, role, avatar, active, disableAccount, activateAccount,id } = props;
+    const {name, userName, time, role, avatar, active, disableAccount, activateAccount,id, viewProfile } = props;
     return(
         <div className={`card user-card w-100 p-3 mb-3`}>   
             <div className='d-flex justify-content-end'>
@@ -57,7 +58,7 @@ const UserCard = (props: any):JSX.Element => {
             </div>
             <div className="d-flex justify-content-end">
                 <div className="mr-3">
-                    <Link to="#">
+                    <Link to="#" onClick={()=> viewProfile(id)}>
                         View
                     </Link>
                 </div>

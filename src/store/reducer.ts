@@ -21,6 +21,7 @@ const reducer = (
             status: action?.userObject?.status,
             updatedAt: action?.userObject?.updatedAt,
             _id: action?.userObject?._id,
+            avatar: action?.userObject?.avatar,
         }
         return {
           ...state,

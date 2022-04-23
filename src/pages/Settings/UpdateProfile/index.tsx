@@ -11,6 +11,8 @@ import { UPDATE_PROFILE } from 'GraphQl/Mutations';
 import { addUser } from "store/actionCreators";
 import { EditCircle } from 'tabler-icons-react';
 import UploadAvatar from './UploadAvatar';
+import userIcon from 'assets/images/user.png';
+
 const UpdateProfile = ():JSX.Element => {
     const initialState = {
         formData: {
@@ -31,7 +33,7 @@ const UpdateProfile = ():JSX.Element => {
     const dispatch: Dispatch = useDispatch();
     const reduxState = useSelector( (state:any) => state);
     const{userObject} = reduxState?.reducer;
-    console.log(userObject);
+
     // GraphQL
     const [updateProfile, { data, loading, error }] = useMutation(UPDATE_PROFILE);
     
@@ -117,6 +119,7 @@ const UpdateProfile = ():JSX.Element => {
                 full_name: userObject?.full_name,
                 phone:userObject?.phone,
                 role: userObject?.role[0]?.name?? '',
+                avatar: userObject?.avatar?? '',
            }
        })
         // Cleanup method
@@ -151,7 +154,7 @@ const UpdateProfile = ():JSX.Element => {
                     {/* <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20(3).jpg" /> */}
                     <div className="">
                         <div className="avatar-badge-container mx-auto">
-                            <img alt="Remy Sharp" src="https://mdbootstrap.com/img/Photos/Avatars/img%20(3).jpg"  />
+                            <img src={formData?.avatar? formData?.avatar : userIcon } alt="user avatar" />
                             <div className="upload-icon edit-button" onClick={()=>{toggleUploadImageModal()}}>
                             
                                 <EditCircle
