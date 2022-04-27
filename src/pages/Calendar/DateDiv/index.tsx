@@ -5,7 +5,7 @@ import './datediv.scss';
 const DateDiv = (props:any):JSX.Element => {
     const {title, date} = props;
     return(
-        <div className='date-div'>
+        <div className='date-div w-100'>
             <div className="title">{title}</div>
             <div className="date-container">
                 <div className='date-icon-container'>

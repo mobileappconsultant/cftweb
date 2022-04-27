@@ -651,3 +651,18 @@ export const DELETE_DAILY_BIBLE_READING =gql`
   }
 `;
 
+// events
+export const CREATE_EVENT = gql`
+mutation createEvent($input: EventInput!) {
+  createEvent(input: $input) {
+    _id
+    eventName
+    startDate
+    endDate
+    time
+    createdAt
+    updatedAt
+  }
+}
+`;
+

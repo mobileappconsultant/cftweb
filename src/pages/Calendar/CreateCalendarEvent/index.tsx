@@ -1,19 +1,20 @@
 import React, {useReducer} from 'react';
-import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Modal } from 'reactstrap';
 import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
-import FormGroupInput from 'utilComponents/FormGroupInput';
-import { CREATE_GROUP } from 'GraphQl/Mutations';
+import { CREATE_EVENT } from 'GraphQl/Mutations';
 import { useMutation } from '@apollo/client';
-import { Plus } from 'tabler-icons-react';
+import { Plus, X } from 'tabler-icons-react';
 import '../calendar.scss';
-import { DateRangePicker } from 'react-date-range';
 import EventInput from 'utilComponents/EventInput';
 import DateDiv from '../DateDiv';
 import { addDays, format } from 'date-fns';
 import { DateRange, DayPicker } from 'react-day-picker';
+import { MuiPickersUtilsProvider, TimePicker } from "@material-ui/pickers";
+import DateFnsUtils from '@date-io/date-fns';
+import moment from 'moment';
 
 const pastMonth = new Date();
 
@@ -21,12 +22,12 @@ const CreateEvent = (props: any):JSX.Element => {
 
     const defaultSelected: DateRange = {
         from: pastMonth,
-        to: addDays(pastMonth, 4)
+        to: addDays(pastMonth, 1)
     };
     const initialState = {
         formData: {
-            name: '',
-            group_head:'',
+            eventName: '',
+            time: moment(new Date()).format("HH:mm:ss"),
         },
         errors:{},
         isLoading: false,
@@ -44,7 +45,7 @@ const CreateEvent = (props: any):JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage, errors, showModal, dateState, range} = state;
-    const [createNewGroup, { data, loading, error }] = useMutation(CREATE_GROUP);
+    const [createNewEvent, { data, loading, error }] = useMutation(CREATE_EVENT);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
         setState({
@@ -59,6 +60,16 @@ const CreateEvent = (props: any):JSX.Element => {
         });
     };
 
+    const handleTimeChange = (e:Date) => {
+        console.log(e);
+        setState({
+            formData: {
+                ...formData,
+                time:e
+            },
+        });
+    };
+
 
     const handleModalToggle = () => {
         setState({showModal: !showModal});
@@ -67,13 +78,11 @@ const CreateEvent = (props: any):JSX.Element => {
 
     const validateFormData = async () => {
         const rules = {
-            'name': 'required',
-            'group_head' : 'required',   
+            'eventName' : 'required',   
         };
 
         const messages = {
-            'name.required': 'Group name is required',
-            'group_head.required': 'Group head is required',
+            'eventName.required': 'Event Name is required',
         };
         const validate = await validateData(formData, rules, messages);
         if (isObjectEmpty(validate)) {
@@ -92,8 +101,7 @@ const CreateEvent = (props: any):JSX.Element => {
     const refreshForm = () => {
         setState({
             formData: {
-                name: '',
-                group_head:'',
+                eventName:'',
             },
             errors:{},
         })
@@ -108,11 +116,16 @@ const CreateEvent = (props: any):JSX.Element => {
             const validate = await validateFormData();
            
             if(validate){
-                const newGroup = await createNewGroup({variables:{input:formData}});
+                const payload = {
+                    eventName : formData?.eventName,
+                    startDate: range?.from,
+                    endDate: range?.to,
+                    time:  moment(formData?.time).format("HH:mm:ss"),
+                };
+               
+                const newGroup = await createNewEvent({variables:{input:payload}});
                 refreshForm();
-
-                props.refresh(newGroup?.data?.createGroup);
-                props.addAlert(processAlertSuccess('Group added successfully'));
+                props.addAlert(processAlertSuccess('Event added successfully'));
                 handleModalToggle();
             };
             setState({
@@ -134,14 +147,7 @@ const CreateEvent = (props: any):JSX.Element => {
         });
     };
 
-    const setDateState = (date :any) => {
-        setState({
-                ...state,
-                dateState: [date],
-        });
-    };
     const setRange= (date :any) => {
-        console.log(date);
         setState({
             ...state,
             range: date,
@@ -159,50 +165,77 @@ const CreateEvent = (props: any):JSX.Element => {
             dialogClassName="modal-90w"
             aria-labelledby="example-custom-modal-styling-title"
             size="xl"
-        
+            centered
         >
-            <>
+            
+            <div style={{background:' #F5F6F8'}}>
+                
+                <div className='d-flex justify-content-between w-100 px-5 py-4'>
+                    <h5>Create New Event</h5>
+                    <div className='pointer' onClick={() => handleModalToggle()}>
+                        <X
+                            size={29}
+                            strokeWidth={2.7}
+                            color={'red'}
+                        />
+                    </div>
+                </div>
                 {alertMessage?.text && (
-                    <>
+                    <div className='px-5'>
                         <AlertComponent
                             text={alertMessage.text}
                             type={alertMessage.type}
                             onClose={handleAlertClose}
                         />
-                    </>
+                    </div>
                 )}
                 <div className="modal-content-container">
+                    
                     <div className='form-content bg-white'>
+                        
                         <div className="row">
                             <div className="col-md-12 mb-3">
                                 <EventInput
                                     placeholder="Enter event name"
                                     label='Create a new event'
-                                    value={formData?.name}
+                                    value={formData?.eventName}
                                     onChange={handleChange}
-                                    name="name"
-                                    showError={errors.name}
-                                    errorMessage={errors.name}
+                                    name="eventName"
+                                    showError={errors.eventName}
+                                    errorMessage={errors.eventName}
                                 />
                             </div>
                             <div className="col-md-12 mb-3 d-flex selected-date-container align-items-center">
                                 <DateDiv
                                     title="Start Date"
-                                    date="02, May 2021"
+                                    date={moment(range?.from).format('DD-MM-YY')}
                                 />
-                                <div>to</div>
+                                <div>To</div>
                                 <DateDiv
                                     title="End Date"
-                                    date="02, May 2021"
+                                    date={moment(range?.to).format('DD-MM-YY')}
                                 />
-                                {/* <FormGroupInput
-                                    placeholder="Group head"
-                                    value={formData?.group_head}
-                                    onChange={handleChange}
-                                    name="group_head"
-                                    showError={errors.group_head}
-                                    errorMessage={errors.group_head}
-                                /> */}
+                                
+                            </div>
+
+                            <div className="col-md-12 mb-3 mt-2 d-flex selected-date-container align-items-center">
+                                <div className="w-100 mb-2">
+                                    <label className='calendar-input-label mb-2'>Choose time</label>
+                                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                        <TimePicker
+                                            variant="inline"
+                                            inputVariant="outlined"
+                                            value={formData?.time}
+                                            className="w-100"
+                                            // @ts-ignore
+                                            onChange={handleTimeChange}
+                                            size='small'
+                                            
+                                            autoOk
+                                        />
+                                    </MuiPickersUtilsProvider>
+                                </div>
+                                
                             </div>
                             
                             
@@ -217,20 +250,9 @@ const CreateEvent = (props: any):JSX.Element => {
                         </div>
                     </div>
                     <div>
-                    <div className="">
-                        <h6>Select start and end date </h6>
+                    <div className="bg-white p-3">
+                        <h6 className='font-weight-light'>Select start and end date </h6>
                         <div className=" mx-auto">
-                            {/* <DateRangePicker
-                                    editableDateInputs={true}
-                                    //@ts-ignore
-                                    onChange={item => setDateState(item.selection)}
-                                    moveRangeOnFirstSelection={false}
-                                    ranges={dateState}
-                                //onChange={item => setDateState([item.selection])}
-                                //@ts-ignore
-                                
-                                //direction="horizontal"
-                            /> */}
                             
                             <DayPicker
                                 mode="range"
@@ -238,13 +260,14 @@ const CreateEvent = (props: any):JSX.Element => {
                                 selected={range}
                                 footer={<></>}
                                 onSelect={setRange}
+                                className="w-100"
                             />
                         </div>
             </div>
                     </div>
                     
                 </div>
-            </>
+            </div>
         </Modal>
         <CreateButton
             text={

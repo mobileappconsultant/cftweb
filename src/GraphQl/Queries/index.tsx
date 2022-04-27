@@ -525,18 +525,17 @@ query DailyBibleReadingDTO($biibleReadingContentId: String!){
 `;
 // Calendar/events
 export const GET_ALL_EVENTS = gql`
-query DailyBibleReadingDTO($flag: String! $page: Float! $limit: Float!){
-  getAllDailyBibleContent(flag:$flag page:$page limit:$limit ){
-    _id
-    verseContent
-    verseOfTheDayText
-    bibleText
-    published
-    publishedAt
-    createdAt
-    updatedAt
+  query EventDTO{
+    getEvents{
+      _id
+      eventName
+      startDate
+      endDate
+      time
+      createdAt
+      updatedAt
+    }
   }
-}
 `;
 
 // Transactions
