@@ -2,8 +2,13 @@ import PageTitle from 'components/PageTitle';
 import React, {useReducer, useEffect} from 'react';
 import { Link } from 'react-router-dom';
 import Pagination from 'utilComponents/TablePagination';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
+// Old MUI
+import DateFnsUtils from '@date-io/date-fns';
+import { DatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import MenuItem from '@material-ui/core/MenuItem';
+// Old MUI //
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -22,25 +27,21 @@ import AlertComponent from 'components/AlertComponent';
 import { GET_ALL_TRANSACTIONS } from 'GraphQl/Queries';
 import { capiitalizeFirstLetter, changeOptionsToBool, extractErrorMessage, processAlertError } from 'utils';
 import TotalRevenue from 'pages/Home/Charts/TotalRevenue';
+import { Button, createTheme } from '@mui/material';
+import { purple } from '@mui/material/colors';
+import { Filter } from 'tabler-icons-react';
 
-function createData(transId:String, type:String, username: any, phone: any, method: any, date: any, status: any, amount: any) {
-  return {transId, type, username, phone, method, date, status, amount };
-}
-
-const rows = [
-  createData('#DON1002','Donation', 'Phil','+445924902392', 'TrueLayer', '05/10/2019', 'pending' ,'$2,350.00'),
-  createData('#DON1002','Donation', 'Phil','+445924902392', 'TrueLayer', '05/10/2019', 'pending' ,'$2,350.00'),
-  createData('#DON1002','Donation', 'Phil','+445924902392', 'TrueLayer', '05/10/2019', 'pending' ,'$2,350.00'),
-  createData('#DON1002','Donation', 'Phil','+445924902392', 'TrueLayer', '05/10/2019', 'pending' ,'$2,350.00'),
-  createData('#DON1002','Donation', 'Phil','+445924902392', 'TrueLayer', '05/10/2019', 'pending' ,'$2,350.00'),
-  createData('#DON1002','Donation', 'Phil','+445924902392', 'TrueLayer', '05/10/2019', 'pending' ,'$2,350.00'),
-  createData('#DON1002','Donation', 'Phil','+445924902392', 'TrueLayer', '05/10/2019', 'pending' ,'$2,350.00'),
-  createData('#DON1002','Donation', 'Phil','+445924902392', 'TrueLayer', '05/10/2019', 'pending' ,'$2,350.00'),
-  createData('#DON1002','Donation', 'Phil','+445924902392', 'TrueLayer', '05/10/2019', 'pending' ,'$2,350.00'),
-  createData('#DON1002','Donation', 'Phil','+445924902392', 'TrueLayer', '05/10/2019', 'pending' ,'$2,350.00'),
-
-];
-
+const selectOptions = {
+    paymentType: ['offerings', 'donation', 'welfare' ],
+    paymentMethod: ['truelayer', 'paystack', 'stripe', 'applePay'],
+    status: ['failed', 'successful'],
+};
+const theme = createTheme({
+    palette: {
+      primary: purple,
+    },
+});
+  
 
 const Transactions = ():JSX.Element => {
     const initialState = {
@@ -51,18 +52,27 @@ const Transactions = ():JSX.Element => {
         dataArr:[],
         activeReportComponent: 0,
         openChart: false,
-        
+        searchData:{
+            date:null,
+            status: '',
+            paymentMethod: '',
+            paymentType: '',
+        },
+        isLoading: true,
         
     };
    
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, activeReportComponent, openChart, alertMessage, dataArr} = state;
+    const {listView, page, rowsPerPage, activeReportComponent, openChart, alertMessage, dataArr, searchData, isLoading} = state;
 
     const { fetchMore } = useQuery(GET_ALL_TRANSACTIONS, {
         variables: {
           page: 0,
           limit: 10,
+          status:  searchData?.status,
+          paymentMethod: searchData?.paymentMethod,
+          paymentType: searchData?.paymentType,
         },
     });
     const openCharts = () => {
@@ -110,12 +120,15 @@ const Transactions = ():JSX.Element => {
                     variables:{
                         page: page? page: 0,
                         limit: rowsPerPage? rowsPerPage : 10,
-                        
+                        status:  searchData?.status,
+                        paymentMethod: searchData?.paymentMethod,
+                        paymentType: searchData?.paymentType,
                     }
                 });
          if(apiData.data){
             setState({
                 dataArr: apiData?.data?.getAllTransactions,
+                isLoading: false,
             }); 
         };
 
@@ -131,6 +144,24 @@ const Transactions = ():JSX.Element => {
                 isLoading: false,
             });
         }
+    };
+
+    const handleDateChange = (e:Date) => {
+        setState({
+            searchData: {
+                ...searchData,
+                date: e
+            },
+        });
+    };
+    const handleFilterChange = (e:any) => {
+        const {name, value} = e.target;
+        setState({
+            searchData: {
+                ...searchData,
+                [name]: value
+            },
+        });
     };
 
     const changeStatus = (e:any) => {
@@ -243,6 +274,129 @@ const Transactions = ():JSX.Element => {
             </>
         )}
         <div className="">
+            <div className='row justify-content-between align-items-center'>
+                <div className='col-md-2'>
+                    <div className='label-container my-2'>
+                        <label>Payment type </label>
+                    </div>
+                    <div className=''>
+                        <TextField
+                            id="standard-select-currency"
+                            select
+                            variant='outlined'
+                            size='small'
+                            className='w-100'
+                            name="paymentType"
+                            onChange={handleFilterChange}
+                        >
+                            <MenuItem key="type" value=''>--Select--</MenuItem>
+                            {selectOptions?.paymentType.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                {capiitalizeFirstLetter(option)}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </div>
+                </div>
+                <div className='col-md-2'>
+                <div className='label-container my-2'>
+                        <label>Payment method </label>
+                    </div>
+                    <div className=''>
+                        <TextField
+                            id="standard-select-currency"
+                            select
+                            variant='outlined'
+                            size='small'
+                            className='w-100'
+                            name="paymentMethod"
+                            onChange={handleFilterChange}
+                        >
+                            <MenuItem key="method" value=''>--Select--</MenuItem>
+                            {selectOptions?.paymentMethod.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                {capiitalizeFirstLetter(option)}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </div>
+                </div>
+                <div className='col-md-2'>
+                    <div className='label-container my-2'>
+                        <label>Status </label>
+                    </div>
+                    <div className=''>
+                        <TextField
+                        id="standard-select-currency"
+                        select
+                        variant='outlined'
+                        size='small'
+                        className='w-100'
+                        name="status"
+                        onChange={handleFilterChange}
+                        >
+                        <MenuItem key="stat" value=''>--Select--</MenuItem>
+                        {selectOptions?.status.map((option) => (
+                            <MenuItem key={option} value={option}>
+                            {capiitalizeFirstLetter(option)}
+                            </MenuItem>
+                        ))}
+                        </TextField>
+                    </div>
+                </div>
+                
+                <div className='col-md-2'>
+                    <div className='label-container my-2'>
+                        <label>Start Date </label>
+                    </div>
+                    <div className=''>
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                        <DatePicker
+                            variant="inline"
+                            inputVariant="outlined"
+                            value={searchData?.date}
+                            // @ts-ignore
+                            onChange={handleDateChange}
+                            size='small'
+                            format="MM/dd/yyyy"
+                            autoOk
+                        />
+                        </MuiPickersUtilsProvider>
+                    </div>
+                </div>
+                <div className='col-md-2'>
+                    <div className='label-container my-2'>
+                        <label>End Date </label>
+                    </div>
+                    <div className=''>
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                        <DatePicker
+                            variant="inline"
+                            inputVariant="outlined"
+                            value={searchData?.date}
+                            // @ts-ignore
+                            onChange={handleDateChange}
+                            size='small'
+                            format="MM/dd/yyyy"
+                            autoOk
+                        />
+                        </MuiPickersUtilsProvider>
+                    </div>
+                </div>
+                <div className='col-md-2'>
+                    <br />
+                    <button className='mt-2 p-2 px-3 filter-btn' onClick={()=> fetchData()}>
+                        {!isLoading? (
+                            <>
+                                <Filter size={15} strokeWidth={2} color={'white'} />  Filter
+                            </>
+                        ):(
+                            <>...Loading</>
+                        )}
+                        
+                    </button>
+                </div>
+            </div>
             <div className="d-flex justify-content-between py-3 ">
                 <div className={`${openChart? 'col-md-7': 'col-md-10'} openchart bg-white d-flex justify-content-between px-0 `}>
                     <div className="py-3 px-2 w-96">

@@ -69,3 +69,9 @@ code {
     line-height: 19px;
     color: #000000;
 }
+.filter-btn{
+  background-color: #001167;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}

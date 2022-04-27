@@ -52,12 +52,12 @@ export const sideBarRoutes = [
     {
         title: 'UPDATE SECTIONS',
         children:[
-            {
-                text: 'Announcements',
-                icon: < Writing />,
-                path:'/announcements',
-                match:/^\/announcements/,
-            },
+            // {
+            //     text: 'Announcements',
+            //     icon: < Writing />,
+            //     path:'/announcements',
+            //     match:/^\/announcements/,
+            // },
             {
                 text: 'Publications',
                 icon: <Table />,
