@@ -1,6 +1,6 @@
 import React, {useReducer, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { extractErrorMessage, formatDate, isNotEmptyArray, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop } from 'utils';
+import { extractErrorMessage, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop, capiitalizeFirstLetter } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
@@ -11,12 +11,14 @@ import TextEditor from 'utilComponents/TextEditor';
 import ReactTagInput from "@pathofdev/react-tag-input";
 import "@pathofdev/react-tag-input/build/index.css";
 import { useMutation, useQuery } from '@apollo/client';
-import { CREATE_SERMON } from 'GraphQl/Mutations';
+import { UPDATE_SERMON } from 'GraphQl/Mutations';
 import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
 import CloseButton from 'components/CloseButton';
 import { GET_ALL_ADMINS, GET_SINGLE_SERMON } from 'GraphQl/Queries';
+import BackButton from 'utilComponents/BackButton';
+import CircularLoader from 'utilComponents/Loader';
 
 const EditSermon = (props: any):JSX.Element => {
     
@@ -38,7 +40,7 @@ const EditSermon = (props: any):JSX.Element => {
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const [createNewSermon, { data, loading, error }] = useMutation(CREATE_SERMON); 
+    const [updateSermon, { data, loading, error }] = useMutation(UPDATE_SERMON); 
     const adminDataQuery = useQuery(GET_ALL_ADMINS); 
     const { fetchMore } = useQuery(GET_SINGLE_SERMON, {
         variables: { messageId: props?.messageId}
@@ -172,13 +174,13 @@ const EditSermon = (props: any):JSX.Element => {
                 ...formData,
                 bibleReading:bibleVerseData,
             };
-            await createNewSermon({variables:{input: payload}});
+            await updateSermon({variables:{input: payload, sermonId: props?.messageId }});
             setState({
-                alertMessage:  processAlertSuccess('Sermon saved successfully'),
+                alertMessage:  processAlertSuccess('Sermon updated successfully'),
             });
             scrollTop();
             setTimeout(function () {
-                props.close();
+                props.close(true);
             }, 2000);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
@@ -230,7 +232,7 @@ const EditSermon = (props: any):JSX.Element => {
                     image: response?.image,
                     prayer_point: response?.prayer_point,
                 },
-               
+                isLoading: false,
             }); 
           
         };
@@ -248,9 +250,6 @@ const EditSermon = (props: any):JSX.Element => {
             });
         }
     };
-    useEffect(()=>{
-        fetchData();
-    });
 
     useEffect(() => {
         
@@ -272,7 +271,7 @@ const EditSermon = (props: any):JSX.Element => {
                 alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
             })
         }
-        
+        fetchData();
         // Cleanup method
         return () => {
             setState({
@@ -298,175 +297,190 @@ const EditSermon = (props: any):JSX.Element => {
            
             <>
                 {alertMessage?.text && (
-                    <>
+                    <div className='my-3'>
+                        <br/>
                         <AlertComponent
                             text={alertMessage.text}
                             type={alertMessage.type}
                             onClose={handleAlertClose}
                         />
-                    </>
-                )}
-                <div className=''>
-
-                {!preview? (
-                    <>
-                        <div className="row  pt-2">
-                            <div className="col-md-12 mb-4">
-                                <FormGroupInput
-                                    placeholder="Title of sermon"
-                                    value={formData?.title}
-                                    onChange={handleChange}
-                                    name="title"
-                                    showError={errors.title}
-                                    errorMessage={errors.title}
-                                />
-                            </div>
-                           
-                            <div className="col-md-6 mb-4">
-                                <ReactTagInput 
-                                    tags={formData?.bibleReading} 
-                                    onChange={(newTags) => setTags(newTags)}
-                                    placeholder='Type bible verse and press enter'
-                                />
-                                {errors.bible_verse && (
-                                    <div className="small w-100 text-left text-danger">
-                                        {errors.bible_verse}
-                                    </div>
-                                )}
-                            </div>
-                        
-
-                            
-                            <div className="col-md-6 mb-4">
-                                <FormGroupSelect
-                                    placeholder="Select minister"
-                                    onChange={(e: object)=>handleSelectChange(e, 'minister')}
-                                    name="minister"
-                                    showError={errors.minister}
-                                    errorMessage={errors.minister} 
-                                    selectOptions={adminData}
-                                />
-                            </div>
-                            <div className="col-md-12 mb-4">
-                            <h6 className='mb-2'>Type message</h6>
-                                <TextEditor
-                                    //@ts-ignore
-                                    text={formData?.message}
-                                    handleChange={handleEditorChange}
-                                    placeholder="Type message content"
-                                />
-                                {errors.message && (
-                                    <div className="small w-100 text-left text-danger">
-                                        {errors.message}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="col-md-12 mb-1">
-                        
-                                <h6 className='mb-2'>Add prayers to sermon</h6>
-                                <div className="col-md-12 mb-2">
-                                <TextEditor
-                                    //@ts-ignore
-                                    text={formData?.prayer_point}
-                                    handleChange={handlePrayerPointChange}
-                                    placeholder="Type prayer points"
-                                />
-                                {errors.prayer_point && (
-                                    <div className="small w-100 text-left text-danger">
-                                        {errors.prayer_point}
-                                    </div>
-                                )}
-                                </div>
-                                
-                            </div>
-                            <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
-                                <CreateButton
-                                    text={'Proceed'}
-                                    actionEvent={(e)=>{submit(e)}}
-                                    disabled={isLoading}
-                                    loading={isLoading}
-                                />
-                            </div>
-                        </div>
-                    </>
-                ): (
-                    <div className='row p-4'>
-                        <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
-                            <div>
-                                <PageTitle text='Apostle desk' />
-                            </div>
-                            
-                            <>
-                                <Badges
-                                    text={'Pending'}
-                                    type='pending'
-                                />
-                            </>
-                            
-                        </div>
-                        <div className='col-md-9'>
-                            <img src={missionIcon} />
-                        </div>
-
-                        <div className='col-md-12'>
-                            <div className="user-name px-2 mt-4">
-                                <h5 className="m-0 name">{formData?.title}</h5>
-                                <span className="small text-muted mt-4">By {formData?.minister}</span>
-                            </div> 
-                        </div>
-                        
-
-                        <div className='col-md-12'>
-                            <div className="user-name px-2 mt-4">
-                                <h5 className="m-0 name">Bible passages</h5>
-                                    {formData?.bibleReading.map((item:string, index:number) => {
-                                        return(
-                                            <>
-                                                <GetBiblePassage
-                                                    biblePassage={item}
-                                                    updatePassageText={upDateBibleVerseText}
-                                                    index={index}
-                                                />
-                                            </>
-                                        )
-                                    })}
-                               
-                            </div> 
-                        </div>
-
-                        <div className='col-md-12'>
-                            <div className="user-name px-2 mt-4">
-                                <h5 className="m-0 name">Message</h5>
-                            </div>
-                            <div 
-                                className="text-dark mt-1 small px-2"
-                                dangerouslySetInnerHTML={{ __html: formData?.message || 'N/A' }}       
-                            /> 
-                        </div>
-
-                        <div className='col-md-12'>
-                            <div className="user-name px-2 mt-4">
-                                <h5 className="m-0 name">Prayer points</h5>
-                            </div>
-                            <div 
-                                className="text-dark mt-1 small px-2"
-                                dangerouslySetInnerHTML={{ __html: formData?.prayer_point || 'N/A' }}       
-                            /> 
-                            
-                        </div>
-
-                        <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
-                            <CreateButton
-                                text={'Submit'}
-                                actionEvent={(e)=>{submitPreview(e)}}
-                                disabled={isLoading}
-                                loading={isLoading}
-                            />
-                        </div>
-
                     </div>
                 )}
+                <div className=''>
                 
+                    <>
+                        {!preview? (
+                            <>
+                                {isLoading ? (
+                                    <>
+                                        <CircularLoader />
+                                    </>
+                                ):(
+                                    <div className="row  pt-2">
+                                        
+                                        <div className="col-md-12 mb-4">
+                                            <FormGroupInput
+                                                placeholder="Title of sermon"
+                                                value={formData?.title}
+                                                onChange={handleChange}
+                                                name="title"
+                                                showError={errors.title}
+                                                errorMessage={errors.title}
+                                            />
+                                        </div>
+                                    
+                                        <div className="col-md-6 mb-4">
+                                            <ReactTagInput 
+                                                tags={formData?.bibleReading} 
+                                                onChange={(newTags) => setTags(newTags)}
+                                                placeholder='Type bible verse and press enter'
+                                            />
+                                            {errors.bible_verse && (
+                                                <div className="small w-100 text-left text-danger">
+                                                    {errors.bible_verse}
+                                                </div>
+                                            )}
+                                        </div>
+                                    
+
+                                        
+                                        <div className="col-md-6 mb-4">
+                                            <FormGroupSelect
+                                                placeholder="Select minister"
+                                                onChange={(e: object)=>handleSelectChange(e, 'minister')}
+                                                name="minister"
+                                                showError={errors.minister}
+                                                errorMessage={errors.minister} 
+                                                selectOptions={adminData}
+                                                defaultValue={{label: capiitalizeFirstLetter(formData?.minister), value:formData?.minister }}
+                                            />
+                                        </div>
+                                        <div className="col-md-12 mb-4">
+                                        <h6 className='mb-2'>Type message</h6>
+                                            <TextEditor
+                                                //@ts-ignore
+                                                text={formData?.message}
+                                                handleChange={handleEditorChange}
+                                                placeholder="Type message content"
+                                            />
+                                            {errors.message && (
+                                                <div className="small w-100 text-left text-danger">
+                                                    {errors.message}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="col-md-12 mb-1">
+                                    
+                                            <h6 className='mb-2'>Add prayers to sermon</h6>
+                                            <div className="col-md-12 mb-2">
+                                            <TextEditor
+                                                //@ts-ignore
+                                                text={formData?.prayer_point}
+                                                handleChange={handlePrayerPointChange}
+                                                placeholder="Type prayer points"
+                                            />
+                                            {errors.prayer_point && (
+                                                <div className="small w-100 text-left text-danger">
+                                                    {errors.prayer_point}
+                                                </div>
+                                            )}
+                                            </div>
+                                            
+                                        </div>
+                                        <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
+                                            <CreateButton
+                                                text={'Proceed'}
+                                                actionEvent={(e)=>{submit(e)}}
+                                                disabled={isLoading}
+                                                loading={isLoading}
+                                            />
+                                        </div>
+                                    </div>
+                                 )}
+                            </>
+                           
+                        ): (
+                            <div className='row p-4'>
+                                <div className='col-md-12 px-0'>
+                                        <BackButton close={()=> setState({preview : !preview})} />
+                                </div>
+                                <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
+                                    <div>
+                                        <PageTitle text='Apostle desk' />
+                                    </div>
+                                    
+                                    <>
+                                        <Badges
+                                            text={'Pending'}
+                                            type='pending'
+                                        />
+                                    </>
+                                    
+                                </div>
+                                <div className='col-md-9'>
+                                    <img src={missionIcon} />
+                                </div>
+
+                                <div className='col-md-12'>
+                                    <div className="user-name px-2 mt-4">
+                                        <h5 className="m-0 name">{formData?.title}</h5>
+                                        <span className="small text-muted mt-4">By {formData?.minister}</span>
+                                    </div> 
+                                </div>
+                                
+
+                                <div className='col-md-12'>
+                                    <div className="user-name px-2 mt-4">
+                                        <h5 className="m-0 name">Bible passages</h5>
+                                            {formData?.bibleReading.map((item:string, index:number) => {
+                                                return(
+                                                    <>
+                                                        <GetBiblePassage
+                                                            biblePassage={item}
+                                                            updatePassageText={upDateBibleVerseText}
+                                                            index={index}
+                                                        />
+                                                    </>
+                                                )
+                                            })}
+                                    
+                                    </div> 
+                                </div>
+
+                                <div className='col-md-12'>
+                                    <div className="user-name px-2 mt-4">
+                                        <h5 className="m-0 name">Message</h5>
+                                    </div>
+                                    <div 
+                                        className="text-dark mt-1 small px-2"
+                                        dangerouslySetInnerHTML={{ __html: formData?.message || 'N/A' }}       
+                                    /> 
+                                </div>
+
+                                <div className='col-md-12'>
+                                    <div className="user-name px-2 mt-4">
+                                        <h5 className="m-0 name">Prayer points</h5>
+                                    </div>
+                                    <div 
+                                        className="text-dark mt-1 small px-2"
+                                        dangerouslySetInnerHTML={{ __html: formData?.prayer_point || 'N/A' }}       
+                                    /> 
+                                    
+                                </div>
+
+                                <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
+                                    <CreateButton
+                                        text={'Submit'}
+                                        actionEvent={(e)=>{submitPreview(e)}}
+                                        disabled={isLoading}
+                                        loading={isLoading}
+                                    />
+                                </div>
+
+                            </div>
+                    
+                        )}
+                    </>
                 </div>
             </>
         

@@ -66,7 +66,7 @@ const Sermons =() => {
             showAllSermons:true,
             showCreateForm: false,
             showEditForm: false,
-            showViewSingleMessage: false,
+            showViewSingleSermon: false,
             activeId: null,
         });
         if(refresh){

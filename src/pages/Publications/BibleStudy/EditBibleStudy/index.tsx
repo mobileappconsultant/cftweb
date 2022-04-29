@@ -15,6 +15,7 @@ import { GET_ALL_ADMINS, GET_SINGLE_BIBLE_STUDY_CONTENT } from 'GraphQl/Queries'
 import { DivLoader } from 'utilComponents/Loader';
 import CustomDatePicker from 'utilComponents/DatePicker';
 import GetBiblePassage from 'components/GetBiblePassage';
+import BackButton from 'utilComponents/BackButton';
 
 const EditBibleStudy= (props: any):JSX.Element => {
     
@@ -24,6 +25,7 @@ const EditBibleStudy= (props: any):JSX.Element => {
             message: '',
             minister: '',
             memoryVerse:'',
+            date: null,
         },
         payload:{},
         errors:{},
@@ -198,7 +200,7 @@ const EditBibleStudy= (props: any):JSX.Element => {
                         message: responseData?.message,
                         minister: responseData?.minister,
                         memoryVerse: responseData?.memoryVerse?.refrence,
-                        date:null,
+                        date:responseData?.publishedAt,
             
                     },
                     isLoading: false,
@@ -365,6 +367,9 @@ const EditBibleStudy= (props: any):JSX.Element => {
                         </>
                     ): (
                         <div className='row p-4'>
+                            <div className='col-md-12 px-0 py-2'>
+                                    <BackButton close={()=> setState({preview : !preview})} />
+                            </div>
                             <div className="col-md-12 d-flex justify-content-between align-items-center ">
                                 <div>
                                     <PageTitle text='Review bible study update' />

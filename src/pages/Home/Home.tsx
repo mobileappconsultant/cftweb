@@ -1,14 +1,119 @@
 import CardHeader from 'components/CardHeader';
 import DashboardCard from 'components/DashboardCard';
 import PageTitle from 'components/PageTitle';
-import React, {useReducer} from 'react';
-import { Link } from 'react-router-dom';
+import React, {useEffect, useReducer} from 'react';
+import { DASHBOARD_USER_COUNT, DASHBOARD_GET_REVENUE } from 'GraphQl/Queries';
 import FinancialAnalysis from './Charts/FinancialAnalysis';
 import TotalRevenue from './Charts/TotalRevenue';
 import { ArrowBigDown } from 'tabler-icons-react';
+import { useQuery } from '@apollo/client';
+import { extractErrorMessage, processAlertError } from 'utils';
+import moment from 'moment';
 
 const Home = ():JSX.Element => {
+    const initialState = {
+        formData: {
+            totalNumberOfAdmins: 0,
+            totalNumberOfActiveUsers: 0,
+            totalNumberOfSuspendedUsers: 0,
+        },
+        isLoading: false,
+        alertMessage:{},
 
+    };
+    const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
+    const {fetchMore} = useQuery(DASHBOARD_USER_COUNT);
+    const getDashboardRevenue = useQuery(DASHBOARD_GET_REVENUE, {variables:{
+        startDate: moment(new Date()).format("YYYY-MM-DDTHH:mm:ss.SSS"), 
+        endDate: moment(new Date()).format("YYYY-MM-DDTHH:mm:ss.SSS")
+    }});
+    const {formData} = state;
+
+    const fetchData = async() => {
+        try {
+            
+            const response = await fetchMore({variables: {}});
+            const {data, error} = response;
+            if(data){
+                const response = data?.dashboardUserCount;
+               
+                setState({
+                    formData:{
+                        totalNumberOfAdmins: response?.totalNumberOfAdmins,
+                        totalNumberOfActiveUsers: response?.totalNumberOfActiveUsers,
+                        totalNumberOfSuspendedUsers: response?.totalNumberOfSuspendedUsers,
+                    },
+                    isLoading: false,
+                
+                });   
+            };
+            if(error){
+                setState({
+                    alertMessage :processAlertError(extractErrorMessage(error)),
+                    isLoading: false,
+                })
+            }
+        } catch (error) {
+            const errMsg = extractErrorMessage(error);
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(errMsg)),
+                isLoading: false,
+            })
+        }
+    };
+
+    const fetchRevenue = async (searchData: any) => {
+
+        try {
+            
+            const response = await getDashboardRevenue.fetchMore({
+                variables:{
+                    startDate: moment(searchData?.startDate).format("YYYY-MM-DDTHH:mm:ss.SSS"), 
+                    endDate: moment(searchData?.endDate).format("YYYY-MM-DDTHH:mm:ss.SSS")
+                }
+            });
+            const {data, error} = response;
+            if(data){
+                const response = data?.dashBoardGraph;
+                console.log(response);
+               
+                // setState({
+                //     formData:{
+                //         totalNumberOfAdmins: response?.totalNumberOfAdmins,
+                //         totalNumberOfActiveUsers: response?.totalNumberOfActiveUsers,
+                //         totalNumberOfSuspendedUsers: response?.totalNumberOfSuspendedUsers,
+                //     },
+                //     isLoading: false,
+                
+                // });   
+            };
+            if(error){
+                setState({
+                    alertMessage :processAlertError(extractErrorMessage(error)),
+                    isLoading: false,
+                })
+            }
+        } catch (error) {
+            const errMsg = extractErrorMessage(error);
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(errMsg)),
+                isLoading: false,
+            })
+        }
+    };
+
+    // Fetch Admin
+    useEffect(() => {
+        
+        // Cleanup method
+        fetchData();
+    
+        return () => {
+            setState({
+                ...initialState,
+            });
+        };
+    }, []);
 
     return(
         <>
@@ -16,28 +121,16 @@ const Home = ():JSX.Element => {
                 <PageTitle text='Dashboard' />
         </div>
         <div className="row">
-            
-            <div className="col-md-8">
+           
+            <div className="col-md-12 mt-4">
                 <div className="card p-3">
-                    <TotalRevenue />
-                </div>
-                
-            </div>
-            <div className="col-md-4">
-                <div className="card p-3">
-                    <FinancialAnalysis />
-                </div>
-                
-            </div>
-            <div className="col-md-8 mt-4">
-                <div className="card p-3">
-                    <CardHeader text='App Performance' />
+                    <CardHeader text='User statistics' />
                     <div className="row mt-3">
                         <div className="col-md-4">
                             <DashboardCard  
-                                text="Guest Users" 
+                                text="Administrators" 
                                 icon = {<><ArrowBigDown size={30} strokeWidth={0.8} color={'#000000'} /> </>}
-                                count="20"
+                                count={formData?.totalNumberOfAdmins}
                                 className="yellow" 
                             />
                         </div>
@@ -45,7 +138,7 @@ const Home = ():JSX.Element => {
                             <DashboardCard  
                                 text="Registered Users" 
                                 icon = {<><ArrowBigDown size={30} strokeWidth={0.8} color={'#ffffff'} /> </>}
-                                count="40"
+                                count={formData?.totalNumberOfActiveUsers}
                                 className="green" 
                             />
                         </div>
@@ -53,7 +146,7 @@ const Home = ():JSX.Element => {
                             <DashboardCard  
                                 text="Inactive users" 
                                 icon = {<><ArrowBigDown size={30} strokeWidth={0.8} color={'#ffffff'} /> </>}
-                                count="10"
+                                count= {formData?.totalNumberOfSuspendedUsers}
                                 className="blue" 
                             />
                         </div>
@@ -63,37 +156,10 @@ const Home = ():JSX.Element => {
                 
             </div>
 
-            <div className="col-md-4 mt-4">
+            <div className="col-md-12 mt-5">
                 <div className="card p-3">
-                    <CardHeader text='Unresloved requests' />
-                    <div className="row mt-3 border-bottom">
-                        <div className="col-md-9">
-                           <p>Appointment requests</p>
-                        </div>
-                        <div className="col-md-3 ">
-                           <p className='text-muted text-right'>1005</p>
-                        </div>
-                        
-                    </div>
-                    <div className="row mt-3 border-bottom">
-                        <div className="col-md-9">
-                           <p>Support Requests</p>
-                        </div>
-                        <div className="col-md-3">
-                           <p className='text-muted'>100</p>
-                        </div>
-                        
-                    </div>
-                    <div className="row mt-3 border-bottom">
-                        <div className="col-md-9">
-                           <p>Ride Sharing requests</p>
-                        </div>
-                        <div className="col-md-3">
-                           <p className='text-muted'>5</p>
-                        </div>
-                        
-                    </div>
-                    
+                    {/* @ts-ignore */}
+                    <TotalRevenue getPaymentMethodStat={fetchRevenue} />
                 </div>
                 
             </div>

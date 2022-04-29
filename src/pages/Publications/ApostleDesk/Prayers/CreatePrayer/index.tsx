@@ -17,6 +17,7 @@ import missionIcon from 'assets/images/Rectangle 2638.svg';
 import CustomDatePicker from 'utilComponents/DatePicker';
 import moment from 'moment';
 import CloseButton from 'components/CloseButton';
+import BackButton from 'utilComponents/BackButton';
 
 const CreateApostlePrayer = (props: any):JSX.Element => {
     
@@ -166,7 +167,7 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
             });
             scrollTop();
             setTimeout(function () {
-                props.close();
+                props.close(true);
             }, 2000);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
@@ -182,24 +183,6 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
             alertMessage:{},
         });
     };
-
-    const upDateBibleVerseText = (bibleVerseObj:any, index:number) => {
-      
-        bibleVerseData[index] = bibleVerseObj;
-        setState({
-            bibleVerseData: [...bibleVerseData],
-        })
-    }
-
-    useEffect(() => {
-
-        // Cleanup method
-        return () => {
-            setState({
-                ...initialState,
-            });
-        };
-    }, []);
 
     useEffect(() => {
         
@@ -333,6 +316,9 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                     </>
                 ): (
                     <div className='row p-2'>
+                        <div className='col-md-12 px-0'>
+                            <BackButton close={()=> setState({preview : !preview})} />
+                        </div>
                         <div className="col-md-5 d-flex justify-content-between align-items-start mb-4 mt-3">
                             <div>
                                 <PageTitle text='Prayer review' />

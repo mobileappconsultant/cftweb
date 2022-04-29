@@ -232,7 +232,7 @@ export const DEACTIVATE_USER =gql`
 export const CREATE_BRANCH = gql`
   mutation createBranch($input:  BranchInput!) {
     createBranch(input: $input ) {
-      id
+      _id
       name
       branch_president
       geo_point{
@@ -248,9 +248,9 @@ export const CREATE_BRANCH = gql`
 `;
 
 export const UPDATE_BRANCH = gql`
-  mutation createBranch($input:  BranchInput!) {
-    createBranch(input: $input ) {
-      id
+  mutation updateBranch($input:  BranchInput! $branchId: String!) {
+    updateBranch(input: $input branchId: $branchId ) {
+      _id
       name
       branch_president
       geo_point{
@@ -524,6 +524,27 @@ mutation createSermon($input:SermonInput!) {
 }
 `;
 
+export const UPDATE_SERMON = gql`
+mutation updateSermon($input:SermonInput! $sermonId: String!) {
+  updateSermon(input: $input sermonId: $sermonId) {
+    _id
+    title
+    minister
+    image
+    bibleReading{
+      text
+      refrence
+    }
+    message
+    prayer_point
+    published
+    minuteRead
+    createdAt
+    updatedAt
+  }
+}
+`;
+
 export const UNPUBLISH_SERMON =gql`
   mutation unPublishSermon($sermonId: String!) {
     unPublishSermon(sermonId: $sermonId) {
@@ -590,7 +611,7 @@ mutation uppdateMessageForPastorForum($messageId: String! $input: PastorForumInp
   }
 }
 `;
-export const UNPUBLISH_PASTOR_FORUM_MESSAGE =gql`
+export const PUBLISH_PASTOR_FORUM_MESSAGE =gql`
   mutation publishMessageForPastorForum($messageId: String!) {
     publishMessageForPastorForum(messageId: $messageId) {
       _id
@@ -598,8 +619,8 @@ export const UNPUBLISH_PASTOR_FORUM_MESSAGE =gql`
   }
 `;
 
-export const PUBLISH_PASTOR_FORUM_MESSAGE =gql`
-  mutation punPublishMessageForPastorForum($messageId: String!) {
+export const UNPUBLISH_PASTOR_FORUM_MESSAGE =gql`
+  mutation unPublishMessageForPastorForum($messageId: String!) {
     unPublishMessageForPastorForum(messageId: $messageId) {
       _id
     }
@@ -659,7 +680,7 @@ mutation createEvent($input: EventInput!) {
     eventName
     startDate
     endDate
-    time
+    eventTime
     createdAt
     updatedAt
   }

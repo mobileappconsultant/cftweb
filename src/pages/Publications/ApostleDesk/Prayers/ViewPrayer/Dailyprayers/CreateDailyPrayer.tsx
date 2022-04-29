@@ -165,6 +165,7 @@ const CreateDailyPrayer = (props: any):JSX.Element => {
                 alertMessage:  processAlertSuccess('Daily Prayer saved successfully'),
             });
             scrollTop();
+            props.close(true)
             
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
@@ -352,6 +353,11 @@ const CreateDailyPrayer = (props: any):JSX.Element => {
                     </>
                 ): (
                     <div className='row p-4 border-top'>
+                        <div className="col-md-12 d-flex justify-content-end">
+                            <CloseButton 
+                                close={props.close}
+                            />
+                        </div>
                         <div className="col-md-5 d-flex justify-content-between align-items-center mb-1">
                             <div>
                                 <PageTitle text={`Review daily prayer (Day ${formData.day})`} />

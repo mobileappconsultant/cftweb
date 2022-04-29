@@ -31,10 +31,6 @@ const LegalLayout = (props: any): JSX.Element => {
                     </li>  
                     <li>
                      
-                        <Link to="/declaration-of-faith" className={`${getMatch(/^\/declaration-of-faith/)? 'active-nav': 'non-active-nav'}`}>Declaration of Faith</Link>
-                    </li>
-                    <li>
-                     
                         <Link to="/terms-and-conditions" className={`${getMatch(/^\/terms-and-conditions/)? 'active-nav': 'non-active-nav'}`}>Terms and conditions</Link>
                     </li>
                     <li>
@@ -59,10 +55,6 @@ const LegalLayout = (props: any): JSX.Element => {
                         <li>
                             <Link to="/privacy-policy" className={`${getMatch(/^\/privacy-policy/)? 'active-nav': 'non-active-nav'}`}>Privacy Policy</Link>
                         </li>  
-                        <li>
-                        
-                            <Link to="/declaration-of-faith" className={`${getMatch(/^\/declaration-of-faith/)? 'active-nav': 'non-active-nav'}`}>Declaration of Faith</Link>
-                        </li>
                         <li>
                         
                             <Link to="/terms-and-conditions" className={`${getMatch(/^\/terms-and-conditions/)? 'active-nav': 'non-active-nav'}`}>Terms and conditions</Link>

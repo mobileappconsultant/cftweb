@@ -17,6 +17,7 @@ import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
 import CloseButton from 'components/CloseButton';
 import { GET_ALL_ADMINS } from 'GraphQl/Queries';
+import BackButton from 'utilComponents/BackButton';
 
 const CreatePastorsForumMessage = (props: any):JSX.Element => {
     
@@ -38,7 +39,7 @@ const CreatePastorsForumMessage = (props: any):JSX.Element => {
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const [createNewSermon, { data, loading, error }] = useMutation(CREATE_PASTOR_FORUM_MESSAGE); 
+    const [createForumMessage, { data, loading, error }] = useMutation(CREATE_PASTOR_FORUM_MESSAGE); 
     const adminDataQuery = useQuery(GET_ALL_ADMINS); 
     const {formData, isLoading, alertMessage, errors, preview, adminData,  bibleVerseData} = state;
 
@@ -169,13 +170,13 @@ const CreatePastorsForumMessage = (props: any):JSX.Element => {
                 ...formData,
                 bibleReading:bibleVerseData,
             };
-            await createNewSermon({variables:{input: payload}});
+            await createForumMessage({variables:{input: payload}});
             setState({
-                alertMessage:  processAlertSuccess('Sermon saved successfully'),
+                alertMessage:  processAlertSuccess('Forum message saved successfully'),
             });
             scrollTop();
             setTimeout(function () {
-                props.close();
+                props.close(true);
             }, 2000);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
@@ -339,7 +340,10 @@ const CreatePastorsForumMessage = (props: any):JSX.Element => {
                     </>
                 ): (
                     <div className='row p-4'>
-                        <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
+                        <div className='col-md-12 px-0 py-2'>
+                                <BackButton close={()=> setState({preview : !preview})} />
+                        </div>
+                        <div className="col-md-12 d-flex justify-content-between align-items-start mb-4">
                             <div>
                                 <PageTitle text='Apostle desk' />
                             </div>

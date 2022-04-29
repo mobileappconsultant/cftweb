@@ -1,6 +1,5 @@
 import React, {useReducer, useEffect } from 'react';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes, apostleDeskCategoryOptions} from 'constants/index';
+import { apostleDeskCategoryOptions} from 'constants/index';
 import { extractErrorMessage, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop, formatDate } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import CreateButton from 'utilComponents/CreateButton';
@@ -18,6 +17,7 @@ import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
 import CloseButton from 'components/CloseButton';
 import { GET_ALL_ADMINS } from 'GraphQl/Queries';
+import BackButton from 'utilComponents/BackButton';
 
 const CreateApostleMessage = (props: any):JSX.Element => {
     
@@ -173,6 +173,7 @@ const CreateApostleMessage = (props: any):JSX.Element => {
                 alertMessage:  processAlertSuccess('Message saved successfully'),
             });
             scrollTop();
+            props.close(true);
             
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
@@ -272,6 +273,7 @@ const CreateApostleMessage = (props: any):JSX.Element => {
                                     showError={errors.category}
                                     errorMessage={errors.category} 
                                     selectOptions={apostleDeskCategoryOptions}
+                                    defaultValue={formData?.category? {label: formData?.category, value:formData?.category}: ''}
                                 />
                             </div>
                             <div className="col-md-6 mb-4">
@@ -295,6 +297,7 @@ const CreateApostleMessage = (props: any):JSX.Element => {
                                     showError={errors.minister}
                                     errorMessage={errors.minister} 
                                     selectOptions={adminData}
+                                    defaultValue={formData?.minister? {label: formData?.minister, value:formData?.minister}: ''}
                                 />
                             </div>
 
@@ -342,6 +345,9 @@ const CreateApostleMessage = (props: any):JSX.Element => {
                     </>
                 ): (
                     <div className='row p-4'>
+                        <div className='col-md-12'>
+                            <BackButton close={()=> setState({preview : !preview})} />
+                        </div>
                         <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
                             <div>
                                 <PageTitle text='Apostle desk' />

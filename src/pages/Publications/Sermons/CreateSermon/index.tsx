@@ -175,7 +175,7 @@ const CreateSermon = (props: any):JSX.Element => {
             });
             scrollTop();
             setTimeout(function () {
-                props.close();
+                props.close(true);
             }, 2000);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);

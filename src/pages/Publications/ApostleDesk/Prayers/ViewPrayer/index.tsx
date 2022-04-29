@@ -1,18 +1,9 @@
 import React, {useReducer, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import {  apostleDeskCategoryOptions} from 'constants/index';
 import { extractErrorMessage, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop, capiitalizeFirstLetter } from 'utils';
 import AlertComponent from 'components/AlertComponent';
-import CreateButton from 'utilComponents/CreateButton';
-import FormGroupInput from 'utilComponents/FormGroupInput';
-import FormGroupSelect from 'utilComponents/FormGroupSelect';
-import { history, validateData } from 'helpers';
 import PageTitle from 'components/PageTitle';
 import "@pathofdev/react-tag-input/build/index.css";
 import { useMutation, useQuery } from '@apollo/client';
-import { EDIT_MESSAGE } from 'GraphQl/Mutations';
-import Badges from 'utilComponents/Badges';
-import missionIcon from 'assets/images/Rectangle 2638.svg';
 import GetBiblePassage from 'components/GetBiblePassage';
 import {GET_SINGLE_PRAYER } from 'GraphQl/Queries';
 import { DivLoader } from 'utilComponents/Loader';
@@ -65,57 +56,9 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
         showViewAllDailyPrayerPage,
         activeDailyPrayer,
     } = state;
-    const { data, loading, error } = useQuery(GET_SINGLE_PRAYER, {
+    const { fetchMore } = useQuery(GET_SINGLE_PRAYER, {
         variables: { prayerId: props?.prayerId}
     }); 
-    
-    const validateFormData = async () => {
-        const newFormData = {... prayerData};
-        newFormData.bible_verse = newFormData.bibleReading[0];
-        const rules = {
-            'title': 'required',
-            'category' : 'required',
-            'minister': 'required',
-            'message':'required',
-            'bible_verse': 'required',
-            'prayer_point': 'required',
-        };
-
-        const messages = {
-            'title.required': 'Enter a title',
-            'category.required': 'Select a category',
-            'minister.required': 'Select a minister',
-            'message.required': 'Message required',
-            'bible_verse.required': 'Bible reading required',
-            'prayer_point.required': 'Prayer points required',
-        };
-        const validate = await validateData(newFormData, rules, messages);
-        
-     
-        if (isObjectEmpty(validate)) {
-            return true;
-        } else {
-            setState({
-                errors: validate,
-            });
-            return false;
-        }
-    };
-
-
-    const submit = async (e : React.SyntheticEvent<Element, Event>) => {
-        e.preventDefault();
-        const validate = await validateFormData();
-        if(validate){
-            
-            setState({
-                preview: true,
-                isLoading: false,
-            });
-            
-        };
-        
-    };
     
     const handleAlertClose = () => {
         setState({
@@ -123,48 +66,63 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
         });
     };
 
-
-    useEffect(() => {
-        
-        if(data){
-            const{getPrayer} = data;
-         
-            setState({
-                prayerData: getPrayer,
-                activeDailyPrayer:  getPrayer?.dailyPrayers[0]? getPrayer?.dailyPrayers[0]: null,
-               
-            });
-            
-        };
-        if(error){
-            
+    const fetchData = async() => {
+        try {
+             
+            const apiData : any = await fetchMore({variables: { prayerId: props?.prayerId}});
+            const {data, loading, error} = apiData;
+            if(data){
+                const{getPrayer} = data;
+                let checkActiveDailyPrayer = null;
+                if(activeDailyPrayer){
+                    checkActiveDailyPrayer = getPrayer?.dailyPrayers.find((item: { _id: any; }) => item._id === activeDailyPrayer._id);
+                }
+                const apiActiveDailyPrayer = getPrayer?.dailyPrayers[0]? getPrayer?.dailyPrayers[0]: null;
+                setState({
+                    prayerData: getPrayer,
+                    activeDailyPrayer:  checkActiveDailyPrayer? checkActiveDailyPrayer: apiActiveDailyPrayer,
+                });
+            };
+            if(!loading){
+                setState({
+                    isLoading: false,
+                });
+            };
+            if(error){
+                setState({
+                    alertMessage :processAlertError(extractErrorMessage(error)),
+                });
+            };
+        } catch (error) {
             setState({
                 alertMessage :processAlertError(extractErrorMessage(error)),
                 isLoading: false,
             });
         }
-        if(!loading){
-            setState({
-                isLoading: false,
-            });
-        }
+    };
 
+
+    useEffect(() => {
+        fetchData();
         // Cleanup method
         return () => {
             setState({
                 ...initialState,
             });
         };
-    }, [data]);
+    }, []);
 
-    const closePages = () => {
+    const closePages = (refresh = null) => {
         setState({
             showCreateDailyPrayerPage: false,
             showUpdateDailyPrayerPage:false,
             showViewDailyPrayerPage:false,
             showViewAllDailyPrayerPage:true,
             // activeDailyPrayer: null,
-        })
+        });
+        if(refresh){
+            fetchData();
+        }
     }
 
    
@@ -340,7 +298,7 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
                        {showCreateDailyPrayerPage && (
                            <div className='px-2'>
                                 <CreateDailyPrayer
-                                    close={()=> closePages()}
+                                    close={ closePages}
                                     prayerId={props?.prayerId}
                                 />
                            </div>
@@ -349,7 +307,7 @@ const ViewApostlePrayer = (props: any):JSX.Element => {
                        {showUpdateDailyPrayerPage && (
                            <div className='px-2'>
                             <EditDailyPrayer
-                                close={()=> closePages()}
+                                close={ closePages}
                                 prayerId={props?.prayerId}
                                 dailyPrayer={activeDailyPrayer}
                             />

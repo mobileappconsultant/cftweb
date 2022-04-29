@@ -19,6 +19,7 @@ import GetBiblePassage from 'components/GetBiblePassage';
 import { GET_ALL_ADMINS, GET_SINGLE_PASTORS_FORUM_MESSAGE } from 'GraphQl/Queries';
 import { DivLoader } from 'utilComponents/Loader';
 import CloseButton from 'components/CloseButton';
+import BackButton from 'utilComponents/BackButton';
 
 
 const EditSermon = (props: any):JSX.Element => {
@@ -181,7 +182,7 @@ const EditSermon = (props: any):JSX.Element => {
             });
             scrollTop();
             setTimeout(function () {
-                props.close();
+                props.close(true);
             }, 1000);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
@@ -294,6 +295,7 @@ const EditSermon = (props: any):JSX.Element => {
             <>
                 {alertMessage?.text && (
                     <>
+                        <br/>
                         <AlertComponent
                             text={alertMessage.text}
                             type={alertMessage.type}
@@ -393,6 +395,9 @@ const EditSermon = (props: any):JSX.Element => {
                             </>
                         ): (
                             <div className='row p-4'>
+                                <div className='col-md-12 px-0 py-2'>
+                                        <BackButton close={()=> setState({preview : !preview})} />
+                                </div>
                                 <div className='col-md-12 p-0'>
                                     <div className='row'>
                                         <div className="col-md-12 d-flex justify-content-between align-items-start mb-4">

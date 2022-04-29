@@ -14,6 +14,7 @@ import GetBiblePassage from 'components/GetBiblePassage';
 import CloseButton from 'components/CloseButton';
 import CustomDatePicker from 'utilComponents/DatePicker';
 import { GET_SINGLE_DAILY_BIBLE_READING } from 'GraphQl/Queries';
+import BackButton from 'utilComponents/BackButton';
 
 const EditDailyBibleReading = (props: any):JSX.Element => {
     
@@ -102,13 +103,13 @@ const EditDailyBibleReading = (props: any):JSX.Element => {
                 ...formData,
                 verseContent:verseContent,
             };
-            await createNewDailyBibleReading({variables:{input: payload}});
+            await createNewDailyBibleReading({variables:{input: payload, biibleReadingContentId: props?.bibleReadingId}});
             setState({
-                alertMessage:  processAlertSuccess('Daily bible reading saved successfully'),
+                alertMessage:  processAlertSuccess('Daily bible reading updated successfully'),
             });
             scrollTop();
             setTimeout(function () {
-                props.close();
+                props.close(true);
             }, 2000);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
@@ -216,6 +217,7 @@ const EditDailyBibleReading = (props: any):JSX.Element => {
             <>
                 {alertMessage?.text && (
                     <>
+                        <br />
                         <AlertComponent
                             text={alertMessage.text}
                             type={alertMessage.type}
@@ -277,16 +279,19 @@ const EditDailyBibleReading = (props: any):JSX.Element => {
                     </>
                 ): (
                     <div className='row p-4'>
-                        <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
+                        <div className='col-md-12 px-0 py-2'>
+                                <BackButton close={()=> setState({preview : !preview})} />
+                        </div>
+                        <div className="col-md-12 d-flex justify-content-between align-items-start mb-4">
                             <div>
                                 <PageTitle text='Daily bible reading preview' />
                             </div>
                             
                             <>
-                                <Badges
+                                {/* <Badges
                                     text={'Pending'}
                                     type='pending'
-                                />
+                                /> */}
                             </>
                             
                         </div>

@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 
+
 export const GET_ALL_BIBLE_VERSIONS = gql`
   query VersionDTO {
     getBibleBookVersions {
@@ -21,6 +22,26 @@ export const GET_ALL_BRANCHES = gql`
       status
       createdAt
       updatedAt
+    }
+  }
+`;
+// Dashboard
+export const DASHBOARD_USER_COUNT = gql`
+  query DashboardUserCountDTO {
+    dashboardUserCount {
+      totalNumberOfAdmins
+      totalNumberOfActiveUsers
+      totalNumberOfSuspendedUsers
+    }
+  }
+`;
+
+export const DASHBOARD_GET_REVENUE = gql`
+  query DashboardGraphDTO($startDate: String! $endDate: String!) {
+    dashBoardGraph(startDate:$startDate endDate:$endDate) {
+      totalDonations
+      totalOfferings
+      totalWelfare
     }
   }
 `;
@@ -49,7 +70,6 @@ export const GET_ALL_GROUPS = gql`
     }
   }
 `;
-
 
 export const GET_SINGLE_GROUP = gql`
   query GroupDTO ($groupId: String!) {
@@ -125,7 +145,6 @@ export const GET_ALL_INVITED_ADMINS = gql`
 `;
 
 // Roles
-
 export const GET_ALL_ROLES = gql`
   query RoleDTO{
     getRoles{
@@ -149,7 +168,6 @@ export const GET_SINGLE_ROLE = gql`
     }
   }
 `;
-
 
 export const GET_ALL_PERMISSIONS = gql`
   query PermissionDTO{
@@ -398,7 +416,7 @@ export const GET_SINGLE_BIBLE_STUDY_CONTENT = gql`
         text
         refrence
       }
-      
+      publishedAt
       message
       createdAt
     }
@@ -531,7 +549,21 @@ export const GET_ALL_EVENTS = gql`
       eventName
       startDate
       endDate
-      time
+      eventTime
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const GET_SINGLE_EVENT = gql`
+  query EventDTO($eventID: String!){
+    getEvent(eventID:$eventID ){
+      _id
+      eventName
+      startDate
+      endDate
+      eventTime
       createdAt
       updatedAt
     }
@@ -540,8 +572,8 @@ export const GET_ALL_EVENTS = gql`
 
 // Transactions
 export const GET_ALL_TRANSACTIONS = gql`
-  query TransactionDTO($page: Float! $limit: Float!){
-    getAllTransactions(page:$page limit:$limit ){
+  query TransactionDTO($page: Float! $limit: Float!  $status: String! $paymentMethod: String! $paymentType: String! ){
+    getAllTransactions(page:$page limit:$limit  status:$status paymentMethod: $paymentMethod paymentType: $paymentType ){
       _id
       paymentType
       transactionId

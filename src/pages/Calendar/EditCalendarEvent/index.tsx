@@ -1,11 +1,11 @@
-import React, {useReducer} from 'react';
+import React, {useEffect, useReducer} from 'react';
 import { Modal } from 'reactstrap';
 import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
 import { CREATE_EVENT } from 'GraphQl/Mutations';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { Plus, X } from 'tabler-icons-react';
 import '../calendar.scss';
 import EventInput from 'utilComponents/EventInput';
@@ -15,6 +15,7 @@ import { DateRange, DayPicker } from 'react-day-picker';
 import { MuiPickersUtilsProvider, TimePicker } from "@material-ui/pickers";
 import DateFnsUtils from '@date-io/date-fns';
 import moment from 'moment';
+import { GET_SINGLE_EVENT } from 'GraphQl/Queries';
 
 const pastMonth = new Date();
 
@@ -44,8 +45,11 @@ const  EditEvent = (props: any):JSX.Element => {
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {formData, isLoading, alertMessage, errors, showModal, dateState, range} = state;
-    const [createNewEvent, { data, loading, error }] = useMutation(CREATE_EVENT);
+    const {formData, isLoading, alertMessage, errors, dateState, range} = state;
+    const {handleClose, activeId, showModal} = props;
+    const [updateEvent, { data, loading, error }] = useMutation(CREATE_EVENT);
+    const { fetchMore }  = useQuery(GET_SINGLE_EVENT,{variables:{eventID: activeId}});
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
         setState({
@@ -61,7 +65,6 @@ const  EditEvent = (props: any):JSX.Element => {
     };
 
     const handleTimeChange = (e:Date) => {
-        console.log(e);
         setState({
             formData: {
                 ...formData,
@@ -69,12 +72,6 @@ const  EditEvent = (props: any):JSX.Element => {
             },
         });
     };
-
-
-    const handleModalToggle = () => {
-        setState({showModal: !showModal});
-        refreshForm();
-    }
 
     const validateFormData = async () => {
         const rules = {
@@ -123,10 +120,10 @@ const  EditEvent = (props: any):JSX.Element => {
                     time:  moment(formData?.time).format("HH:mm:ss"),
                 };
                
-                const newGroup = await createNewEvent({variables:{input:payload}});
+                const newGroup = await updateEvent({variables:{input:payload}});
                 refreshForm();
-                props.addAlert(processAlertSuccess('Event added successfully'));
-                handleModalToggle();
+                props.addAlert(processAlertSuccess('Event updated successfully'));
+                handleClose();
             };
             setState({
                 isLoading: false,
@@ -153,13 +150,59 @@ const  EditEvent = (props: any):JSX.Element => {
             range: date,
         });
     };
+
+    const fetchData =  async () => {
+        setState({
+            isLoading:true,
+        });
+        const apiData : any = 
+        await fetchMore({variables:{eventID: activeId}});
+         if(apiData.data){
+            setState({
+                formData: {
+                    eventName: apiData?.data?.getEvent?.eventName,
+                    time: new Date(apiData?.data?.getEvent?.time),
+                },
+                // range: defaultSelected,
+                // dataArr: apiData?.data?.getAllTransactions,
+                isLoading: false,
+            }); 
+             var d = new Date();
+             d.setHours(parseInt(apiData?.data?.getEvent?.time), 0, 0, 0);
+            alert(d);
+            // console.log(parseInt( apiData?.data?.getEvent?.time))
+        };
+
+        if(!apiData.loading){
+            setState({
+                isLoading: false,
+            });
+        };
+
+        if(apiData.error){
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(apiData?.error)),
+                isLoading: false,
+            });
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+        // Cleanup method
+        return () => {
+            setState({
+                ...initialState,
+            });
+        };
+    }, []);
   
     return(
         <div className='calendar-module '>
         <Modal
-            title="Create Events"
+            title="Update Event"
             isOpen={showModal} 
-            onHide={() => handleModalToggle()}
+            onHide={() => handleClose()}
             fullscreen={true}
             keyboard={false}
             dialogClassName="modal-90w"
@@ -171,8 +214,8 @@ const  EditEvent = (props: any):JSX.Element => {
             <div style={{background:' #F5F6F8'}}>
                 
                 <div className='d-flex justify-content-between w-100 px-5 py-4'>
-                    <h5>Create New Event</h5>
-                    <div className='pointer' onClick={() => handleModalToggle()}>
+                    <h5>Update Event</h5>
+                    <div className='pointer' onClick={() => handleClose()}>
                         <X
                             size={29}
                             strokeWidth={2.7}
@@ -221,6 +264,7 @@ const  EditEvent = (props: any):JSX.Element => {
                             <div className="col-md-12 mb-3 mt-2 d-flex selected-date-container align-items-center">
                                 <div className="w-100 mb-2">
                                     <label className='calendar-input-label mb-2'>Choose time</label>
+                                    
                                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                         <TimePicker
                                             variant="inline"
@@ -241,7 +285,7 @@ const  EditEvent = (props: any):JSX.Element => {
                             
                             <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">
                             <CreateButton
-                                text={'Submit'}
+                                text={'Update'}
                                 actionEvent={(e)=>{submit(e)}}
                                 disabled={isLoading}
                                 loading={isLoading}
@@ -269,21 +313,7 @@ const  EditEvent = (props: any):JSX.Element => {
                 </div>
             </div>
         </Modal>
-        <CreateButton
-            text={
-                <>
-                    <Plus
-                        size={20}
-                        strokeWidth={2}
-                        color={'white'}
-                    />
-                    &nbsp;
-                    Create New Event
-                </>
-            }
-            float
-            actionEvent={()=>{handleModalToggle()}}
-        />
+        
         </div>
 
     )

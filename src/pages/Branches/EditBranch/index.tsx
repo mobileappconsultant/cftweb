@@ -1,14 +1,13 @@
 import React, {useReducer, useEffect} from 'react';
 import Modal from 'utilComponents/Modal';
-import { Link } from 'react-router-dom';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
 import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import { validateData } from 'helpers';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
 import Map from 'utilComponents/MapComponent';
+import { useMutation } from '@apollo/client';
+import { UPDATE_BRANCH } from 'GraphQl/Mutations';
 
 
 const EditBranch = (props: any):JSX.Element => {
@@ -17,24 +16,27 @@ const EditBranch = (props: any):JSX.Element => {
         formData: {
             name: props?.branch?.name || '',
             branch_president: props?.branch?.branch_president || '',
-            lat: 18.5204,
-            lng: 73.8567,
+        },
+        geoPoints:{
+            lat: props?.branch?.geo_point?.lat? Number(props?.branch?.geo_point?.lat) : 18.5204,
+            lng: props?.branch?.geo_point?.long? Number(props?.branch?.geo_point?.long) : 73.8567,
             address: props?.branch?.address || '',
         },
         errors:{},
-        isLoading: true,
+        isLoading: false,
         alertMessage:{},
        
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {formData, isLoading, alertMessage, errors} = state;
+    const {formData, isLoading, alertMessage, errors, geoPoints} = state;
     const {show, toggleModal} = props;
+    const [updateBranch, { data, loading, error }] = useMutation(UPDATE_BRANCH);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
         setState({
             formData:{
-                ...formData,
                 [name]: value,
             },
             errors:{
@@ -43,13 +45,11 @@ const EditBranch = (props: any):JSX.Element => {
             }
         });
     };
-
    
     const onMapChange = (values:[], index= null, address: string) => {
         let values_2: Array<number> = values;
         setState({
-            formData: {
-                ...state.formData,
+            geoPoints: {
                 lat: values_2[0],
                 lng: values_2[1],
                 address: address,
@@ -98,6 +98,8 @@ const EditBranch = (props: any):JSX.Element => {
             formData: {
                 name: '',
                 branch_president:'',
+            },
+            geoPoints:{
                 lat: 18.5204,
                 lng: 73.8567,
                 address: '',
@@ -117,16 +119,17 @@ const EditBranch = (props: any):JSX.Element => {
                 name: formData?.name,
                 branch_president: formData?.branch_president,
                 geo_point:{
-                    lat: formData?.lat,
-                    long: formData?.lng,
+                    lat: `${geoPoints?.lat}`,
+                    long: `${geoPoints?.lng}`,
                 },
-                address: formData?.address,
+                branch_address: geoPoints?.address,
             };
             if(validate){
-                await ApiRequestClient.post(apiRoutes.CREATE_BRANCH, payload);  
+                const branchData = await updateBranch({variables:{input: payload, branchId: props?.branch._id}}); 
                 
                 refreshForm();
                 props.addAlert(processAlertSuccess('Branch updated successfully'));
+                props.refresh();
                 handleModalToggle();
             };
             setState({
@@ -149,18 +152,19 @@ const EditBranch = (props: any):JSX.Element => {
 
     const fetchData = () => {
         const {branch} = props;
-        setState({
-            ...state,
-            formData:{
-                ...formData,
-                name: branch?.name || '',
-                branch_president: branch?.branch_president || '',
-                lat: 18.5204,
-                lng: 73.8567,
-                address: branch?.address || '',
-            },
-            isLoading: false,
-        });
+        // setState({
+        //     ...state,
+        //     formData: {
+        //         name: props?.branch?.name || '',
+        //         branch_president: props?.branch?.branch_president || '',
+        //     },
+        //     geoPoints:{
+        //         lat: props?.branch?.geo_point?.lat? Number(props?.branch?.geo_point?.lat) : 18.5204,
+        //         lng: props?.branch?.geo_point?.long? Number(props?.branch?.geo_point?.long) : 73.8567,
+        //         address: props?.branch?.address || '',
+        //     },
+        //     isLoading: false,
+        // });
     };
     
     useEffect(() => {
@@ -221,8 +225,8 @@ const EditBranch = (props: any):JSX.Element => {
                             zoom={15}
                             onMapChange={(value?:any,index?:any, address ?:any)=>onMapChange(value,index, address)}
                            
-                            lat={formData.lat}
-                            lng={formData.lng}
+                            lat={geoPoints?.lat}
+                            lng={geoPoints?.lng}
                         />
                         {errors.address && (
                             <div className="small w-100 mt-5 text-left text-danger">

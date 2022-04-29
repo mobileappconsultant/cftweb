@@ -33,7 +33,6 @@ const UploadMessageImage = (props: any):JSX.Element => {
 
 
    const updateFile = (file = null) => {
-       console.log(file);
         setState({
             file,
         });
@@ -64,7 +63,7 @@ const UploadMessageImage = (props: any):JSX.Element => {
             if(validate){
                 await uploadImage({variables: {messageId:props?.messageId, file: file[0]}});
                 props.addAlert(processAlertSuccess('Image added successfully'));
-                toggleModal();
+                toggleModal(true);
                 
             };
             setState({

@@ -22,6 +22,7 @@ import CloseButton from 'components/CloseButton';
 import TimePicker from 'react-time-picker';
 import UploadMessageImage from '../ViewMessage/UploadMessageImage';
 import { EditCircle } from 'tabler-icons-react';
+import BackButton from 'utilComponents/BackButton';
 
 const EditApostleMessage = (props: any):JSX.Element => {
   
@@ -429,6 +430,9 @@ const EditApostleMessage = (props: any):JSX.Element => {
                         ): (
                             <>
                             <div className='row p-4'>
+                                <div className='col-md-12 px-0'>
+                                    <BackButton close={()=> setState({preview : !preview})} />
+                                </div>
                                 <div className='col-md-7 p-0'>
                                     <div className='row'>
                                         <div className="col-md-12 d-flex justify-content-between align-items-start mb-4">

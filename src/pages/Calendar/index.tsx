@@ -17,6 +17,7 @@ import { GET_ALL_EVENTS } from 'GraphQl/Queries';
 import { useQuery } from '@apollo/client';
 import { extractErrorMessage, processAlertError } from 'utils';
 import moment from 'moment';
+import EditEvent from './EditCalendarEvent';
 
 const pastMonth = new Date();
 
@@ -39,13 +40,15 @@ const Calendar = ():JSX.Element => {
             }
         ],
         isLoading: false,
+        showEditModal: false,
+        activeId: null,
         range: defaultSelected,
         
     };
    
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView,isLoading, page, rowsPerPage, dateState, alertMessage, data, range } = state;
+    const {listView,isLoading, page, rowsPerPage, showEditModal, alertMessage, data, range, activeId } = state;
     const { fetchMore } = useQuery(GET_ALL_EVENTS, {
         variables: {},
     });
@@ -115,6 +118,13 @@ const Calendar = ():JSX.Element => {
         });
     };
 
+    const toogleEditModal = (activeId = null) => {
+        setState({
+            showEditModal: !showEditModal,
+            activeId: activeId,
+        })
+    }
+
     return(
         <>
         <div className="row justify-content-between align-items-end">
@@ -167,7 +177,7 @@ const Calendar = ():JSX.Element => {
                                                             }
                                                             className="mx-2 edit-action"
                                             
-                                                            actionEvent={()=> history.push('/calendar/edit-event/'+ item?._id)}
+                                                            actionEvent={()=> toogleEditModal(item?._id)}
                                                         />
                                                         <ActionButton
                                                             text={
@@ -219,7 +229,18 @@ const Calendar = ():JSX.Element => {
             <CreateEvent
                 addAlert={addAlert}
             />
+            {showEditModal && (
+                <>
+                    <EditEvent 
+                        addAlert={addAlert}
+                        activeId={activeId}
+                        handleClose={toogleEditModal}
+                        showModal={showEditModal}
+                    />
+                </>
+            )}
         </div> 
+
            
         </div>
        

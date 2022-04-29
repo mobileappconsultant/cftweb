@@ -18,6 +18,8 @@ const CreateBranch = (props: any):JSX.Element => {
         formData: {
             name: '',
             branch_president:'',
+        },
+        geoPoints:{
             lat: 18.5204,
             lng: 73.8567,
             address: '',
@@ -29,7 +31,7 @@ const CreateBranch = (props: any):JSX.Element => {
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {formData, isLoading, alertMessage, errors, showModal} = state;
+    const {formData, isLoading, alertMessage, errors, showModal, geoPoints} = state;
     const [createNewBranch, { data, loading, error }] = useMutation(CREATE_BRANCH);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -49,8 +51,7 @@ const CreateBranch = (props: any):JSX.Element => {
     const onMapChange = (values:[], index= null, address: string) => {
         let values_2: Array<number> = values;
         setState({
-            formData: {
-                ...state.formData,
+            geoPoints: {
                 lat: values_2[0],
                 lng: values_2[1],
                 address: address,
@@ -60,23 +61,6 @@ const CreateBranch = (props: any):JSX.Element => {
                 address: '',
             },
         });
-    }
-   
-
-    const handleSelectChange = (e:{label?: string, value?: string|null|number}, name = '') :void  => {
-        if (e) {
-            setState({
-                formData: {
-                    ...state.formData,
-                    [name]: e.value,
-                },
-                errors: {
-                    ...state.errors,
-                    [name]: '',
-                },
-            });
-        }
-
     }
 
     const handleModalToggle = () => {
@@ -115,7 +99,9 @@ const CreateBranch = (props: any):JSX.Element => {
             formData: {
                 name: '',
                 branch_president:'',
-                lat: 51.49126,
+            },
+            geoPoints:{
+                lat: 18.5204,
                 lng: 73.8567,
                 address: '',
             },
@@ -134,10 +120,10 @@ const CreateBranch = (props: any):JSX.Element => {
                 name: formData?.name,
                 branch_president: formData?.branch_president,
                 geo_point:{
-                    lat: `${formData?.lat}`,
-                    long: `${formData?.lng}`,
+                    lat: `${geoPoints?.lat}`,
+                    long: `${geoPoints?.lng}`,
                 },
-                branch_address: formData?.address,
+                branch_address: geoPoints?.address,
             };
             if(validate){
                 const branchData = await createNewBranch({variables:{input: payload}}); 
@@ -212,8 +198,8 @@ const CreateBranch = (props: any):JSX.Element => {
                             zoom={15}
                             onMapChange={(value?:any,index?:any, address ?:any)=>onMapChange(value,index, address)}
                            
-                            lat={formData.lat}
-                            lng={formData.lng}
+                            lat={geoPoints?.lat}
+                            lng={geoPoints?.lng}
                         />
                         {errors.address && (
                             <div className="small w-100 mt-5 text-left text-danger">

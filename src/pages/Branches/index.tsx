@@ -283,7 +283,7 @@ const Branches = ():JSX.Element => {
                 refresh={fetchData}
                 addAlert={addAlert}
             />
-            {activeDataObj?.id && (
+            {showEditModal && (
                 <EditBranch 
                     branch={activeDataObj}
                     show={showEditModal}

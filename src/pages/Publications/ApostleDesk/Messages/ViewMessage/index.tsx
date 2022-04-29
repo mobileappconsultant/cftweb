@@ -20,6 +20,7 @@ const ViewApostleMessage = (props: any):JSX.Element => {
             minister: '',
             bibleReading:[],
             category:'',
+            image: ''
         },
         payload:{},
         prayers:[''],
@@ -32,7 +33,7 @@ const ViewApostleMessage = (props: any):JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {formData, isLoading, alertMessage,  preview, showImageModal, bibleVerseData} = state;
-    const { data, loading, error } = useQuery(GET_SINGLE_MESSAGE, {
+    const { fetchMore } = useQuery(GET_SINGLE_MESSAGE, {
         variables: { messageId: props?.messageId}
     }); 
     
@@ -49,10 +50,14 @@ const ViewApostleMessage = (props: any):JSX.Element => {
             alertMessage:{},
         });
     };
-
-    useEffect(() => {
-        if(data){
-            const response = data?.getMessage;
+    const fetchData =  async () => {
+        setState({
+            isLoading:true,
+        });
+        const apiData : any = await fetchMore({variables: { messageId: props?.messageId} });
+    
+         if(apiData.data){
+            const response = apiData.data?.getMessage;
             const getBibleReading = () => {
                 const returnArr = [];
                 for (let index = 0; index < response?.bibleReading.length; index++) {
@@ -71,36 +76,46 @@ const ViewApostleMessage = (props: any):JSX.Element => {
                     image: response?.image,
                     prayer_point: response?.prayer_point,
                 },
-               
-            });
-            
-          
+            }); 
         };
-        if(!loading){
+
+        if(!apiData.loading){
             setState({
                 isLoading: false,
             });
         };
 
-        if(error){
-            
+        if(apiData.error){
             setState({
-                alertMessage :processAlertError(extractErrorMessage(error)),
-            })
+                alertMessage :processAlertError(extractErrorMessage(apiData?.error)),
+                isLoading: false,
+            });
         }
+    };
 
+    useEffect(() => {
+        fetchData();
         // Cleanup method
         return () => {
             setState({
                 ...initialState,
             });
         };
-    }, [data]);
+    }, []);
 
-    const toggleUploadImageModal = () => {
+    const toggleUploadImageModal = (refresh = null) => {
         setState({
             showImageModal: !showImageModal,
         });
+        if(refresh){
+            setState({
+                formData:{
+                    ...formData,
+                    image: '',
+                }
+            })
+            fetchData();
+        }
     };
     
     const addAlert = (alert:any) => {
@@ -148,7 +163,10 @@ const ViewApostleMessage = (props: any):JSX.Element => {
                             <div className='col-md-8  d-flex position-relative'>
                                 {formData?.image? (
                                     <div className='message-img-container'> 
-                                        <img src={formData?.image} className='w-100'/> 
+                                        {formData?.image &&(
+                                            <img src={formData?.image? formData?.image : ''} className='w-100' alt="Message" /> 
+                                        )}
+                                        
                                     </div>
                                 ):(
                                     <img src={missionIcon} className='w-100'/> 

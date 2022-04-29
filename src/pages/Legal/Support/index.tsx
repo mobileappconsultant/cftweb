@@ -13,41 +13,7 @@ const Support = () => {
             <h4>CFT HELP CENTER</h4>
             <div className='d-flex justify-content-center'>
                 <div className='support-body w-100'>
-                   <div className='mb-3 text-center'> Hello there! How can we help? </div>
-                   <SearchInput />
-                   <div className="support-cards">
-                       
-                        <div className='support-card'>
-                            <div>
-                                <div className='support-img text-center'>
-                                    <img src={supportIcon2} />
-                                </div>
-                                <h6 className='text-center mt-3'>
-                                    Services & Live streams
-                                </h6>
-                                <p className='text-center'>
-                                    Learn how to interact with our global audience with online worship
-                                </p>
-                            </div>
-                        </div>
-                    
-                        <div className='support-card'>
-                            <div>
-                                <div className='support-img text-center'>
-                                    <img src={supportIcon1} />
-                                </div>
-                                <h6 className='text-center mt-3'>
-                                    Contact an Admininstrator
-                                </h6>
-                                <p className='text-center'>
-                                    
-                                    Got any issues using our application? Have your issues resolved quick
-                                </p>
-                            </div>
-                        </div>
-                       
-                    
-                   </div>
+                
                    <div className='asked-questions'>
                        <div className='header'>
                         FREQUENTLY ASKED QUESTIONS

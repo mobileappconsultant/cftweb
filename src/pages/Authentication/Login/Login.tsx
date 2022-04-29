@@ -127,23 +127,7 @@ const Login = ():JSX.Element => {
                     />
                 </>
             )}
-            <div className="mb-4"> 
-                <AuthButton 
-                    className="google-sign-in-button"
-                    text="SIGN IN WITH GOOGLE"
-                    actionEvent={(e)=> console.log(e)}
-                />
-            </div>
-            <div className="mb-4">
-                <AuthButton 
-                    className="facebook-sign-in-button"
-                    text="SIGN IN WITH FACEBOOK"
-                    actionEvent={(e)=> console.log(e)}
-                />
-            </div>
-            <div className="mb-4">
-                <OrComponent text="OR" />
-            </div>
+           
             <div className="mb-3">
                 <AuthFormInput
                     icon={mailIcon}

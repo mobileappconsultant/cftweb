@@ -12,6 +12,7 @@ import { extractErrorMessage, processAlertError, processAlertSuccess } from 'uti
 import Filter from 'components/Filter';
 import CircularLoader from 'utilComponents/Loader';
 import { ACTIVATE_ADMIN, DEACTIVATE_ADMIN } from 'GraphQl/Mutations';
+import ViewSingleMember from './ViewSingleAdmin';
 
 const AdministratorsList = ():JSX.Element => {
     const initialState = {
@@ -21,10 +22,12 @@ const AdministratorsList = ():JSX.Element => {
         alertMessage:{},
         dataArr:[],
         isLoading:true,
+        viewSingle: false,
+        userId: null,
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr} = state;
+    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr, viewSingle, userId} = state;
     const { fetchMore }  = useQuery(GET_ALL_ADMINS);
 
     const [activateAdmin] = useMutation(ACTIVATE_ADMIN);
@@ -122,6 +125,13 @@ const AdministratorsList = ():JSX.Element => {
             fetchData();
         }
     };
+
+    const viewUserProfile = (id:any) => {
+        setState({
+            viewSingle: !viewSingle,
+            userId: id,
+        });
+};
     
     const paginatedData = (dataArr:any) => {
         const splicedIndex = page * rowsPerPage;
@@ -146,71 +156,77 @@ const AdministratorsList = ():JSX.Element => {
             </>
         )}
         <div className="bg-white">
-        <div className="row  pt-4 px-4 justify-content-end"> 
-            <div className='col-md-3'>
-                <Filter
-                    text="Status"
-                />
-            </div>
-           
-            
-        </div>
-        
-        {isLoading? (
+        {!viewSingle? (
             <>
-                <CircularLoader/>
+                <div className="row  pt-4 px-4 justify-content-end">
+                    <div className='col-md-3'>
+                        <Filter
+                            text="Status" />
+                    </div>
+                </div>
+
+                {isLoading ? (
+                    <>
+                        <CircularLoader />
+                    </>
+                ) : (
+                    <>
+                        <div className="row  py-4 px-4 overflow-y-auto ">
+                            {paginateData.map((datum: any, _i: number) => {
+
+                                return (
+                                    <>
+                                        {datum?.full_name && (
+                                            <div className="col-md-6">
+                                                <div className="my-2">
+                                                    <UserCard
+                                                        name={datum?.full_name ?? null}
+                                                        role={datum?.role[0] ? datum?.role[0]?.name : ''}
+                                                        time={'22/03/2022'}
+                                                        avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
+                                                        active={datum?.status}
+                                                        id={datum.id}
+                                                        disableAccount={deactivateAdministrator}
+                                                        activateAccount={activateAdministrator}
+                                                        viewProfile={viewUserProfile} />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                    </>
+                                );
+                            })}
+
+                        </div>
+
+                    </>
+                )}
+                <Pagination
+                    count={dataArr.length ?? 0}
+                    page={page}
+                    rowsPerPage={rowsPerPage}
+                    onPageChange={handleChangePage}
+                    handleChangeRowsPerPage={handleChangeRowsPerPage} 
+                />
+                <div>
+
+                    <InviteAdmin
+                        addAlert={addAlert} 
+                    />
+                </div>
             </>
+   
         ):(
             <>
-           
-        <div className="row  py-4 px-4 overflow-y-auto "> 
-            {paginateData.map((datum: any, _i: number)=> {
-                
-                return(
-                    <>
-                        {datum?.full_name &&(
-                            <div className="col-md-6">
-                                <div className="my-2">
-                                    <UserCard
-                                        name={datum?.full_name?? null}
-                                        role={datum?.role[0]?datum?.role[0]?.name : ''}
-                                        time={'22/03/2022'}
-                                        avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
-                                        active={datum?.status}
-                                        id={datum.id}
-                                        disableAccount={deactivateAdministrator}
-                                        activateAccount={activateAdministrator}
-                                        // active
-                                    />
-                                </div>
-                            </div>
-                        ) }
-                        
-                    </>
-                );
-            })}
-            
-        </div>
-
-        </>
+                    <ViewSingleMember
+                        userId={userId}
+                        close={viewUserProfile}
+                        listingReload={fetchData}
+                    />
+                </>
         )}
-            <Pagination
-                count={dataArr.length?? 0}
-                page={page}
-                rowsPerPage={rowsPerPage}
-                onPageChange={handleChangePage}
-                handleChangeRowsPerPage={handleChangeRowsPerPage}
-            />
         </div>
-            
-        <div>
-            
-           <InviteAdmin
-                addAlert={addAlert}
-           />
-        </div>
-       
-        </>
+    </>
     )
 
 };

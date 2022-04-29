@@ -13,6 +13,7 @@ import Badges from 'utilComponents/Badges';
 import GetBiblePassage from 'components/GetBiblePassage';
 import CloseButton from 'components/CloseButton';
 import CustomDatePicker from 'utilComponents/DatePicker';
+import BackButton from 'utilComponents/BackButton';
 
 const CreateDailyBibleReading = (props: any):JSX.Element => {
     
@@ -106,7 +107,7 @@ const CreateDailyBibleReading = (props: any):JSX.Element => {
             });
             scrollTop();
             setTimeout(function () {
-                props.close();
+                props.close(true);
             }, 2000);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
@@ -228,7 +229,10 @@ const CreateDailyBibleReading = (props: any):JSX.Element => {
                     </>
                 ): (
                     <div className='row p-4'>
-                        <div className="col-md-5 d-flex justify-content-between align-items-start mb-4">
+                        <div className='col-md-12 px-0 py-2'>
+                                <BackButton close={()=> setState({preview : !preview})} />
+                        </div>
+                        <div className="col-md-12 d-flex justify-content-between align-items-start mb-4">
                             <div>
                                 <PageTitle text='Daily bible reading preview' />
                             </div>
