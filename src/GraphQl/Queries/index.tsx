@@ -414,6 +414,7 @@ query PrayerDTO  ($prayerId: String!) {
         createdAt
         updatedAt
     }
+    publishedAt
     createdAt
   }
 }

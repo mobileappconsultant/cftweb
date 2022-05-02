@@ -8,7 +8,7 @@ import CreateSermon from './CreateSermon';
 import EditSermon from './EditSermon';
 import ViewSermon from './ViewSermon';
 import Pagination from 'utilComponents/TablePagination';
-import CircularLoader from 'utilComponents/Loader';
+import  { DivLoader } from 'utilComponents/Loader';
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_ALL_SERMONS } from 'GraphQl/Queries';
 import CreateButton from 'utilComponents/CreateButton';
@@ -199,7 +199,7 @@ const Sermons =() => {
                         </div>
                         {isLoading? (
                             <div className='bg-white'>
-                                <CircularLoader />
+                                <DivLoader />
                             </div>
                         ) :(
                         <>

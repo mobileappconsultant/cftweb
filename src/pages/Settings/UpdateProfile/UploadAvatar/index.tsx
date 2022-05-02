@@ -98,8 +98,8 @@ const UploadAvatar = (props: any):JSX.Element => {
                     ...userObject,
                     avatar: data?.getAdmin?.avatar,
                 };
-                console.log(payload);
                 dispatch(addUser(payload));
+                props.reload();
             
             };
             if(!loading){

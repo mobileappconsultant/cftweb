@@ -1,6 +1,6 @@
 import React, {useReducer, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { extractErrorMessage, formatDate, isNotEmptyArray, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop } from 'utils';
+import { extractErrorMessage, formatDate, processAlertSuccess, isObjectEmpty, processAlertError, scrollTop } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import CreateButton from 'utilComponents/CreateButton';
 import FormGroupInput from 'utilComponents/FormGroupInput';
@@ -11,11 +11,10 @@ import TextEditor from 'utilComponents/TextEditor';
 import { GET_ALL_ADMINS, GET_SINGLE_PRAYER } from 'GraphQl/Queries';
 import FormGroupTextarea from 'utilComponents/FormGroupTextarea';
 import { useMutation, useQuery } from '@apollo/client';
-import { CREATE_PRAYER, EDIT_PRAYER } from 'GraphQl/Mutations';
+import { EDIT_PRAYER } from 'GraphQl/Mutations';
 import Badges from 'utilComponents/Badges';
 import missionIcon from 'assets/images/Rectangle 2638.svg';
 import CustomDatePicker from 'utilComponents/DatePicker';
-import moment from 'moment';
 import CircularLoader from 'utilComponents/Loader';
 import CloseButton from 'components/CloseButton';
 
@@ -230,13 +229,14 @@ const EditApostlePrayer = (props: any):JSX.Element => {
     useEffect(() => {
         if(prayerQuery.data){
             const{getPrayer} = prayerQuery?.data;
+            console.log(getPrayer);
             setState({
                 formData:{
                     title: getPrayer?.title,
                     subtitle: getPrayer?.subtitle,
                     author: getPrayer?.author,
                     preface: getPrayer?.preface,
-                    date: getPrayer?.date,
+                    date: getPrayer?.publishedAt,
                 },
                 isLoading: false,
             });

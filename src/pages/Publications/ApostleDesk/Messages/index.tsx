@@ -11,7 +11,7 @@ import CreateApostleMessage from './CreateMessage';
 import EditApostleMessage from './EditMessage';
 import ViewApostleMessage from './ViewMessage';
 import Pagination from 'utilComponents/TablePagination';
-import CircularLoader from 'utilComponents/Loader';
+import  { DivLoader } from 'utilComponents/Loader';
 import { publishOptions } from 'constants/index';
 import { DELETE_MESSAGE, PUBLISH_MESSAGE, UNPUBLISH_MESSAGE } from 'GraphQl/Mutations';
 import AlertComponent from 'components/AlertComponent';
@@ -200,7 +200,7 @@ const Messages = () => {
                         </div>
                         {isLoading? (
                             <div className='bg-white'>
-                                <CircularLoader />
+                                <DivLoader />
                             </div>
                         ) :(
                         <>

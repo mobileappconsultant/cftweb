@@ -111,17 +111,21 @@ const UpdateProfile = ():JSX.Element => {
         });
     };
 
+    const fetchData = () => {
+        setState({
+            formData:{
+                 email: userObject?.email,
+                 full_name: userObject?.full_name,
+                 phone:userObject?.phone,
+                 role: userObject?.role[0]?.name?? '',
+                 avatar: userObject?.avatar?? '',
+            }
+        });
+    }
+
     useEffect(() => {
     
-       setState({
-           formData:{
-                email: userObject?.email,
-                full_name: userObject?.full_name,
-                phone:userObject?.phone,
-                role: userObject?.role[0]?.name?? '',
-                avatar: userObject?.avatar?? '',
-           }
-       })
+        fetchData();
         // Cleanup method
         return () => {
             setState({
@@ -230,7 +234,7 @@ const UpdateProfile = ():JSX.Element => {
                 toggleModal={toggleUploadImageModal}
                 messageId={userObject?.id}
                 addAlert={addAlert}
-                // reload={fetchData}
+                reload={fetchData}
             />
         )}
         </>
