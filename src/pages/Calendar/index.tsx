@@ -1,12 +1,9 @@
 import PageTitle from 'components/PageTitle';
 import './calendar.scss';
-import React, {useReducer, useEffect, useState} from 'react';
+import React, {useReducer, useEffect} from 'react';
 import { Link } from 'react-router-dom';
 import AlertComponent from 'components/AlertComponent';
 import Pagination from 'utilComponents/TablePagination';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
-import { history } from 'helpers';
 import ActionButton from 'utilComponents/ActionButton';
 import CircularLoader from 'utilComponents/Loader';
 import CreateEvent from './CreateCalendarEvent';

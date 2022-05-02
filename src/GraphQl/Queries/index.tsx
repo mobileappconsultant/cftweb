@@ -127,6 +127,31 @@ export const GET_ALL_ADMINS = gql`
   }
 `;
 
+export const GET_SINGLE_ADMIN = gql`
+  query AdminDTO($id: String!){
+    getAdmin(id:$id){
+      id
+      email
+      phone
+      full_name
+      avatar
+      role{
+        id
+        name
+        permissions{
+          id
+          name
+          description
+          module
+        }
+      }
+      status
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 // Admins
 export const GET_ALL_INVITED_ADMINS = gql`
   query AdminDTO{

@@ -374,7 +374,7 @@ export const getMomentAgo = (data: Date) => {
 }
 
 export const capiitalizeFirstLetter = (string = '') => {
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 // export const extractFirstLetter = (string = '') => {

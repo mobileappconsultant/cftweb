@@ -1,7 +1,7 @@
 import React, {useReducer, useEffect } from 'react';
-import { GET_SINGLE_MEMBER } from 'GraphQl/Queries';
+import { GET_SINGLE_ADMIN  } from 'GraphQl/Queries';
 import { useMutation, useQuery } from '@apollo/client';
-import { ACTIVATE_USER, DEACTIVATE_USER } from 'GraphQl/Mutations';
+import { ACTIVATE_ADMIN, DEACTIVATE_ADMIN } from 'GraphQl/Mutations';
 import { extractErrorMessage, formatDate2, processAlertError, processAlertSuccess } from 'utils';
 import { ArrowNarrowLeft } from 'tabler-icons-react';
 import userIcon from 'assets/images/user.png';
@@ -12,14 +12,12 @@ const ViewSingleMember = (props : any) => {
     const {userId, close, listingReload} = props; 
     const initialState = {
         userObject: {
-            avartar: "",
-            branch: "",
-            church_group: [],
-            country: "",
+            avatar: "",
             createdAt: "",
             email: "",
             full_name: "",
             phone: "",
+            role: "",
             updatedAt: "",
             status:true,
         },
@@ -27,21 +25,21 @@ const ViewSingleMember = (props : any) => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const { isLoading, alertMessage, userObject} = state;
-    const { fetchMore }  = useQuery(GET_SINGLE_MEMBER,{variables:{userID: userId}});
+    const { fetchMore }  = useQuery(GET_SINGLE_ADMIN,{variables:{id: userId}});
 
-    const [activateMember] = useMutation(ACTIVATE_USER);
-    const [deactivateMember] = useMutation(DEACTIVATE_USER);
+    const [activateAdmin] = useMutation(ACTIVATE_ADMIN);
+    const [deactivateAdmin] = useMutation(DEACTIVATE_ADMIN);
 
     const fetchData = async() => {
         try {
              
             const apiData : any = await fetchMore({
-                variables: { userID: userId}
+                variables: { id: userId}
             });
             const {data, loading, error} = apiData;
             if(data){
                 setState({
-                    userObject: data?.getUser,
+                    userObject: data?.getAdmin,
                 });
             };
             if(!loading){
@@ -81,10 +79,10 @@ const ViewSingleMember = (props : any) => {
 
     const deactivateMemberAccount = async() => {
         // eslint-disable-next-line no-restricted-globals
-        if(confirm("This action will deactivate the selected user account, click ok to continue")){
-            await deactivateMember({variables:{userID: userId}});
+        if(confirm("This action will deactivate the selected admin account, click ok to continue")){
+            await deactivateAdmin({variables:{adminID: userId}});
             setState({
-                alertMessage : processAlertSuccess('User account deactivated'),
+                alertMessage : processAlertSuccess('Admin account deactivated'),
                 isLoading: false,
             });
             fetchData();
@@ -94,10 +92,10 @@ const ViewSingleMember = (props : any) => {
 
     const activateMemberAccount = async () => {
         // eslint-disable-next-line no-restricted-globals
-        if(confirm("This action will activate the selected user account, click ok to continue")){
-            await activateMember({variables:{userID: userId}});
+        if(confirm("This action will activate the selected admin account, click ok to continue")){
+            await activateAdmin({variables:{adminID: userId}});
             setState({
-                alertMessage : processAlertSuccess('User account activated'),
+                alertMessage : processAlertSuccess('Admin account activated'),
                 isLoading: false,
             });
             fetchData();
@@ -131,7 +129,7 @@ const ViewSingleMember = (props : any) => {
                     <div className='col-md-12'>
                         <div className='single-member-avatar'>
                             <div className='user-picture'>
-                            <img src={userObject?.avartar?userObject?.avartar : userIcon} className="user-profile-img" />
+                            <img src={userObject?.avatar?userObject?.avatar : userIcon} className="user-profile-img" />
                             </div>
                             <div className='user-info'>
                                 <div className='user-fullname'>
@@ -175,20 +173,21 @@ const ViewSingleMember = (props : any) => {
                 <div className='row mt-2'>
                     <div className='col-md-4'>
                         <div className='info-label'>
+                            Role
+                        </div>
+                        <div className='info-text'>
+                            {userObject?.role?.name}
+                        </div>
+                    </div>
+                    <div className='col-md-4'>
+                        <div className='info-label'>
                             Phone
                         </div>
                         <div className='info-text'>
                             {userObject?.phone}
                         </div>
                     </div>
-                    <div className='col-md-4'>
-                        <div className='info-label'>
-                            Branch
-                        </div>
-                        <div className='info-text'>
-                            {userObject?.branch}
-                        </div>
-                    </div>
+                    
                 </div>
                 <div className='row mt-3'>
                     <div className='col-md-4'>
@@ -199,22 +198,7 @@ const ViewSingleMember = (props : any) => {
                             {userObject?.email}
                         </div>
                     </div>
-                    <div className='col-md-4'>
-                        <div className='info-label'>
-                            Country
-                        </div>
-                        <div className='info-text'>
-                            {userObject?.country}
-                        </div>
-                    </div>
-                    <div className='col-md-12 mt-3'>
-                        <div className='info-label'>
-                            Church group(s)
-                        </div>
-                        <div className='info-text'>
-                            {userObject?.church_group?.join(', ')}
-                        </div>
-                    </div>
+                    
                 </div>
                 </>
             )}
