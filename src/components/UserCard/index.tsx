@@ -1,6 +1,7 @@
 import React, {useReducer} from 'react';
 import { Link } from 'react-router-dom';
 import Badges from 'utilComponents/Badges';
+import { capiitalizeFirstLetter } from 'utils';
 import './usercard.scss';
 interface propsObject {
     name : string;
@@ -51,7 +52,7 @@ const UserCard = (props: any):JSX.Element => {
                 </div>
                 <div className="user-details">
                     <div className="name mb-1">{name}</div>
-                    {userName && (<div className="user-name">username:&nbsp;{userName}</div>)}
+                    {userName && (<div className="user-name">Name:&nbsp;{capiitalizeFirstLetter(userName)}</div>)}
                     {role && (<div className="user-name">role:&nbsp;{role}</div>)}
                     <div className="small user-name text-muted mt-2">{time}</div>
                 </div>

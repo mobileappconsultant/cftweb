@@ -377,6 +377,10 @@ export const capiitalizeFirstLetter = (string = '') => {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+export const capiitalizeFirstLetter2 = (string = '') => {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
+
 // export const extractFirstLetter = (string = '') => {
 //     if(string){
 //          return string.charAt(0).toUpperCase();
@@ -467,7 +471,7 @@ export const splitBiblePassage = (biblePassageStr: String, version= 'niv') => {
             changeIndex = index;
         };
     };
-    getBook[changeIndex] = capiitalizeFirstLetter(getBook[changeIndex]);
+    getBook[changeIndex] = capiitalizeFirstLetter2(getBook[changeIndex]);
     let checkmultipleVerse = verse.split('');
         return {
             book: getBook.join(' ').trim(),
