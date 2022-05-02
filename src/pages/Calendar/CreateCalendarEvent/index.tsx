@@ -15,8 +15,16 @@ import { DateRange, DayPicker } from 'react-day-picker';
 import { MuiPickersUtilsProvider, TimePicker } from "@material-ui/pickers";
 import DateFnsUtils from '@date-io/date-fns';
 import moment from 'moment';
+import FormGroupSelect from 'utilComponents/FormGroupSelect';
 
 const pastMonth = new Date();
+
+const repeatData = [
+    // {label: '--Select--', value: ''},
+    {label: 'Daily', value: 'daily'},
+    {label: 'Weekly', value: 'weekly'},
+    {label: 'Monthly', value: 'monthly'},
+];
 
 const CreateEvent = (props: any):JSX.Element => {
 
@@ -28,6 +36,7 @@ const CreateEvent = (props: any):JSX.Element => {
         formData: {
             eventName: '',
             time: moment(new Date()).format("HH:mm:ss"),
+            repeat: '',
         },
         errors:{},
         isLoading: false,
@@ -60,8 +69,23 @@ const CreateEvent = (props: any):JSX.Element => {
         });
     };
 
+    const handleSelectChange = (e:{label?: string, value?: string|null|number}, name = '') :void  => {
+        if (e) {
+            setState({
+                formData: {
+                    ...state.formData,
+                    [name]: e.value,
+                },
+                errors: {
+                    ...state.errors,
+                    [name]: '',
+                },
+            });
+        }
+
+    };
+
     const handleTimeChange = (e:Date) => {
-        console.log(e);
         setState({
             formData: {
                 ...formData,
@@ -118,14 +142,16 @@ const CreateEvent = (props: any):JSX.Element => {
             if(validate){
                 const payload = {
                     eventName : formData?.eventName,
-                    startDate: range?.from,
-                    endDate: range?.to,
-                    time:  moment(formData?.time).format("HH:mm:ss"),
+                    start: range?.from,
+                    end: range?.to,
+                    eventTime:  moment(formData?.time).format("HH:mm:ss"),
+                    repeat: formData?.repeat
                 };
                
                 const newGroup = await createNewEvent({variables:{input:payload}});
                 refreshForm();
                 props.addAlert(processAlertSuccess('Event added successfully'));
+                props.refreshListing(true);
                 handleModalToggle();
             };
             setState({
@@ -218,7 +244,7 @@ const CreateEvent = (props: any):JSX.Element => {
                                 
                             </div>
 
-                            <div className="col-md-12 mb-3 mt-2 d-flex selected-date-container align-items-center">
+                            <div className="col-md-6 mb-3 mt-2 d-flex selected-date-container align-items-center">
                                 <div className="w-100 mb-2">
                                     <label className='calendar-input-label mb-2'>Choose time</label>
                                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -237,6 +263,21 @@ const CreateEvent = (props: any):JSX.Element => {
                                 </div>
                                 
                             </div>
+                            <div className="col-md-6 mb-3 mt-2 d-flex selected-date-container align-items-center">
+                                <div className="w-100 mb-2">
+                                    <label className='calendar-input-label mb-1'>Select repeat frequency</label>
+                                    <FormGroupSelect
+                                        placeholder="Select repeat frequency"
+                                        onChange={(e: object)=>handleSelectChange(e, 'repeat')}
+                                        name="repeat"
+                                        showError={errors.repeat}
+                                        errorMessage={errors.repeat} 
+                                        selectOptions={repeatData}
+                                        // defaultValue={formData?.mini? {label: formData?.minister, value:formData?.minister}: ''}
+                                    />
+                                </div>
+                            </div>
+                            
                             
                             
                             <div className="col-md-12 mt-3 mb-3 d-flex justify-content-end">

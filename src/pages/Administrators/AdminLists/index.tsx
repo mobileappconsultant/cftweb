@@ -13,6 +13,7 @@ import Filter from 'components/Filter';
 import CircularLoader from 'utilComponents/Loader';
 import { ACTIVATE_ADMIN, DEACTIVATE_ADMIN } from 'GraphQl/Mutations';
 import ViewSingleMember from './ViewSingleAdmin';
+import userIcon from 'assets/images/user.png';
 
 const AdministratorsList = ():JSX.Element => {
     const initialState = {
@@ -183,7 +184,7 @@ const AdministratorsList = ():JSX.Element => {
                                                         name={datum?.full_name ?? null}
                                                         role={datum?.role[0] ? datum?.role[0]?.name : ''}
                                                         time={'22/03/2022'}
-                                                        avatar="https://mdbootstrap.com/img/Photos/Avatars/img%20(30).jpg"
+                                                        avatar={datum?.avatar?datum?.avatar : userIcon}
                                                         active={datum?.status}
                                                         id={datum.id}
                                                         disableAccount={deactivateAdministrator}

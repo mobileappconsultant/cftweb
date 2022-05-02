@@ -18,7 +18,7 @@ import ViewSingleMember from './ViewSingleMember';
 const Members = ():JSX.Element => {
     const initialState = {
         listView: true,
-        rowsPerPage:10,
+        rowsPerPage:20,
         page:0,
         alertMessage:{},
         dataArr:[],
@@ -29,7 +29,13 @@ const Members = ():JSX.Element => {
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr, viewSingle, userId} = state;
-    const { fetchMore }  = useQuery(GET_ALL_MEMBERS);
+    const { fetchMore }  = useQuery(GET_ALL_MEMBERS, {
+        variables: {
+          page: 0,
+          limit: 20,
+        //   flag:status,
+        }
+    });
 
     const [activateMember] = useMutation(ACTIVATE_USER);
     const [deactivateMember] = useMutation(DEACTIVATE_USER);
@@ -40,42 +46,40 @@ const Members = ():JSX.Element => {
         });
     };
 
-    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-        setState({
-            page: newPage,
-        });
-    };
-  
-    const handleChangeRowsPerPage = (event: any): void => {
-
-        const splicedIndex = page * rowsPerPage;
-        let spilceStop = rowsPerPage+ splicedIndex;
-        
-        if(spilceStop >= dataArr.length){
-            return;
-        }
-        setState({
-            rowsPerPage: event?.target?.value,
-        });
-      
-    };
-
     const handleAlertClose = () => {
         setState({
             alertMessage:{},
         });
     };
 
-    const addAlert = (alertObj:{text: string, type: string}) => {
+    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
+        
         setState({
-            alertMessage: alertObj,
+            page: newPage,
         });
+        fetchData();
+        
+    };
+  
+    const handleChangeRowsPerPage = (event: any): void => {
+        
+        setState({
+            rowsPerPage: event?.target?.value,
+        });
+        fetchData();
     };
 
     const fetchData = async() => {
         try {
              
-            const apiData : any = await fetchMore({variables:{}});
+            const apiData : any =  await fetchMore({
+                variables:{
+                    page: page? page: 0,
+                    limit: rowsPerPage? rowsPerPage : 20,
+                    // flag: flag,
+                }
+            });
+            // console.log(apiData);
             const {data, loading, error} = apiData;
             if(data){
                 setState({
@@ -108,7 +112,7 @@ const Members = ():JSX.Element => {
                 ...initialState,
             });
         };
-    }, []);
+    }, [page, rowsPerPage]);
 
     const deactivateMemberAccount = async(id:number) => {
         // eslint-disable-next-line no-restricted-globals
@@ -134,20 +138,12 @@ const Members = ():JSX.Element => {
         }
     };
 
-    const paginatedData = (dataArr:any) => {
-        const splicedIndex = page * rowsPerPage;
-        let spilceStop = rowsPerPage+ splicedIndex;
-        const newArr = dataArr.slice(splicedIndex, spilceStop);
-        return newArr;
-    };
     const viewUserProfile = (id:any) => {
             setState({
                 viewSingle: !viewSingle,
                 userId: id,
             });
     };
-
-    const paginateData = paginatedData(dataArr);
 
     return(
         <>

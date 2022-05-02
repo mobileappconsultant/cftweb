@@ -42,3 +42,12 @@
 .ml-0{
   margin-left: 0px !important;
 }
+/* width */
+::-webkit-scrollbar {
+  width:8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C4C4C4;
+  border-radius: 10px;
+}

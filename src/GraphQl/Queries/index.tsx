@@ -35,9 +35,15 @@ export const DASHBOARD_USER_COUNT = gql`
     }
   }
 `;
-
+// query DashboardGraphDTO ($startDate: String! $endDate: String!) {
+//   dashBoardGraph(startDate:$startDate endDate:$endDate) {
+//     totalDonations
+//     totalOfferings
+//     totalWelfare
+//   }
+// }
 export const DASHBOARD_GET_REVENUE = gql`
-  query DashboardGraphDTO($startDate: String! $endDate: String!) {
+  query DashboardGraphDTO ($startDate: String! $endDate: String!) {
     dashBoardGraph(startDate:$startDate endDate:$endDate) {
       totalDonations
       totalOfferings
@@ -103,6 +109,7 @@ export const GET_ALL_ADMINS = gql`
       email
       phone
       full_name
+      avatar
       role{
         id
         name
@@ -183,8 +190,8 @@ export const GET_ALL_PERMISSIONS = gql`
 
 // Members
 export const GET_ALL_MEMBERS = gql`
-  query UserDTO{
-    getAllUser{
+  query UserDTO($page: Float! $limit: Float!){
+    getAllUser(page:$page limit:$limit ){
       _id
       email
       phone
@@ -549,9 +556,12 @@ export const GET_ALL_EVENTS = gql`
       eventName
       startDate
       endDate
-      eventTime
+      time
+      repeat
+      repeatId
       createdAt
       updatedAt
+      
     }
   }
 `;
@@ -563,7 +573,18 @@ export const GET_SINGLE_EVENT = gql`
       eventName
       startDate
       endDate
-      eventTime
+      time
+      repeat
+      repeatId
+      childEvents{
+        _id
+        eventTheme
+        day
+        time
+        eventId
+        createdAt
+        updatedAt
+        }
       createdAt
       updatedAt
     }

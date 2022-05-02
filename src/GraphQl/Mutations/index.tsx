@@ -680,10 +680,36 @@ mutation createEvent($input: EventInput!) {
     eventName
     startDate
     endDate
-    eventTime
+    time
+    repeat
+    repeatId
     createdAt
     updatedAt
   }
 }
+`;
+
+export const UPDATE_EVENT = gql`
+mutation updateEvent($input: EventInput! $eventId: String!) {
+  updateEvent(input: $input eventId: $eventId) {
+    _id
+    eventName
+    startDate
+    endDate
+    time
+    repeat
+    repeatId
+    createdAt
+    updatedAt
+  }
+}
+`;
+
+export const DELETE_EVENT =gql`
+  mutation deleteEvent($eventId: String!) {
+    deleteEvent(eventId: $eventId) {
+      msg
+    }
+  }
 `;
 

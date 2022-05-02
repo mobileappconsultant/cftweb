@@ -9,7 +9,12 @@ import { ArrowBigDown } from 'tabler-icons-react';
 import { useQuery } from '@apollo/client';
 import { extractErrorMessage, processAlertError } from 'utils';
 import moment from 'moment';
+import DateFnsUtils from '@date-io/date-fns';
+import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 
+import { Filter } from 'tabler-icons-react';
+const startDate = moment(new Date()).format("YYYY-MM-DDTHH:mm:ss.SSS");
+const endDate = moment(new Date()).format("YYYY-MM-DDTHH:mm:ss.SSS");
 const Home = ():JSX.Element => {
     const initialState = {
         formData: {
@@ -17,17 +22,25 @@ const Home = ():JSX.Element => {
             totalNumberOfActiveUsers: 0,
             totalNumberOfSuspendedUsers: 0,
         },
+        searchData:{
+            endDate: null,
+            startDate: null,
+        },
         isLoading: false,
         alertMessage:{},
+        chartLoading: false,
 
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {fetchMore} = useQuery(DASHBOARD_USER_COUNT);
-    const getDashboardRevenue = useQuery(DASHBOARD_GET_REVENUE, {variables:{
-        startDate: moment(new Date()).format("YYYY-MM-DDTHH:mm:ss.SSS"), 
-        endDate: moment(new Date()).format("YYYY-MM-DDTHH:mm:ss.SSS")
-    }});
-    const {formData} = state;
+    const getDashboardRevenue = useQuery(DASHBOARD_GET_REVENUE, {
+        variables:{
+            startDate: startDate, 
+            endDate: endDate
+        }
+    });
+
+    const {formData, chartLoading, searchData} = state;
 
     const fetchData = async() => {
         try {
@@ -62,17 +75,26 @@ const Home = ():JSX.Element => {
         }
     };
 
+    const handleDateChange = (e:Date, name: string) => {
+        setState({
+              searchData: {
+                  ...searchData,
+                  [name]: e
+              },
+          });
+      };
+
     const fetchRevenue = async (searchData: any) => {
 
         try {
             
-            const response = await getDashboardRevenue.fetchMore({
+            const res = await getDashboardRevenue.fetchMore({
                 variables:{
                     startDate: moment(searchData?.startDate).format("YYYY-MM-DDTHH:mm:ss.SSS"), 
                     endDate: moment(searchData?.endDate).format("YYYY-MM-DDTHH:mm:ss.SSS")
                 }
             });
-            const {data, error} = response;
+            const {data, error} = res;
             if(data){
                 const response = data?.dashBoardGraph;
                 console.log(response);
@@ -107,7 +129,7 @@ const Home = ():JSX.Element => {
         
         // Cleanup method
         fetchData();
-    
+        fetchRevenue(searchData);
         return () => {
             setState({
                 ...initialState,
@@ -158,6 +180,59 @@ const Home = ():JSX.Element => {
 
             <div className="col-md-12 mt-5">
                 <div className="card p-3">
+                <div className='row'>
+                  <div className='col-md-2'>
+                      <div className='label-container my-2'>
+                          <label>Start Date </label>
+                      </div>
+                      <div className=''>
+                          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                          <DatePicker
+                              variant="inline"
+                              inputVariant="outlined"
+                              value={searchData?.startDate}
+                              // @ts-ignore
+                              onChange={(e)=>handleDateChange(e, 'startDate')}
+                              size='small'
+                              format="MM/dd/yyyy"
+                              autoOk
+                          />
+                          </MuiPickersUtilsProvider>
+                      </div>
+                  </div>
+                  <div className='col-md-2'>
+                      <div className='label-container my-2'>
+                          <label>End Date </label>
+                      </div>
+                      <div className=''>
+                          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                          <DatePicker
+                              variant="inline"
+                              inputVariant="outlined"
+                              value={searchData?.endDate}
+                              // @ts-ignore
+                              onChange={(e)=>handleDateChange(e, 'endDate')}
+                              size='small'
+                              format="MM/dd/yyyy"
+                              autoOk
+                          />
+                          </MuiPickersUtilsProvider>
+                      </div>
+                  </div>
+                  <div className='col-md-2'>
+                      <br />
+                      <button className='mt-3 p-2 px-3 filter-btn' onClick={()=>fetchRevenue(searchData)}>
+                          {!chartLoading? (
+                              <>
+                                  <Filter size={15} strokeWidth={2} color={'white'} />  Filter
+                              </>
+                          ):(
+                              <>...Loading</>
+                          )}
+                          
+                      </button>
+                  </div>
+                </div>
                     {/* @ts-ignore */}
                     <TotalRevenue getPaymentMethodStat={fetchRevenue} />
                 </div>

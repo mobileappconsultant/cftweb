@@ -18,6 +18,8 @@ import { useQuery } from '@apollo/client';
 import { extractErrorMessage, processAlertError } from 'utils';
 import moment from 'moment';
 import EditEvent from './EditCalendarEvent';
+import DeleteModal from 'utilComponents/DeleteModal';
+import { DELETE_EVENT } from 'GraphQl/Mutations';
 
 const pastMonth = new Date();
 
@@ -43,12 +45,13 @@ const Calendar = ():JSX.Element => {
         showEditModal: false,
         activeId: null,
         range: defaultSelected,
+        showDeleteModal: false,
         
     };
    
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView,isLoading, page, rowsPerPage, showEditModal, alertMessage, data, range, activeId } = state;
+    const {listView,isLoading, page, rowsPerPage, showEditModal, alertMessage, data, range, activeId, showDeleteModal } = state;
     const { fetchMore } = useQuery(GET_ALL_EVENTS, {
         variables: {},
     });
@@ -123,7 +126,19 @@ const Calendar = ():JSX.Element => {
             showEditModal: !showEditModal,
             activeId: activeId,
         })
-    }
+    };
+    const refreshData = (refresh= null) => {
+        if(refresh){
+            fetchData();
+        }
+
+    };
+
+    const toggleDeleteModal = () => {
+        setState({
+            showDeleteModal: !showDeleteModal,
+        });
+    };
 
     return(
         <>
@@ -161,10 +176,10 @@ const Calendar = ():JSX.Element => {
                                                     <div>
                                                         <h6 className="event-name">{item?.eventName}</h6>
                                                         <div className="date">
-                                                            { moment(item?.startDate).format("MMM Do YYYY") } - {moment(item?.sendDate).format("MMM Do YYYY") }
+                                                            { moment(item?.startDate).format("MMM Do YYYY") } - {moment(item?.endDate).format("MMM Do YYYY") }
                                                         </div>
                                                         <div className="time m-0">
-                                                            {item?.time}
+                                                            { moment(item?.time).format('hh:mm A')}
                                                         </div>
                                                     </div>
                                                     
@@ -187,7 +202,12 @@ const Calendar = ():JSX.Element => {
                                                             }
                                                             className="delete-action"
                                             
-                                                            actionEvent={()=> history.push('/announcements/create')}
+                                                            actionEvent={()=> {
+                                                                setState({
+                                                                    showDeleteModal:true,
+                                                                    activeId:item?._id,
+                                                                });
+                                                            }}
                                                         />
                                                     </div>
                                                 </div>
@@ -228,6 +248,7 @@ const Calendar = ():JSX.Element => {
         <div className='calendar-create-module'>
             <CreateEvent
                 addAlert={addAlert}
+                refreshListing={refreshData}
             />
             {showEditModal && (
                 <>
@@ -236,6 +257,7 @@ const Calendar = ():JSX.Element => {
                         activeId={activeId}
                         handleClose={toogleEditModal}
                         showModal={showEditModal}
+                        refreshListing={refreshData}
                     />
                 </>
             )}
@@ -243,6 +265,18 @@ const Calendar = ():JSX.Element => {
 
            
         </div>
+
+        {showDeleteModal && (
+                <DeleteModal
+                    refresh={fetchData}
+                    mutation={DELETE_EVENT}
+                    handleModalToggle={toggleDeleteModal}
+                    showModal={showDeleteModal}
+                    parameterKey="eventId"
+                    recordId={activeId}
+                    addAlert={addAlert}
+                />
+            )}
        
         </>
     )
