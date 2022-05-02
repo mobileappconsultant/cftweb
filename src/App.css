@@ -43,9 +43,9 @@
   margin-left: 0px !important;
 }
 /* width */
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   width:8px;
-}
+} */
 
 ::-webkit-scrollbar-thumb {
   background: #C4C4C4;

@@ -8,7 +8,7 @@ interface LoggedInUserObject {
     status?: boolean
     updatedAt?: boolean
     __v?: number
-    _id?: string,
+    id?: string,
     avatar?: string
   }
   

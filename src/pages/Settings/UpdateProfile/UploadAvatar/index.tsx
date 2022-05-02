@@ -4,8 +4,11 @@ import { extractErrorMessage, processAlertError, processAlertSuccess, validateIm
 import AlertComponent from 'components/AlertComponent';
 import CreateButton from 'utilComponents/CreateButton';
 import { UPLOAD_AVATAR } from 'GraphQl/Mutations';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import DropZone from 'utilComponents/DropZone';
+import { useSelector } from 'react-redux';
+import { GET_SINGLE_ADMIN } from 'GraphQl/Queries';
+import { addUser } from 'store/actionCreators';
 
 
 const UploadAvatar = (props: any):JSX.Element => {
@@ -23,8 +26,9 @@ const UploadAvatar = (props: any):JSX.Element => {
     const {showModal, toggleModal} = props;
 
     const [uploadImage, { loading, error }] = useMutation(UPLOAD_AVATAR);
-   
-
+    const reduxState = useSelector( (state:any) => state);
+    const{userObject} = reduxState?.reducer;
+    const { fetchMore }  = useQuery(GET_SINGLE_ADMIN,{variables:{id: userObject?.id}});
 
    const updateFile = (file = null) => {
         setState({
@@ -57,6 +61,7 @@ const UploadAvatar = (props: any):JSX.Element => {
             if(validate){
                 await uploadImage({variables: { file: file[0]}});
                 props.addAlert(processAlertSuccess('Image added successfully'));
+                fetchData();
                 toggleModal();
                 // props.reload();
                 
@@ -78,6 +83,41 @@ const UploadAvatar = (props: any):JSX.Element => {
         setState({
             alertMessage:{},
         });
+    };
+
+    const fetchData = async() => {
+        try {
+             
+            const apiData : any = await fetchMore({
+                variables: { id: userObject?.id}
+            });
+            const {data, loading, error} = apiData;
+            if(data){
+                
+                const payload = {
+                    ...userObject,
+                    avatar: data?.getAdmin?.avatar,
+                };
+                console.log(payload);
+                dispatch(addUser(payload));
+            
+            };
+            if(!loading){
+                setState({
+                    isLoading: false,
+                });
+            };
+            if(error){
+                setState({
+                    alertMessage :processAlertError(extractErrorMessage(error)),
+                });
+            };
+        } catch (error) {
+            setState({
+                alertMessage :processAlertError(extractErrorMessage(error)),
+                isLoading: false,
+            });
+        }
     };
   
     return(
@@ -128,3 +168,7 @@ const UploadAvatar = (props: any):JSX.Element => {
 
 };
 export default UploadAvatar;
+
+function dispatch(arg0: any) {
+    throw new Error('Function not implemented.');
+}

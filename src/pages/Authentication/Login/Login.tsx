@@ -1,7 +1,6 @@
 import React, {useReducer} from 'react';
 import WelcomeHeader from 'components/Auth/WelcomeHeader/index';
 import AuthButton from 'components/Auth/AuthButton';
-import OrComponent from 'components/Auth/OrComponent';
 import AuthFormInput from 'components/Auth/AuthFormInputs';
 import mailIcon from 'assets/images/mail.svg';
 import { Link } from 'react-router-dom';

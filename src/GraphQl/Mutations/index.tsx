@@ -26,6 +26,7 @@ export const LOGIN = gql`
     login(creds: $creds ) {
       token
       admin{
+        id
         email
         phone
         full_name
