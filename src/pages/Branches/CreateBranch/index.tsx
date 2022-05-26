@@ -80,7 +80,11 @@ const CreateBranch = (props: any):JSX.Element => {
             'name.required': 'Branch name is required',
             'branch_president.required': 'Branch president is required',
         };
-        const validate = await validateData(formData, rules, messages);
+        const data = {
+            ...formData,
+            address: geoPoints?.address
+        }
+        const validate = await validateData(data, rules, messages);
         if (isObjectEmpty(validate)) {
             return true;
         } else {

@@ -80,6 +80,13 @@
       }
     }
   }
+  .rdp{
+      margin: 0px;
+  }
+  .rdp-table, .rdp-month{
+      width: 100%;
+      min-width: 100% !important;
+  }
   // Daliy prayer box
 .view-event-box-container{
     display: flex;

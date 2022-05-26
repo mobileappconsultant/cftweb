@@ -4,11 +4,12 @@ import { Search } from 'tabler-icons-react';
 
 
 const SearchInput = (props: any): JSX.Element => {
+    const { fetchData, handleSearchData, value } = props;
     const initialState = {
-        search: '',
+        search: value || '',
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const { fetchData, handleSearchData } = props;
+
     const handleSubmit = (e : any) => {
         e.preventDefault();
         fetchData();

@@ -19,6 +19,7 @@ import DeleteModal from 'utilComponents/DeleteModal';
 import { DELETE_EVENT } from 'GraphQl/Mutations';
 import ViewCalenderEvent from './ViewCalenderEvent';
 import { history } from 'helpers';
+import SearchInput from 'utilComponents/SearchInput';
 
 const pastMonth = new Date();
 
@@ -46,14 +47,24 @@ const Calendar = ():JSX.Element => {
         range: defaultSelected,
         showDeleteModal: false,
         viewSingleEvent: false,
-        
+        search: '',
+        pagination:{
+            rowsPerPage: 10,
+            page:0,
+            totalRecords: 10,
+        }
     };
    
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView,isLoading, pagination, viewSingleEvent, showEditModal, alertMessage, data, range, activeId, showDeleteModal } = state;
+    const {listView,isLoading, pagination, search, viewSingleEvent, showEditModal, alertMessage, data, range, activeId, showDeleteModal } = state;
     const { fetchMore } = useQuery(GET_ALL_EVENTS, {
-        variables: {},
+        variables: {
+            query: search,
+            page: 0,
+            limit: 10,
+            date: ''
+        },
     });
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
@@ -75,12 +86,18 @@ const Calendar = ():JSX.Element => {
         });
     };
 
-    const fetchData =  async () => {
+    const fetchData =  async (paginationArgs = pagination) => {
         setState({
             isLoading:true,
         });
+        const searchItem = search?? ' ';
         const apiData : any = 
-        await fetchMore({variables:{}});
+        await fetchMore({variables:{
+            query: searchItem,
+            page: paginationArgs?.page + 1,
+            limit: paginationArgs?.rowsPerPage,
+            date: ''
+        }});
          if(apiData.data){
             setState({
                 data: apiData?.data?.getEvents,
@@ -146,6 +163,12 @@ const Calendar = ():JSX.Element => {
         });
     };
 
+    const handleSearchData = (searchVal= '') => {
+        setState({
+            ...state,
+            search: searchVal,
+        });
+    };
 
     return(
         <>
@@ -179,9 +202,13 @@ const Calendar = ():JSX.Element => {
                         <div className="calendar-module">
                             <div className="row justify-content-between py-3 px-2">
                                 <div className="col-md-8 bg-white py-3" >
+                                    
                                     <OneweekCalendar
                                         showDetailsHandle={true}
                                     />
+                                    <div className='w-100 mb-4 mt-3'>
+                                        <SearchInput  handleSearchData={handleSearchData} fetchData={fetchData} value={search}/>
+                                    </div>
                                     {data?.map((item: any, index: number) => {
                                         return(
 
@@ -238,6 +265,13 @@ const Calendar = ():JSX.Element => {
                                     
                                         )
                                     })}
+                                    <Pagination
+                                        count={data.length?? 0}
+                                        page={0}
+                                        rowsPerPage={10}
+                                        onPageChange={handleChangePage}
+                                        handleChangeRowsPerPage={handleChangeRowsPerPage}
+                                    />
                                 </div>
                                 <div className="col-md-4">
                                     <h6>Filter by start and end date range </h6>
@@ -254,13 +288,6 @@ const Calendar = ():JSX.Element => {
                                 </div>
                             </div>
                         </div>
-                        <Pagination
-                            count={data.length?? 0}
-                            page={0}
-                            rowsPerPage={10}
-                            onPageChange={handleChangePage}
-                            handleChangeRowsPerPage={handleChangeRowsPerPage}
-                        />
                     </>
                 )}
             </>

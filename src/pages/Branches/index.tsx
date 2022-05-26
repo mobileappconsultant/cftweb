@@ -11,7 +11,7 @@ import InfoDivHeader from 'utilComponents/InfoDivHeader';
 import CreateBranch from './CreateBranch';
 import EditBranch from './EditBranch';
 import MakeSelection from 'utilComponents/MakeSelectionIcon';
-import ViewBranch from './ViewBranch';
+import SearchInput from 'utilComponents/SearchInput';
 import { extractErrorMessage, formatDate2, formatInitialDateValue, processAlertError } from 'utils';
 import CircularLoader from 'utilComponents/Loader';
 import Badges from 'utilComponents/Badges';
@@ -29,11 +29,33 @@ const Branches = ():JSX.Element => {
         activeDataObj:{},
         showEditModal: false,
         isLoading: true,
+        pagination:{
+            rowsPerPage: 10,
+            page:0,
+            totalRecords: 10,
+        },
     };
    
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, isLoading, activeDataObj, alertMessage,  showEditModal, dataArr} = state;
-    const { data, loading, error } = useQuery(GET_ALL_BRANCHES);
+    const {
+        listView, 
+        page, 
+        isLoading, 
+        activeDataObj, 
+        alertMessage,  
+        showEditModal, 
+        dataArr,
+        pagination,
+        search
+    } = state;
+
+    const { fetchMore } = useQuery(GET_ALL_BRANCHES, {
+        variables: {
+          query: search,
+          page: 1,
+          limit: 10,
+        },
+    });
     
     const changeListView = () => {
         setState({
@@ -42,10 +64,27 @@ const Branches = ():JSX.Element => {
     };
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-      
-      };
-    
-    const handleChangeRowsPerPage = (event: React.SyntheticEvent): void => {
+        const newPagination = {
+            ...pagination,
+            page: newPage,
+        };
+        setState({
+            page: newPage,
+        });
+        fetchData(newPagination);
+        
+    };
+  
+    const handleChangeRowsPerPage = (event: any): void => {
+        const newPagination = {
+            ...pagination,
+            rowsPerPage: event?.target?.value,
+        };
+        
+        setState({
+            rowsPerPage: event?.target?.value,
+        });
+        fetchData(newPagination);
         
     };
     const handleAlertClose = () => {
@@ -60,42 +99,67 @@ const Branches = ():JSX.Element => {
         });
     };
 
-    const fetchData = async () => {};
-
-    useEffect(() => {
-        if(data){
+    const fetchData = async (paginationArgs = pagination) => {
+        setState({
+            isLoading:true,
+        });
+        const searchItem = search?? ' ';
+        const apiData : any = 
+        await fetchMore({
+                    variables:{
+                        query: searchItem,
+                        page: paginationArgs?.page + 1,
+                        limit: paginationArgs?.rowsPerPage,
+                        
+                    }
+                });
+         if(apiData.data){
             setState({
-                dataArr: data?.getAllBranch,
-                activeDataObj: data?.getAllBranch? data?.getAllBranch[0] : {},
-            });
-           
+                dataArr: apiData?.data?.getAllBranch?.docs,
+                activeDataObj: apiData?.data?.getAllBranch?.docs? apiData?.data?.getAllBranch?.docs[0] : {},
+                pagination:{
+                    rowsPerPage: apiData?.data?.getAllBranch?.limit,
+                    page: apiData?.data?.getAllBranch?.page - 1,
+                    totalRecords: apiData?.data?.getAllBranch?.totalDocs,
+                },
+            }); 
         };
 
-        if(!loading){
+        if(!apiData.loading){
             setState({
                 isLoading: false,
             });
         };
 
-        if(error){
-            
+        if(apiData.error){
             setState({
-                alertMessage :processAlertError(extractErrorMessage(error)),
-            })
+                alertMessage :processAlertError(extractErrorMessage(apiData?.error)),
+                isLoading: false,
+            });
         }
-        
+    };
+
+    useEffect(() => {
+        fetchData();
         // Cleanup method
         return () => {
             setState({
                 ...initialState,
             });
         };
-    }, [data]);
+    }, []);
 
 
     const toggleEditModal = () => {
         setState({
             showEditModal: !showEditModal,
+        });
+    };
+
+    const handleSearchData = (searchVal= '') => {
+        setState({
+            ...state,
+            search: searchVal,
         });
     };
 
@@ -132,9 +196,9 @@ const Branches = ():JSX.Element => {
         <div className="row ">
             <div className="col-md-4 list-column border-right pr-0">
                 <div className="p-3">
-                    <Filter
-                        text="Show"
-                    />
+                <div className=' mb-4 mt-3'>
+                    <SearchInput  handleSearchData={handleSearchData} fetchData={fetchData} value ={search} />
+                </div>
                     
                 </div>
                 {dataArr?.map((datum:any,_i:number) =>{
@@ -174,9 +238,9 @@ const Branches = ():JSX.Element => {
                 
                 <div>
                 <Pagination
-                    count={dataArr?.length?? 0}
-                    page={0}
-                    rowsPerPage={10}
+                    count={pagination?.totalRecords}
+                    page={pagination?.page}
+                    rowsPerPage={pagination?.rowsPerPage}
                     onPageChange={handleChangePage}
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                 />
@@ -217,7 +281,7 @@ const Branches = ():JSX.Element => {
                                 </div>
                                 <div className="user-name px-2">
                                     <h6 className="m-0 name">{activeDataObj?.branch_president}</h6>
-                                    <span className="small email">Senior pastor</span>
+                                    <span className="small email">Branch president</span>
                                 </div>
                             </div>
                             <div className="">

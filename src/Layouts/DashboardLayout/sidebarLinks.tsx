@@ -29,12 +29,12 @@ export const sideBarRoutes = [
                 path:'/members',
                 match:/^\/members/,
             },
-            {
-                text: 'Requests',
-                icon: <BellPlus />,
-                path:'/requests',
-                match:/^\/requests/,
-            },
+            // {
+            //     text: 'Requests',
+            //     icon: <BellPlus />,
+            //     path:'/requests',
+            //     match:/^\/requests/,
+            // },
             {
                 text: 'Transactions',
                 icon: <CurrencyDollar />,

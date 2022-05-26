@@ -9,19 +9,32 @@ export const GET_ALL_BIBLE_VERSIONS = gql`
   }
 `;
 export const GET_ALL_BRANCHES = gql`
-  query BranchDTO {
-    getAllBranch {
-      _id
-      name
-      branch_president
-      geo_point{
-        lat
-        long
+  query PaginatedBranchDTO ($query: String! $page: Float! $limit: Float!){
+    getAllBranch (query:$query page:$page limit:$limit ){
+
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs{
+        _id
+        name
+        branch_president
+        geo_point{
+          lat
+          long
+        }
+        branch_address
+        status
+        createdAt
+        updatedAt
       }
-      branch_address
-      status
-      createdAt
-      updatedAt
+      
     }
   }
 `;
@@ -535,7 +548,7 @@ query PaginatedPastorForumDTO($query: String! $flag: String! $page: Float! $limi
       createdAt
       updatedAt
     }
-    
+
   }
 }
 `;
@@ -594,8 +607,8 @@ query DailyBibleReadingDTO($biibleReadingContentId: String!){
 `;
 // Calendar/events
 export const GET_ALL_EVENTS = gql`
-  query EventDTO{
-    getEvents{
+  query EventDTO($query: String! $date: String! $page: Float! $limit: Float!){
+    getEvents(query:$query date:$date page:$page limit:$limit ){
       _id
       eventName
       startDate
