@@ -16,6 +16,7 @@ import CreateButton from 'utilComponents/CreateButton';
 import { publishOptions } from 'constants/index';
 import AlertComponent from 'components/AlertComponent';
 import DeleteModal from 'utilComponents/DeleteModal';
+import SearchInput from 'utilComponents/SearchInput';
 
 const PastorsForum =() => {
     const initialState = {
@@ -32,6 +33,7 @@ const PastorsForum =() => {
         showViewSingleMessage: false,
         status: 'null',
         showDeleteModal:false,
+        search: ''
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
 
@@ -41,7 +43,6 @@ const PastorsForum =() => {
         isLoading, 
         rowsPerPage, 
         alertMessage,  
-        showEditModal, 
         dataArr,
         activeId,
         showAllSermons,
@@ -50,9 +51,11 @@ const PastorsForum =() => {
         showViewSingleMessage,
         status,
         showDeleteModal, 
+        search
     } = state;
     const { fetchMore } = useQuery(GET_ALL_PASTORS_FORUM_MESSAGES, {
         variables: {
+            query: search,
             page: 0,
             limit: 10,
             flag:status,
@@ -104,9 +107,11 @@ const PastorsForum =() => {
         setState({
             isLoading:true,
         });
+        const searchItem = search?? ' ';
         const apiData : any = 
         await fetchMore({
                     variables:{
+                        query: searchItem,
                         page: page? page: 0,
                         limit: rowsPerPage? rowsPerPage : 10,
                         flag: flag,
@@ -114,7 +119,12 @@ const PastorsForum =() => {
                 });
          if(apiData.data){
             setState({
-                dataArr: apiData?.data?.getAllMessagesFromPastorForum,
+                dataArr: apiData?.data?.getAllMessagesFromPastorForum?.docs,
+                pagination:{
+                    rowsPerPage: apiData?.data?.getAllMessagesFromPastorForum?.limit,
+                    page: apiData?.data?.getAllMessagesFromPastorForum?.page - 1,
+                    totalRecords: apiData?.data?.getAllMessagesFromPastorForum?.totalDocs,
+                },
             }); 
         };
 
@@ -184,13 +194,22 @@ const PastorsForum =() => {
             showDeleteModal: !showDeleteModal,
         });
     };
+    const handleSearchData = (searchVal= '') => {
+        setState({
+            ...state,
+            search: searchVal,
+        });
+    };
     return (
 
         <>
             {showAllSermons &&( 
                 <>
-                    <div className='row p-4'>
-                        <div className='col-md-12 d-flex justify-content-end'>
+                    <div className="row  py-3 px-4 justify-content-between"> 
+                        <div className='col-md-4 mb-4 mt-3'>
+                            <SearchInput  handleSearchData={handleSearchData} fetchData={fetchData} />
+                        </div>
+                        <div className='col-md-6 d-flex justify-content-end mt-3 mb-4'>
                             <Filter
                                 text="Show"
                                 selectOptions={publishOptions}

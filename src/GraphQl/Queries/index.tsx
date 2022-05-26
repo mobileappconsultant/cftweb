@@ -507,22 +507,34 @@ query SermonDTO($messageId: String!) {
 `;
 // Pastors forum
 export const  GET_ALL_PASTORS_FORUM_MESSAGES = gql`
-query PastorForumDTO($flag: String! $page: Float! $limit: Float!){
-  getAllMessagesFromPastorForum(flag:$flag page:$page limit:$limit ){
-    _id
-    title
-    minister
-    image
-    bibleReading{
-      text
-      refrence
+query PaginatedPastorForumDTO($query: String! $flag: String! $page: Float! $limit: Float!){
+  getAllMessagesFromPastorForum(query:$query flag:$flag page:$page limit:$limit ){
+
+    totalDocs
+    limit
+    totalPages
+    page
+    pagingCounter
+    hasPrevPage
+    hasNextPage
+    prevPage
+    nextPage
+    docs{
+      _id
+      title
+      minister
+      image
+      bibleReading{
+        text
+        refrence
+      }
+      message
+      prayer_point
+      published
+      minuteRead
+      createdAt
+      updatedAt
     }
-    message
-    prayer_point
-    published
-    minuteRead
-    createdAt
-    updatedAt
     
   }
 }
