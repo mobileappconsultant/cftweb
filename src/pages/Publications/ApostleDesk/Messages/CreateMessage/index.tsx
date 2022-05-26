@@ -191,7 +191,6 @@ const CreateApostleMessage = (props: any):JSX.Element => {
     };
 
     const upDateBibleVerseText = (bibleVerseObj:any, index:number) => {
-      
         bibleVerseData[index] = bibleVerseObj;
         setState({
             bibleVerseData: [...bibleVerseData],

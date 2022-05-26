@@ -15,11 +15,17 @@ import { publishOptions } from 'constants/index';
 import Pagination from 'utilComponents/TablePagination';
 import { PUBLISH_PRAYER, UNPUBLISH_PRAYER, DELETE_PRAYER } from 'GraphQl/Mutations';
 import DeleteModal from 'utilComponents/DeleteModal';
+import SearchInput from 'utilComponents/SearchInput';
+import AlertComponent from 'components/AlertComponent';
+
 const Prayers = () => {
     const initialState = {
         listView: true,
-        rowsPerPage:10,
-        page:0,
+        pagination:{
+            rowsPerPage: 10,
+            page:0,
+            totalRecords: 10,
+        },
         alertMessage:{},
         dataArr:[],
         activeId: null,
@@ -30,15 +36,14 @@ const Prayers = () => {
         showViewSinglePrayer: false,
         status: 'null',
         showDeleteModal:false,
+        search: ''
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
 
     const {
-        listView, 
-        page, 
-        isLoading, 
-        rowsPerPage, 
+        search, 
+        isLoading,
         alertMessage,  
         dataArr,
         activeId,
@@ -48,9 +53,11 @@ const Prayers = () => {
         showViewSinglePrayer,
         status,
         showDeleteModal, 
+        pagination,
     } = state;
     const { fetchMore } = useQuery(GET_ALL_PRAYERS,{
         variables: {
+          query: search,
           page: 0,
           limit: 10,
           flag: status,
@@ -59,38 +66,52 @@ const Prayers = () => {
 
     const [unPublishPrayerData] = useMutation(UNPUBLISH_PRAYER);
     const [publishPrayerData] = useMutation(PUBLISH_PRAYER);
+
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-        
+        const newPagination = {
+            ...pagination,
+            page: newPage,
+        };
         setState({
             page: newPage,
         });
-        fetchData();
-        
+        fetchData(status, newPagination);
     };
   
     const handleChangeRowsPerPage = (event: any): void => {
+        const newPagination = {
+            ...pagination,
+            rowsPerPage: event?.target?.value,
+        };
         
         setState({
             rowsPerPage: event?.target?.value,
         });
-        fetchData();
+        fetchData(status, newPagination);
     };
 
-    const fetchData =  async () => {
+    const fetchData =  async (flag= status, paginationArgs = pagination) => {
         setState({
             isLoading:true,
         });
+        const searchItem = search?? ' ';
         const apiData : any = 
         await fetchMore({
                     variables:{
-                        page: page? page: 0,
-                        limit: rowsPerPage? rowsPerPage : 10,
-                        flag: status,
+                        query: searchItem,
+                        flag:flag,
+                        page: paginationArgs?.page + 1,
+                        limit: paginationArgs?.rowsPerPage,
                     }
                 });
          if(apiData.data){
             setState({
-                dataArr: apiData?.data?.getAllPrayers,
+                dataArr: apiData?.data?.getAllPrayers?.docs,
+                pagination:{
+                    rowsPerPage: apiData?.data?.getAllPrayers?.limit,
+                    page: apiData?.data?.getAllPrayers?.page - 1,
+                    totalRecords: apiData?.data?.getAllPrayers?.totalDocs,
+                },
             }); 
         };
 
@@ -113,7 +134,7 @@ const Prayers = () => {
         setState({
             status: option,
         });
-        fetchData();
+        fetchData(option, pagination);
     };
 
     useEffect(() => {
@@ -124,7 +145,7 @@ const Prayers = () => {
                 ...initialState,
             });
         };
-    }, [page, rowsPerPage]);
+    }, []);
 
     const defaultView = (refresh= null) => {
         setState({
@@ -181,18 +202,37 @@ const Prayers = () => {
         });
     };
 
+    const handleSearchData = (searchVal= '') => {
+        setState({
+            ...state,
+            search: searchVal,
+        });
+    };
+
     return(
         <>
             {showAllPrayers &&(
                 <>
-                    <div className="row  py-4"> 
-                    <div className='col-md-12 d-flex justify-content-end'>
-                        <Filter
-                            text="Show"
-                            selectOptions={publishOptions}
-                            changeEvent={changeStatus}
-                        />
-                    </div>
+                    <div className="row  py-0 justify-content-between"> 
+                        <div className='col-md-4 mb-4 mt-3'>
+                            <SearchInput  handleSearchData={handleSearchData} fetchData={fetchData} />
+                        </div>
+                        <div className='col-md-6 d-flex justify-content-end mt-3 mb-4'>
+                            <Filter
+                                text="Show"
+                                selectOptions={publishOptions}
+                                changeEvent={changeStatus}
+                            />
+                        </div>
+                        {alertMessage?.text && (
+                                <div className='col-md-12 d-flex justify-content-end my-2'>
+                                <AlertComponent
+                                    text={alertMessage.text}
+                                    type={alertMessage.type}
+                                    onClose={handleAlertClose}
+                                />
+                            </div>
+                        )}
                     {isLoading? (
                         <>
                             <CircularLoader />
@@ -294,9 +334,9 @@ const Prayers = () => {
                         <>
                             <div>
                                 <Pagination
-                                    count={dataArr.length?? 0}
-                                    page={page}
-                                    rowsPerPage={rowsPerPage}
+                                    count={pagination?.totalRecords}
+                                    page={pagination?.page}
+                                    rowsPerPage={pagination?.rowsPerPage}
                                     onPageChange={handleChangePage}
                                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                                 />

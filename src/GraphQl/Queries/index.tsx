@@ -35,13 +35,7 @@ export const DASHBOARD_USER_COUNT = gql`
     }
   }
 `;
-// query DashboardGraphDTO ($startDate: String! $endDate: String!) {
-//   dashBoardGraph(startDate:$startDate endDate:$endDate) {
-//     totalDonations
-//     totalOfferings
-//     totalWelfare
-//   }
-// }
+
 export const DASHBOARD_GET_REVENUE = gql`
   query DashboardGraphDTO ($startDate: String! $endDate: String!) {
     dashBoardGraph(startDate:$startDate endDate:$endDate) {
@@ -257,24 +251,34 @@ export const GET_SINGLE_MEMBER = gql`
 
 // Messages
 export const GET_ALL_MESSAGES = gql`
-  query ApostleDeskDTO($flag: String! $page: Float! $limit: Float!){
-    getAllMessages(flag:$flag page:$page limit:$limit ){
-      _id
-      title
-      minister
-      image
-      bibleReading{
-        text
-        refrence
+  query  PaginatedApostleDeskDTO ($query: String! $flag: String! $page: Float! $limit: Float!){
+    getAllMessages(query:$query flag:$flag page:$page limit:$limit ){
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs{
+          _id
+          title
+          minister
+          image
+          bibleReading{
+            text
+            refrence
+          }
+          message
+          prayer_point
+          category
+          published
+          minuteRead
+          createdAt
+          updatedAt
       }
-      message
-      prayer_point
-      category
-      published
-      minuteRead
-      createdAt
-      updatedAt
-      
     }
   }
 `;
@@ -294,36 +298,6 @@ export const GET_SINGLE_MESSAGE = gql`
       prayer_point
       category
       createdAt
-    }
-  }
-`;
-
-export const GET_MESSAGE_CONTENT = gql`
-  query ContentDTO ($messageId: String!) {
-    getContents(messageId: $messageId) {
-      _id
-      subtitle
-      paragraphs
-      message{
-        _id
-        title
-        minister
-        image
-        bibleReading{
-          text
-          refrence
-        }
-        message
-        prayer_point
-        category
-        weekPublished
-        monthPublished
-        yearPublished
-        createdAt
-      }
-      image
-      prayer_point
-      status
     }
   }
 `;
@@ -351,38 +325,49 @@ export const GET_BIBLE_FULL_CHAPTER = gql`
 
 // Prayers
 export const GET_ALL_PRAYERS = gql`
-query PrayerDTO ($flag: String! $page: Float! $limit: Float!){
-  getAllPrayers (flag:$flag page:$page limit:$limit ){
-    _id
-    title
-    subtitle
-    preface
-    image
-    author
-    dailyPrayers{
-      _id
-      day
-      subtitle
-      scripture {
-        text
-        refrence
-      }
-      heading
-      content
-      supportingVerse{
-        text
-        refrence
-      }
-      prayer_points
-      prayerMannerId
-      published
-      createdAt
-      updatedAt
+query PrayerDTO ($query: String! $flag: String! $page: Float! $limit: Float!){
+  getAllPrayers (query:$query flag:$flag page:$page limit:$limit ){
+    totalDocs
+    limit
+    totalPages
+    page
+    pagingCounter
+    hasPrevPage
+    hasNextPage
+    prevPage
+    nextPage
+    docs{
+        _id
+        title
+        subtitle
+        preface
+        image
+        author
+        dailyPrayers{
+          _id
+          day
+          subtitle
+          scripture {
+            text
+            refrence
+          }
+          heading
+          content
+          supportingVerse{
+            text
+            refrence
+          }
+          prayer_points
+          prayerMannerId
+          published
+          createdAt
+          updatedAt
+        }
+        published
+        createdAt
+        updatedAt
+        }
     }
-    published
-    createdAt
-    updatedAt
-  }
 }
 `;
 
@@ -422,19 +407,30 @@ query PrayerDTO  ($prayerId: String!) {
 
 // BIBLE STUDY
 export const GET_ALL_BIBLE_STUDY_CONTENT = gql`
-query BibleStudyDTO($flag: String! $page: Float! $limit: Float!){
-  getAllBibleStudyContent(flag:$flag page:$page limit:$limit ){
-      _id
-      topic
-      minister
-      memoryVerse{
-        text
-        refrence
+query PaginatedBibleStudyDTO($query: String! $flag: String! $page: Float! $limit: Float!){
+  getAllBibleStudyContent(query:$query flag:$flag page:$page limit:$limit ){
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs{
+        _id
+        topic
+        minister
+        memoryVerse{
+          text
+          refrence
+        }
+        message
+        published
+        createdAt
+        updatedAt
       }
-      message
-      published
-      createdAt
-      updatedAt
     }
   }
 `;
@@ -458,23 +454,33 @@ export const GET_SINGLE_BIBLE_STUDY_CONTENT = gql`
 
 // SERMONS
 export const  GET_ALL_SERMONS = gql`
-query SermonDTO($flag: String! $page: Float! $limit: Float!){
-  getAllSermons(flag:$flag page:$page limit:$limit ){
-    _id
-    title
-    minister
-    image
-    bibleReading{
-      text
-      refrence
+query SermonDTO($query: String! $flag: String! $page: Float! $limit: Float!){
+  getAllSermons(query:$query flag:$flag page:$page limit:$limit ){
+    totalDocs
+    limit
+    totalPages
+    page
+    pagingCounter
+    hasPrevPage
+    hasNextPage
+    prevPage
+    nextPage
+    docs{
+      _id
+      title
+      minister
+      image
+      bibleReading{
+        text
+        refrence
+      }
+      message
+      prayer_point
+      published
+      minuteRead
+      createdAt
+      updatedAt
     }
-    message
-    prayer_point
-    published
-    minuteRead
-    createdAt
-    updatedAt
-    
   }
 }
 `;
@@ -546,8 +552,8 @@ query PastorForumDTO($id: String!){
 // Daily bible reading
 
 export const  GET_ALL_DAILY_BIBLE_READING = gql`
-query DailyBibleReadingDTO($flag: String! $page: Float! $limit: Float!){
-  getAllDailyBibleContent(flag:$flag page:$page limit:$limit ){
+query DailyBibleReadingDTO($query: String! $flag: String! $page: Float! $limit: Float!){
+  getAllDailyBibleContent(query:$query flag:$flag page:$page limit:$limit ){
     _id
     verseContent
     verseOfTheDayText

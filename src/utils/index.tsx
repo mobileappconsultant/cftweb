@@ -45,13 +45,15 @@ export const isNotEmptyArray = (arr: any) => Array.isArray(arr) && arr.length > 
 //     return obj;
 // };
 
-// export const getUrlParams = (url = window.location.href) => {
-//     const params = {};
-//     url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
-//         params[key] = value;
-//     });
-//     return params;
-// };
+export const getUrlParams = (url = window.location.href) => {
+    const params = {};
+    // @ts-ignore
+    url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+        // @ts-ignore
+        params[key] = value;
+    });
+    return params;
+};
 
 // /**
 //  * Return file extension

@@ -20,9 +20,9 @@ import CreateCalendarEvent from 'pages/Calendar/CreateCalendarEvent';
 import { Redirect } from 'react-router-dom';
 import Publications from 'pages/Publications';
 import Transactions from 'pages/Transactions';
-import EditEvent from 'pages/Calendar/EditCalendarEvent';
 import Terms from 'pages/Legal/Terms';
 import Support from 'pages/Legal/Support';
+import ViewCalenderEvent from 'pages/Calendar/ViewCalenderEvent';
 
 export const authRoutes = [
 	{path: '/', component: () => <Redirect to="/login" />},
@@ -55,7 +55,7 @@ export const privateRoutes = [
 	{path:"/calendar/event/:id", exact: true, component: CreateCalendarEvent},
 	{path:"/calendar", exact: true, component: Calendar},
 	{path:"/calendar/create-event", exact: true, component: CreateCalendarEvent},
-	{path:"/calendar/edit-event/:id", exact: true, component: EditEvent},
+	{path:"/calendar/view-event/:id", exact: true, component: ViewCalenderEvent},
 	{path:"/publications", exact: true, component: Publications},
 	{path:"/transactions", exact: true, component: Transactions},
 ];

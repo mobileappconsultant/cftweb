@@ -16,18 +16,23 @@ import { publishOptions } from 'constants/index';
 import { DELETE_MESSAGE, PUBLISH_MESSAGE, UNPUBLISH_MESSAGE } from 'GraphQl/Mutations';
 import AlertComponent from 'components/AlertComponent';
 import DeleteModal from 'utilComponents/DeleteModal';
+import SearchInput from 'utilComponents/SearchInput';
 
 
 const Messages = () => {
     const initialState = {
         listView: true,
-        rowsPerPage: 10,
-        page:0,
+        pagination:{
+            rowsPerPage: 10,
+            page:0,
+            totalRecords: 10,
+        },
         alertMessage:{},
         dataArr:[],
         activeId: null,
         isLoading:false,
         status: 'null',
+        search: '',
         showAllMessages:true,
         showCreateForm: false,
         showEditForm: false,
@@ -39,9 +44,7 @@ const Messages = () => {
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
 
     const { 
-        page, 
         isLoading, 
-        rowsPerPage, 
         alertMessage,  
         showDeleteModal, 
         dataArr,
@@ -51,10 +54,13 @@ const Messages = () => {
         showEditForm,
         showViewSingleMessage,
         status,
+        pagination,
+        search
     } = state;
     const { fetchMore } = useQuery(GET_ALL_MESSAGES, {
         variables: {
-          page: 0,
+          query: search,
+          page: 1,
           limit: 10,
           flag: status,
         },
@@ -77,38 +83,54 @@ const Messages = () => {
     };
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-        
+        const newPagination = {
+            ...pagination,
+            page: newPage,
+        };
         setState({
             page: newPage,
         });
-        fetchData();
+        fetchData(status, newPagination);
         
     };
   
     const handleChangeRowsPerPage = (event: any): void => {
+        const newPagination = {
+            ...pagination,
+            rowsPerPage: event?.target?.value,
+        };
         
         setState({
             rowsPerPage: event?.target?.value,
         });
-        fetchData();
+        fetchData(status, newPagination);
+        
     };
 
-    const fetchData =  async (flag= status) => {
+    const fetchData =  async (flag= status, paginationArgs = pagination) => {
         setState({
             isLoading:true,
         });
+        const searchItem = search?? ' ';
         const apiData : any = 
         await fetchMore({
                     variables:{
+                        query: searchItem,
                         flag:flag,
-                        page: page? page: 0,
-                        limit: rowsPerPage? rowsPerPage : 10,
+                        page: paginationArgs?.page + 1,
+                        limit: paginationArgs?.rowsPerPage,
                         
                     }
                 });
          if(apiData.data){
             setState({
-                dataArr: apiData?.data?.getAllMessages,
+                dataArr: apiData?.data?.getAllMessages?.docs,
+                totalRecords: apiData?.data?.getAllMessages?.totalDocs,
+                pagination:{
+                    rowsPerPage: apiData?.data?.getAllMessages?.limit,
+                    page: apiData?.data?.getAllMessages?.page - 1,
+                    totalRecords: apiData?.data?.getAllMessages?.totalDocs,
+                },
             }); 
         };
 
@@ -129,9 +151,10 @@ const Messages = () => {
     const changeStatus = (e:any) => {
         const option = changeOptionsToBool(e?.target?.value);
         setState({
+            ...state,
             status: option,
         });
-        fetchData(option);
+        fetchData(option, pagination);
     };
 
     useEffect(() => {
@@ -143,7 +166,7 @@ const Messages = () => {
                 ...initialState,
             });
         };
-    }, [page, rowsPerPage]);
+    }, []);
 
     const unPublishData = async(id:number) => {
         // eslint-disable-next-line no-restricted-globals
@@ -187,11 +210,21 @@ const Messages = () => {
         });
     };
 
+    const handleSearchData = (searchVal= '') => {
+        setState({
+            ...state,
+            search: searchVal,
+        });
+    };
+
     return(
         <>
             {showAllMessages &&(
-                <div className="row py-0 px-0"> 
-                        <div className='col-md-12 d-flex justify-content-end'>
+                <div className="row py-0 px-0 justify-content-between"> 
+                        <div className='col-md-4 mb-4 mt-3'>
+                            <SearchInput  handleSearchData={handleSearchData} fetchData={fetchData} />
+                        </div>
+                        <div className='col-md-6 d-flex justify-content-end mb-4 mt-3'>
                             <Filter
                                 text="Show"
                                 selectOptions={publishOptions}
@@ -331,9 +364,9 @@ const Messages = () => {
                             <>
                                 <div>
                                     <Pagination
-                                        count={dataArr.length?? 0}
-                                        page={page}
-                                        rowsPerPage={rowsPerPage}
+                                        count={pagination?.totalRecords}
+                                        page={pagination?.page}
+                                        rowsPerPage={pagination?.rowsPerPage}
                                         onPageChange={handleChangePage}
                                         handleChangeRowsPerPage={handleChangeRowsPerPage}
                                     />

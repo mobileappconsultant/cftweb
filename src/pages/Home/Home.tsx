@@ -15,12 +15,18 @@ import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { Filter } from 'tabler-icons-react';
 const startDate = moment(new Date()).format("YYYY-MM-DDTHH:mm:ss.SSS");
 const endDate = moment(new Date()).format("YYYY-MM-DDTHH:mm:ss.SSS");
+
 const Home = ():JSX.Element => {
     const initialState = {
         formData: {
             totalNumberOfAdmins: 0,
             totalNumberOfActiveUsers: 0,
             totalNumberOfSuspendedUsers: 0,
+        },
+        amountGeneratedData:{
+            totalDonations: 0,
+            totalOfferings: 0,
+            totalWelfare: 0
         },
         searchData:{
             endDate: null,
@@ -40,7 +46,7 @@ const Home = ():JSX.Element => {
         }
     });
 
-    const {formData, chartLoading, searchData} = state;
+    const {formData, chartLoading, searchData, amountGeneratedData } = state;
 
     const fetchData = async() => {
         try {
@@ -87,7 +93,9 @@ const Home = ():JSX.Element => {
     const fetchRevenue = async (searchData: any) => {
 
         try {
-            
+            setState({
+                chartLoading: true,
+            });
             const res = await getDashboardRevenue.fetchMore({
                 variables:{
                     startDate: moment(searchData?.startDate).format("YYYY-MM-DDTHH:mm:ss.SSS"), 
@@ -97,22 +105,23 @@ const Home = ():JSX.Element => {
             const {data, error} = res;
             if(data){
                 const response = data?.dashBoardGraph;
-                console.log(response);
-               
-                // setState({
-                //     formData:{
-                //         totalNumberOfAdmins: response?.totalNumberOfAdmins,
-                //         totalNumberOfActiveUsers: response?.totalNumberOfActiveUsers,
-                //         totalNumberOfSuspendedUsers: response?.totalNumberOfSuspendedUsers,
-                //     },
-                //     isLoading: false,
+       
+                setState({
+                    chartLoading: false,
+                    amountGeneratedData:{
+                        totalDonations: response?.totalDonations,
+                        totalOfferings: response?.totalOfferings,
+                        totalWelfare: response?.totalWelfare
+                    },
+                    isLoading: false,
                 
-                // });   
+                });   
             };
             if(error){
                 setState({
                     alertMessage :processAlertError(extractErrorMessage(error)),
                     isLoading: false,
+                    chartLoading: false,
                 })
             }
         } catch (error) {
@@ -129,7 +138,6 @@ const Home = ():JSX.Element => {
         
         // Cleanup method
         fetchData();
-        fetchRevenue(searchData);
         return () => {
             setState({
                 ...initialState,
@@ -234,7 +242,7 @@ const Home = ():JSX.Element => {
                   </div>
                 </div>
                     {/* @ts-ignore */}
-                    <TotalRevenue getPaymentMethodStat={fetchRevenue} />
+                    <TotalRevenue data={amountGeneratedData} date={searchData} />
                 </div>
                 
             </div>

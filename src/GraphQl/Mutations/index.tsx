@@ -706,6 +706,32 @@ mutation updateEvent($input: EventInput! $eventId: String!) {
 }
 `;
 
+export const CREATE_CHILD_EVENT = gql`
+mutation createChildEvent($input:  ChildEventInput! ) {
+  createChildEvent(input: $input) {
+    _id
+    eventTheme
+    day
+    time
+    eventId
+    createdAt
+    updatedAt
+  }
+}
+`;
+export const EDIT_CHILD_EVENT = gql`
+mutation updateChildEvent($childId : childId $input:  ChildEventInput! ) {
+  updateChildEvent(childId: $childId input: $input) {
+    _id
+    eventTheme
+    day
+    time
+    eventId
+    createdAt
+    updatedAt
+  }
+}
+`;
 export const DELETE_EVENT =gql`
   mutation deleteEvent($eventId: String!) {
     deleteEvent(eventId: $eventId) {

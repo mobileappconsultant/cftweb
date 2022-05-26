@@ -205,7 +205,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
     };
 
     const upDateBibleVerseText = (bibleVerseObj:any, index:number) => {
-      
+        console.log(bibleVerseObj);
         bibleVerseData[index] = bibleVerseObj;
         setState({
             bibleVerseData: [...bibleVerseData],

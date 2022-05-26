@@ -31,7 +31,7 @@ import { purple } from '@mui/material/colors';
 import { Filter } from 'tabler-icons-react';
 
 const selectOptions = {
-    paymentType: ['offerings', 'donation', 'welfare' ],
+    paymentType: ['offering', 'donation', 'welfare' ],
     paymentMethod: ['truelayer', 'paystack', 'stripe', 'applePay'],
     status: ['failed', 'successful'],
 };

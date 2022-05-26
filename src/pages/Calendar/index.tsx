@@ -17,6 +17,8 @@ import moment from 'moment';
 import EditEvent from './EditCalendarEvent';
 import DeleteModal from 'utilComponents/DeleteModal';
 import { DELETE_EVENT } from 'GraphQl/Mutations';
+import ViewCalenderEvent from './ViewCalenderEvent';
+import { history } from 'helpers';
 
 const pastMonth = new Date();
 
@@ -43,12 +45,13 @@ const Calendar = ():JSX.Element => {
         activeId: null,
         range: defaultSelected,
         showDeleteModal: false,
+        viewSingleEvent: false,
         
     };
    
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView,isLoading, page, rowsPerPage, showEditModal, alertMessage, data, range, activeId, showDeleteModal } = state;
+    const {listView,isLoading, pagination, viewSingleEvent, showEditModal, alertMessage, data, range, activeId, showDeleteModal } = state;
     const { fetchMore } = useQuery(GET_ALL_EVENTS, {
         variables: {},
     });
@@ -128,6 +131,12 @@ const Calendar = ():JSX.Element => {
         if(refresh){
             fetchData();
         }
+        setState({
+            activeId : null,
+            viewSingleEvent: false,
+            showDeleteModal: false,
+            showEditModal: false
+        })
 
     };
 
@@ -137,12 +146,13 @@ const Calendar = ():JSX.Element => {
         });
     };
 
+
     return(
         <>
         <div className="row justify-content-between align-items-end">
-        <div className="col-md-6">
-            <PageTitle text='Events' />
-        </div>
+            <div className="col-md-6">
+                <PageTitle text='Events' />
+            </div>
        
         </div>
         {alertMessage?.text && (
@@ -154,33 +164,48 @@ const Calendar = ():JSX.Element => {
                 />
             </>
         )}
-        {isLoading? (
-            <CircularLoader/>
-        ):(
+        {viewSingleEvent? 
+        
+        (
             <>
-                <div className="calendar-module">
-                    <div className="row justify-content-between py-3 px-2">
-                        <div className="col-md-8 bg-white py-3" >
-                            <OneweekCalendar
-                                showDetailsHandle={true}
-                            />
-                            {data?.map((item: any, index: number) => {
-                                return(
+                <ViewCalenderEvent  close={refreshData} eventId={activeId} />
+            </>
+        ): (
+            <>
+                {isLoading? (
+                    <CircularLoader/>
+                ):(
+                    <>
+                        <div className="calendar-module">
+                            <div className="row justify-content-between py-3 px-2">
+                                <div className="col-md-8 bg-white py-3" >
+                                    <OneweekCalendar
+                                        showDetailsHandle={true}
+                                    />
+                                    {data?.map((item: any, index: number) => {
+                                        return(
 
-                                        <div className="w-100  calendar-listing-card" key={index}>
-                                            <div >
-                                                <div className='d-flex justify-content-between align-items-end'>
-                                                    <div>
-                                                        <h6 className="event-name">{item?.eventName}</h6>
-                                                        <div className="date">
-                                                            { moment(item?.startDate).format("MMM Do YYYY") } - {moment(item?.endDate).format("MMM Do YYYY") }
+                                                <div className="w-100 pointer calendar-listing-card" key={index}>
+                                                    <div 
+                                                        onClick={()=> 
+                                                            history.push(`/calendar/view-event/${item?._id}`)
+                                                        }
+                                                    >
+                                                        <div className='d-flex justify-content-between align-items-end'>
+                                                            <div>
+                                                                <h6 className="event-name">{item?.eventName}</h6>
+                                                                <div className="date">
+                                                                    { moment(item?.startDate).format("MMM Do YYYY") } - {moment(item?.endDate).format("MMM Do YYYY") }
+                                                                </div>
+                                                                <div className="time m-0">
+                                                                    { moment(item?.time).format('hh:mm A')}
+                                                                </div>
+                                                            </div>
+                                                            
                                                         </div>
-                                                        <div className="time m-0">
-                                                            { moment(item?.time).format('hh:mm A')}
-                                                        </div>
+                                                        
                                                     </div>
-                                                    
-                                                    <div className='d-flex'>
+                                                    <div className='d-flex actionbtn-container'>
                                                         <ActionButton
                                                             text={
                                                                 <>
@@ -208,72 +233,73 @@ const Calendar = ():JSX.Element => {
                                                         />
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                            
+                                                    
+                                                
+                                    
+                                        )
+                                    })}
+                                </div>
+                                <div className="col-md-4">
+                                    <h6>Filter by start and end date range </h6>
+                                    <div className=" mx-auto">
                                         
-                            
-                                )
-                            })}
-                        </div>
-                        <div className="col-md-4">
-                            <h6>Filter by start and end date range </h6>
-                            <div className=" mx-auto">
-                                
-                                <DayPicker
-                                    mode="range"
-                                    defaultMonth={new Date()}
-                                    selected={range}
-                                    footer={<></>}
-                                    onSelect={setRange}
-                                />
+                                        <DayPicker
+                                            mode="range"
+                                            defaultMonth={new Date()}
+                                            selected={range}
+                                            footer={<></>}
+                                            onSelect={setRange}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                        <Pagination
+                            count={data.length?? 0}
+                            page={0}
+                            rowsPerPage={10}
+                            onPageChange={handleChangePage}
+                            handleChangeRowsPerPage={handleChangeRowsPerPage}
+                        />
+                    </>
+                )}
             </>
         )}
+        
 
-            <Pagination
-                count={data.length?? 0}
-                page={0}
-                rowsPerPage={10}
-                onPageChange={handleChangePage}
-                handleChangeRowsPerPage={handleChangeRowsPerPage}
-            />
-        <div>
-        <div className='calendar-create-module'>
-            <CreateEvent
-                addAlert={addAlert}
-                refreshListing={refreshData}
-            />
-            {showEditModal && (
-                <>
-                    <EditEvent 
+            <div>
+                <div className='calendar-create-module'>
+                    <CreateEvent
                         addAlert={addAlert}
-                        activeId={activeId}
-                        handleClose={toogleEditModal}
-                        showModal={showEditModal}
                         refreshListing={refreshData}
                     />
-                </>
-            )}
-        </div> 
+                    {showEditModal && (
+                        <>
+                            <EditEvent 
+                                addAlert={addAlert}
+                                activeId={activeId}
+                                handleClose={toogleEditModal}
+                                showModal={showEditModal}
+                                refreshListing={refreshData}
+                            />
+                        </>
+                    )}
+                </div> 
 
-           
-        </div>
+                {showDeleteModal && (
+                    <DeleteModal
+                        refresh={fetchData}
+                        mutation={DELETE_EVENT}
+                        handleModalToggle={toggleDeleteModal}
+                        showModal={showDeleteModal}
+                        parameterKey="eventId"
+                        recordId={activeId}
+                        addAlert={addAlert}
+                    />
+                )}
+            </div>
 
-        {showDeleteModal && (
-                <DeleteModal
-                    refresh={fetchData}
-                    mutation={DELETE_EVENT}
-                    handleModalToggle={toggleDeleteModal}
-                    showModal={showDeleteModal}
-                    parameterKey="eventId"
-                    recordId={activeId}
-                    addAlert={addAlert}
-                />
-            )}
+        
        
         </>
     )

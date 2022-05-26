@@ -16,6 +16,8 @@ import { DELETE_BIBLE_STUDY, PUBLISH_BIBLE_STUDY, UNPUBLISH_BIBLE_STUDY } from '
 import Filter from 'components/Filter';
 import CircularLoader from 'utilComponents/Loader';
 import Pagination from 'utilComponents/TablePagination';
+import SearchInput from 'utilComponents/SearchInput';
+import ViewSingleBibleStudy from './ViewSingleBibleStudy';
 const BibleStudy =() => {
 
     const initialState = {
@@ -32,12 +34,12 @@ const BibleStudy =() => {
         showViewSingleStudy: false,
         status: 'null',
         showDeleteModal:false,
+        search: ''
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
 
     const {
-        listView, 
         page, 
         isLoading, 
         rowsPerPage, 
@@ -50,11 +52,13 @@ const BibleStudy =() => {
         showViewSingleStudy,
         status,
         showDeleteModal, 
+        search
     } = state;
     // GRAPHQL
   
     const { fetchMore } = useQuery(GET_ALL_BIBLE_STUDY_CONTENT, {
         variables: {
+          query: search,
           page: 0,
           limit: 10,
           flag:status,
@@ -115,9 +119,11 @@ const BibleStudy =() => {
         setState({
             isLoading:true,
         });
+        const searchItem = search?? ' ';
         const apiData : any = 
         await fetchMore({
                     variables:{
+                        query: searchItem,
                         page: page? page: 0,
                         limit: rowsPerPage? rowsPerPage : 10,
                         flag: flag,
@@ -125,7 +131,12 @@ const BibleStudy =() => {
                 });
          if(apiData.data){
             setState({
-                dataArr: apiData?.data?.getAllBibleStudyContent,
+                dataArr: apiData?.data?.getAllBibleStudyContent?.docs,
+                pagination:{
+                    rowsPerPage: apiData?.data?.getAllSermons?.limit,
+                    page: apiData?.data?.getAllSermons?.page - 1,
+                    totalRecords: apiData?.data?.getAllSermons?.totalDocs,
+                },
             }); 
         };
 
@@ -195,20 +206,28 @@ const BibleStudy =() => {
         });
     };
 
- 
+    const handleSearchData = (searchVal= '') => {
+        setState({
+            ...state,
+            search: searchVal,
+        });
+    };
     return (
         <>
         {showAllStudies && (
             <>
-                 <div className='row p-4'>
-                    <div className='col-md-12 d-flex justify-content-end'>
+                <div className="row  py-3 px-4 justify-content-between"> 
+                    <div className='col-md-4 mb-4 mt-3'>
+                        <SearchInput  handleSearchData={handleSearchData} fetchData={fetchData} />
+                    </div>
+                    <div className='col-md-6 d-flex justify-content-end mt-3 mb-4'>
                         <Filter
                             text="Show"
                             selectOptions={publishOptions}
                             changeEvent={changeStatus}
                         />
                     </div>
-
+                    
                     {isLoading? (
                             <div className='bg-white'>
                                 <CircularLoader />
@@ -242,6 +261,15 @@ const BibleStudy =() => {
                                                     </div>
                                                     <div 
                                                         className='col-md-8 pointer border-left'
+                                                        onClick={()=> {
+                                                            setState({
+                                                                showAllStudies:false,
+                                                                showCreateForm: false,
+                                                                showEditForm: false,
+                                                                showViewSingleStudy: true,
+                                                                activeId:datum?._id,
+                                                            });
+                                                        }}
                                                     >
                                                         
                                                         <h6 className='apostle-desk-post-header d-flex gap-20 align-items-center'>{capiitalizeFirstLetter(datum?.topic)}
@@ -373,6 +401,15 @@ const BibleStudy =() => {
                     close={closePages}
                     bibleStudyId={activeId}
                />
+            </div>
+        )}
+
+        {showViewSingleStudy && (
+            <div className='px-4 py-3'>
+                <ViewSingleBibleStudy
+                    close={defaultView}
+                    bibleStudyId={activeId}
+                />
             </div>
         )}
 

@@ -59,6 +59,7 @@ const GetBiblePassage = (props: propsObject):JSX.Element => {
         newBookChapters =  newBookChapters.slice(from - 1, to);
        
         const chapterVerses = newBookChapters?.map((item:any, index:number) => {
+            console.log(item);
             return(
                 <div className='py-1 small'>
                     <h6 className='mb-1 small font-weight-bold'>Verse {item.num}: </h6>

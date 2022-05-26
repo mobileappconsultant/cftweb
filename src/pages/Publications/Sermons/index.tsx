@@ -16,12 +16,16 @@ import { DELETE_SERMON, PUBLISH_SERMON, UNPUBLISH_SERMON } from 'GraphQl/Mutatio
 import { publishOptions } from 'constants/index';
 import AlertComponent from 'components/AlertComponent';
 import DeleteModal from 'utilComponents/DeleteModal';
+import SearchInput from 'utilComponents/SearchInput';
 
 const Sermons =() => {
     const initialState = {
         listView: true,
-        rowsPerPage: 10,
-        page:0,
+        pagination:{
+            rowsPerPage: 10,
+            page:0,
+            totalRecords: 10,
+        },
         alertMessage:{},
         dataArr:[],
         activeId: null,
@@ -32,14 +36,12 @@ const Sermons =() => {
         showViewSingleSermon: false,
         status: 'null',
         showDeleteModal:false,
+        search: ''
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
 
     const {
-        listView, 
-        page, 
-        isLoading, 
-        rowsPerPage, 
+        isLoading,
         alertMessage,  
         showDeleteModal, 
         dataArr,
@@ -49,9 +51,12 @@ const Sermons =() => {
         showEditForm,
         showViewSingleSermon,
         status,
+        pagination,
+        search
     } = state;
     const { fetchMore } = useQuery(GET_ALL_SERMONS, {
         variables: {
+          query: search,
           page: 0,
           limit: 10,
           flag:status,
@@ -75,37 +80,52 @@ const Sermons =() => {
     };
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-        
+        const newPagination = {
+            ...pagination,
+            page: newPage,
+        };
         setState({
             page: newPage,
         });
-        fetchData();
+        fetchData(status, newPagination);
         
     };
   
     const handleChangeRowsPerPage = (event: any): void => {
         
+        const newPagination = {
+            ...pagination,
+            rowsPerPage: event?.target?.value,
+        };
+        
         setState({
             rowsPerPage: event?.target?.value,
         });
-        fetchData();
+        fetchData(status, newPagination);
     };
 
-    const fetchData =  async (flag= status) => {
+    const fetchData =  async (flag= status, paginationArgs = pagination) => {
         setState({
             isLoading:true,
         });
+        const searchItem = search?? ' ';
         const apiData : any = 
         await fetchMore({
                     variables:{
-                        page: page? page: 0,
-                        limit: rowsPerPage? rowsPerPage : 10,
+                        query: searchItem,
+                        page: paginationArgs?.page + 1,
+                        limit: paginationArgs?.rowsPerPage,
                         flag: flag,
                     }
                 });
          if(apiData.data){
             setState({
-                dataArr: apiData?.data?.getAllSermons,
+                dataArr: apiData?.data?.getAllSermons?.docs,
+                pagination:{
+                    rowsPerPage: apiData?.data?.getAllSermons?.limit,
+                    page: apiData?.data?.getAllSermons?.page - 1,
+                    totalRecords: apiData?.data?.getAllSermons?.totalDocs,
+                },
             }); 
         };
 
@@ -128,7 +148,7 @@ const Sermons =() => {
         setState({
             status: option,
         });
-        fetchData(option);
+        fetchData(option, pagination);
     };
 
 
@@ -141,7 +161,7 @@ const Sermons =() => {
                 ...initialState,
             });
         };
-    }, [page, rowsPerPage]);
+    }, []);
 
     const unPublishData = async(id:number) => {
         // eslint-disable-next-line no-restricted-globals
@@ -184,13 +204,22 @@ const Sermons =() => {
             showDeleteModal: !showDeleteModal,
         });
     };
+    const handleSearchData = (searchVal= '') => {
+        setState({
+            ...state,
+            search: searchVal,
+        });
+    };
     return (
 
         <>
             {showAllSermons &&( 
                 <>
-                    <div className='row p-4'>
-                        <div className='col-md-12 d-flex justify-content-end'>
+                    <div className="row  py-3 px-4 justify-content-between"> 
+                        <div className='col-md-4 mb-4 mt-3'>
+                            <SearchInput  handleSearchData={handleSearchData} fetchData={fetchData} />
+                        </div>
+                        <div className='col-md-6 d-flex justify-content-end mt-3 mb-4'>
                             <Filter
                                 text="Show"
                                 selectOptions={publishOptions}
@@ -346,9 +375,9 @@ const Sermons =() => {
                             <>
                                 <div>
                                     <Pagination
-                                        count={dataArr.length?? 0}
-                                        page={page}
-                                        rowsPerPage={rowsPerPage}
+                                        count={pagination?.totalRecords}
+                                        page={pagination?.page}
+                                        rowsPerPage={pagination?.rowsPerPage}
                                         onPageChange={handleChangePage}
                                         handleChangeRowsPerPage={handleChangeRowsPerPage}
                                     />

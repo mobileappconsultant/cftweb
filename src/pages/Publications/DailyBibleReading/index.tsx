@@ -17,6 +17,7 @@ import CreateDailyBibleReading from './CreateDailyBibleReading';
 import calendarDot from 'assets/images/calendar-dot.svg';
 import EditDailyBibleReading from './EditDailyBibleReading';
 import ViewAllBibleReadingComponent from './ViewAllBibleReadingComponent';
+import SearchInput from 'utilComponents/SearchInput';
 
 const DailyBibleReading =() => {
     const initialState = {
@@ -34,6 +35,7 @@ const DailyBibleReading =() => {
         status: 'null',
         showDeleteModal:false,
         bibleVersions: [],
+        search: ''
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
 
@@ -51,9 +53,11 @@ const DailyBibleReading =() => {
         showEditForm,
         showViewSingleSermon,
         status,
+        search
     } = state;
     const { fetchMore } = useQuery(GET_ALL_DAILY_BIBLE_READING, {
         variables: {
+          query: search,
           page: 0,
           limit: 10,
           flag:status,
@@ -96,9 +100,11 @@ const DailyBibleReading =() => {
         setState({
             isLoading:true,
         });
+        const searchItem = search?? ' ';
         const apiData : any = 
         await fetchMore({
                     variables:{
+                        query: searchItem,
                         page: page? page: 0,
                         limit: rowsPerPage? rowsPerPage : 10,
                         flag: flag,
@@ -186,13 +192,22 @@ const DailyBibleReading =() => {
             showDeleteModal: !showDeleteModal,
         });
     };
+    const handleSearchData = (searchVal= '') => {
+        setState({
+            ...state,
+            search: searchVal,
+        });
+    };
     return (
 
         <>
             {showAllDailyBibleReading &&( 
                 <>
-                    <div className='row p-4'>
-                        <div className='col-md-12 d-flex justify-content-end'>
+                    <div className="row  py-3 px-4 justify-content-between"> 
+                        <div className='col-md-4 mb-4 mt-3'>
+                            <SearchInput  handleSearchData={handleSearchData} fetchData={fetchData} />
+                        </div>
+                        <div className='col-md-6 d-flex justify-content-end mt-3 mb-4'>
                             <Filter
                                 text="Show"
                                 selectOptions={publishOptions}
