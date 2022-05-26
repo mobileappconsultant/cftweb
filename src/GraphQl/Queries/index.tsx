@@ -34,7 +34,7 @@ export const GET_ALL_BRANCHES = gql`
         createdAt
         updatedAt
       }
-      
+
     }
   }
 `;
@@ -607,18 +607,28 @@ query DailyBibleReadingDTO($biibleReadingContentId: String!){
 `;
 // Calendar/events
 export const GET_ALL_EVENTS = gql`
-  query EventDTO($query: String! $date: String! $page: Float! $limit: Float!){
+  query PaginateEventDTO($query: String! $date: String! $page: Float! $limit: Float!){
     getEvents(query:$query date:$date page:$page limit:$limit ){
-      _id
-      eventName
-      startDate
-      endDate
-      time
-      repeat
-      repeatId
-      createdAt
-      updatedAt
-      
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs{
+        _id
+        eventName
+        startDate
+        endDate
+        time
+        repeat
+        repeatId
+        createdAt
+        updatedAt
+      }
     }
   }
 `;

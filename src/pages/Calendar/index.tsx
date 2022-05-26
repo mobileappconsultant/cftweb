@@ -68,10 +68,27 @@ const Calendar = ():JSX.Element => {
     });
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-      
-      };
-    
-    const handleChangeRowsPerPage = (event: React.SyntheticEvent): void => {
+        const newPagination = {
+            ...pagination,
+            page: newPage,
+        };
+        setState({
+            page: newPage,
+        });
+        fetchData(newPagination);
+        
+    };
+  
+    const handleChangeRowsPerPage = (event: any): void => {
+        const newPagination = {
+            ...pagination,
+            rowsPerPage: event?.target?.value,
+        };
+        
+        setState({
+            rowsPerPage: event?.target?.value,
+        });
+        fetchData(newPagination);
         
     };
     const handleAlertClose = () => {
@@ -100,7 +117,12 @@ const Calendar = ():JSX.Element => {
         }});
          if(apiData.data){
             setState({
-                data: apiData?.data?.getEvents,
+                data: apiData?.data?.getEvents?.docs,
+                pagination:{
+                    rowsPerPage: apiData?.data?.getEvents?.limit,
+                    page: apiData?.data?.getEvents?.page - 1,
+                    totalRecords: apiData?.data?.getEvents?.totalDocs,
+                },
                 isLoading: false,
             }); 
         };
@@ -265,13 +287,15 @@ const Calendar = ():JSX.Element => {
                                     
                                         )
                                     })}
-                                    <Pagination
-                                        count={data.length?? 0}
-                                        page={0}
-                                        rowsPerPage={10}
-                                        onPageChange={handleChangePage}
-                                        handleChangeRowsPerPage={handleChangeRowsPerPage}
-                                    />
+                                    <div>
+                                        <Pagination
+                                            count={pagination?.totalRecords}
+                                            page={pagination?.page}
+                                            rowsPerPage={pagination?.rowsPerPage}
+                                            onPageChange={handleChangePage}
+                                            handleChangeRowsPerPage={handleChangeRowsPerPage}
+                                        />
+                                    </div>
                                 </div>
                                 <div className="col-md-4">
                                     <h6>Filter by start and end date range </h6>

@@ -237,13 +237,13 @@ const Branches = ():JSX.Element => {
                 })}
                 
                 <div>
-                <Pagination
-                    count={pagination?.totalRecords}
-                    page={pagination?.page}
-                    rowsPerPage={pagination?.rowsPerPage}
-                    onPageChange={handleChangePage}
-                    handleChangeRowsPerPage={handleChangeRowsPerPage}
-                />
+                    <Pagination
+                        count={pagination?.totalRecords}
+                        page={pagination?.page}
+                        rowsPerPage={pagination?.rowsPerPage}
+                        onPageChange={handleChangePage}
+                        handleChangeRowsPerPage={handleChangeRowsPerPage}
+                    />
                 </div>
 
             </div>

@@ -29,6 +29,7 @@ import TotalRevenue from 'pages/Home/Charts/TotalRevenue';
 import { Button, createTheme } from '@mui/material';
 import { purple } from '@mui/material/colors';
 import { Filter } from 'tabler-icons-react';
+import moment from 'moment';
 
 const selectOptions = {
     paymentType: ['offering', 'donation', 'welfare' ],
@@ -229,7 +230,7 @@ const Transactions = ():JSX.Element => {
                     </TableCell>
                     <TableCell align="left">{capiitalizeFirstLetter(row.paymentType)}</TableCell>
                     <TableCell align="left">{capiitalizeFirstLetter(row.paymentPlatform)}</TableCell>
-                    <TableCell align="left">{row.transactionDate}</TableCell>
+                    <TableCell align="left">{moment(row.transactionDate).format('MMMM Do YYYY, h:mm:ss a')}</TableCell>
                     <TableCell align="left">
                         {row.status === "Successful"? (
                             <Badges
