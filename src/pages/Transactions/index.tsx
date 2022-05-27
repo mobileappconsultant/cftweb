@@ -409,7 +409,7 @@ const Transactions = ():JSX.Element => {
                 </div>
             </div>
             <div className="d-flex justify-content-between py-3 ">
-                <div className={`${openChart? 'col-md-7': 'col-md-10'} openchart bg-white d-flex justify-content-between px-0 `}>
+                <div className={`${openChart? 'col-md-7': 'col-md-11'} openchart bg-white d-flex justify-content-between px-0 `}>
                     <div className="py-3 px-2 w-96">
                         {transactionTable()}
                         <Pagination
@@ -425,36 +425,6 @@ const Transactions = ():JSX.Element => {
                     </div>
 
                 </div>
-                {openChart && (
-                    <div className={`transaction-chart ${openChart? 'col-md-5 px-3': 'col-md-2'}`}>
-                        <div className="transaction-chart-visible row">
-                            {dashBoardCards.map((item, index) => {
-                                return(
-                                    <>
-                                        <div className="col-md-4">
-                                            <div className={`card p-2 text-center ${activeReportComponent === index? 'active-transaction-card':''}`}>
-                                                <div className="mx-auto text-white">
-                                                    <img src={item?.icon} width="40"/>
-                                                </div>
-                                                <div className="mt-1">
-                                                    {item?.amount}
-                                                </div>
-                                                <span className="text-white small">
-                                                    {item?.name}
-                                                </span>
-                                                
-                                            </div>
-                                        </div>
-                                    </>
-                                )
-                            })}
-                            <div className='my-4 '>
-                                <TotalRevenue />
-                            </div>
-                        </div>
-                        
-                    </div>
-                )}
                 
             </div>
         </div>

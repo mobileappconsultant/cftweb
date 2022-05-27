@@ -66,12 +66,14 @@ export const CONFIRM_PASSWORD = gql`
   }
 `;
 export const UPDATE_PROFILE = gql`
-mutation updateadmin($input: AdminInput!){
-  updateadmin(input: $input) {
+mutation updateadmin($input: AdminInput!, $adminId:String!){
+  updateadmin(input: $input adminId: $adminId) {
+    id
     email
     phone
     full_name
     code
+    avatar
     role{
       id
       name

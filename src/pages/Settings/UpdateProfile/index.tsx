@@ -33,7 +33,7 @@ const UpdateProfile = ():JSX.Element => {
     const dispatch: Dispatch = useDispatch();
     const reduxState = useSelector( (state:any) => state);
     const{userObject} = reduxState?.reducer;
-
+  
     // GraphQL
     const [updateProfile, { data, loading, error }] = useMutation(UPDATE_PROFILE);
     
@@ -83,7 +83,8 @@ const UpdateProfile = ():JSX.Element => {
             const validate = await validateFormData();
            
             if(validate){
-                const response = await updateProfile({variables:{input: {full_name: formData?.full_name, phone: formData?.phone}}});
+                const response = await updateProfile({variables:{input: {full_name: formData?.full_name, phone: formData?.phone}, adminId: userObject?.id}});
+                console.log(response);
                 dispatch(addUser(response?.data?.updateadmin));
                 setState({
                     isLoading: false,
@@ -117,7 +118,7 @@ const UpdateProfile = ():JSX.Element => {
                  email: userObject?.email,
                  full_name: userObject?.full_name,
                  phone:userObject?.phone,
-                 role: userObject?.role[0]?.name?? '',
+                 role: userObject?.role?.name?? '',
                  avatar: userObject?.avatar?? '',
             }
         });
