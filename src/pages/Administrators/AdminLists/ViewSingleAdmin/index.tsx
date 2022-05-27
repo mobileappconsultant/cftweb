@@ -3,13 +3,15 @@ import { GET_SINGLE_ADMIN  } from 'GraphQl/Queries';
 import { useMutation, useQuery } from '@apollo/client';
 import { ACTIVATE_ADMIN, DEACTIVATE_ADMIN } from 'GraphQl/Mutations';
 import { extractErrorMessage, formatDate2, processAlertError, processAlertSuccess } from 'utils';
-import { ArrowNarrowLeft } from 'tabler-icons-react';
+import { ArrowNarrowLeft, EditCircle } from 'tabler-icons-react';
 import userIcon from 'assets/images/user.png';
 import './viewsingleuser.scss';
 import { DivLoader } from 'utilComponents/Loader';
+import ChangeAdminRole from '../ChangeAdminRole';
 
 const ViewSingleMember = (props : any) => {
-    const {userId, close, listingReload} = props; 
+    const {userId, close, listingReload, roles} = props; 
+
     const initialState = {
         userObject: {
             avatar: "",
@@ -21,10 +23,11 @@ const ViewSingleMember = (props : any) => {
             updatedAt: "",
             status:true,
         },
+        showChangeRoleModal: false,
         isLoading: true,
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const { isLoading, alertMessage, userObject} = state;
+    const { isLoading, alertMessage, userObject, showChangeRoleModal } = state;
     const { fetchMore }  = useQuery(GET_SINGLE_ADMIN,{variables:{id: userId}});
 
     const [activateAdmin] = useMutation(ACTIVATE_ADMIN);
@@ -102,6 +105,11 @@ const ViewSingleMember = (props : any) => {
             listingReload();
         }
     };
+    const addAlert = (alertObj:{text: string, type: string}) => {
+        setState({
+            alertMessage: alertObj,
+        });
+    };
 
     const backButton = () => {
         // close();
@@ -115,7 +123,19 @@ const ViewSingleMember = (props : any) => {
                 &nbsp;&nbsp;Go back
             </span>
         );
-    }
+    };
+    const toggleChangeRoleModal = (refresh = null) => {
+        setState({
+            showChangeRoleModal: !showChangeRoleModal,
+        })
+        if(refresh){
+            Promise.all([
+                fetchData(),
+                listingReload(),
+            ]);
+            
+        }
+    };
     return (
         <div className='single-user px-4 py-5'>
             {backButton()}
@@ -172,8 +192,19 @@ const ViewSingleMember = (props : any) => {
                 </div>
                 <div className='row mt-2'>
                     <div className='col-md-4'>
-                        <div className='info-label'>
-                            Role
+                        <div className='d-flex align-items-center'>
+                            <div className='info-label mb-0'>Role</div>  
+                            <div
+                                className={` pointer small-edit-button mx-3`}  
+                                onClick={()=>{toggleChangeRoleModal()}}
+                            >   
+                                <EditCircle
+                                    className="button-icon"
+                                    size={16}
+                                    strokeWidth={1.3}
+                                    color={'#FFF'}
+                                />
+                            </div>
                         </div>
                         <div className='info-text'>
                             {userObject?.role?.name}
@@ -202,7 +233,15 @@ const ViewSingleMember = (props : any) => {
                 </div>
                 </>
             )}
-            
+            {showChangeRoleModal && (
+                <ChangeAdminRole
+                    rolesArr={roles}
+                    userId= {userId}
+                    show={showChangeRoleModal}
+                    toggleModal={toggleChangeRoleModal}
+                    addAlert={addAlert}
+                />
+            )}
         </div>
     )
 };

@@ -7,8 +7,8 @@ import AlertComponent from 'components/AlertComponent';
 import Pagination from 'utilComponents/TablePagination';
 import InviteAdmin from './InviteAdmin';
 import { useMutation, useQuery } from '@apollo/client';
-import { GET_ALL_ADMINS } from 'GraphQl/Queries';
-import { extractErrorMessage, processAlertError, processAlertSuccess } from 'utils';
+import { GET_ALL_ADMINS, GET_ALL_ROLES } from 'GraphQl/Queries';
+import { capiitalizeFirstLetter, extractErrorMessage, processAlertError, processAlertSuccess } from 'utils';
 import Filter from 'components/Filter';
 import CircularLoader from 'utilComponents/Loader';
 import { ACTIVATE_ADMIN, DEACTIVATE_ADMIN } from 'GraphQl/Mutations';
@@ -22,15 +22,16 @@ const AdministratorsList = ():JSX.Element => {
         page:0,
         alertMessage:{},
         dataArr:[],
+        rolesArr: [],
         isLoading:true,
         viewSingle: false,
         userId: null,
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr, viewSingle, userId} = state;
+    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr, rolesArr, viewSingle, userId} = state;
     const { fetchMore }  = useQuery(GET_ALL_ADMINS);
-
+    const rolesRequest = useQuery(GET_ALL_ROLES);
     const [activateAdmin] = useMutation(ACTIVATE_ADMIN);
     const [deactivateAdmin] = useMutation(DEACTIVATE_ADMIN);
 
@@ -91,10 +92,34 @@ const AdministratorsList = ():JSX.Element => {
             });
         }
     };
-    
+    const fetchRoles =  async () => {
+        setState({
+            isLoading:true,
+        });
+        const apiData : any = await rolesRequest?.fetchMore({variables:{}});
+       
+         if(apiData.data){
+            setState({
+                rolesArr: apiData?.data?.getRoles,
+            }); 
+        };
+
+        if(!apiData.loading){
+            setState({
+                isLoading: false,
+            });
+        };
+
+        if(apiData.error){
+            setState({
+                alertMessage : processAlertError(extractErrorMessage(apiData?.error)),
+                isLoading: false,
+            });
+        }
+    };
     useEffect(() => {
         fetchData();
-    
+        fetchRoles();
         // Cleanup method
         return () => {
             setState({
@@ -182,7 +207,7 @@ const AdministratorsList = ():JSX.Element => {
                                                 <div className="my-2">
                                                     <UserCard
                                                         name={datum?.full_name ?? null}
-                                                        role={datum?.role[0] ? datum?.role[0]?.name : ''}
+                                                        role={datum?.role ? capiitalizeFirstLetter(datum?.role?.name) : ''}
                                                         time={'22/03/2022'}
                                                         avatar={datum?.avatar?datum?.avatar : userIcon}
                                                         active={datum?.status}
@@ -223,6 +248,7 @@ const AdministratorsList = ():JSX.Element => {
                         userId={userId}
                         close={viewUserProfile}
                         listingReload={fetchData}
+                        roles={rolesArr}
                     />
                 </>
         )}

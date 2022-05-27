@@ -660,8 +660,8 @@ export const GET_SINGLE_EVENT = gql`
 
 // Transactions
 export const GET_ALL_TRANSACTIONS = gql`
-  query TransactionDTO($page: Float! $limit: Float!  $status: String! $paymentMethod: String! $paymentType: String! ){
-    getAllTransactions(page:$page limit:$limit  status:$status paymentMethod: $paymentMethod paymentType: $paymentType ){
+  query TransactionDTO($page: Float! $limit: Float!  $status: String! $paymentMethod: String! $paymentType: String! $startDdate: String! $endDate: String!){
+    getAllTransactions(page:$page limit:$limit  status:$status paymentMethod: $paymentMethod paymentType: $paymentType startDdate:$startDdate endDate:$endDate){
       _id
       paymentType
       transactionId

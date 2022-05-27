@@ -324,6 +324,18 @@ ol, ul {
 	text-align:center;
 	box-shadow: 2px 2px 3px #999;
 }
+.small-edit-button{
+	width:25px !important;
+	height:25px !important;
+	background-color:#001167;
+	color:#FFF;
+	border-radius:50px;
+	text-align:center;
+	box-shadow: 2px 2px 3px #999;
+  .button-icon{
+    margin-top: 0px;
+  }
+}
 .button-icon{
 	margin-top:4px;
   color:#FFF;

@@ -1,8 +1,5 @@
 import React, {useReducer} from 'react';
 import Modal from 'utilComponents/Modal';
-import { Link } from 'react-router-dom';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
 import { extractErrorMessage, isObjectEmpty, processAlertError, processAlertSuccess } from 'utils';
 import AlertComponent from 'components/AlertComponent';
 import { validateData } from 'helpers';

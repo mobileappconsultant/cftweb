@@ -294,17 +294,10 @@ const Branches = ():JSX.Element => {
                     </div>
                     <div className="record-info-header">
                         BRANCH DETAILS 
-                            <span 
-                                className={` pointer edit-button mx-3`}  
-                                onClick={toggleEditModal}
-                            >   
-                                <EditCircle
-                                    className="button-icon"
-                                    size={20}
-                                    strokeWidth={1.5}
-                                    color={'#FFF'}
-                                />
-                            </span>
+                            <EditBranch 
+                                branch={activeDataObj}
+                                addAlert={addAlert}
+                            />
                     </div>
                     <div className="my-3">
                         <InfoDivHeader
@@ -347,13 +340,13 @@ const Branches = ():JSX.Element => {
                 refresh={fetchData}
                 addAlert={addAlert}
             />
-            {showEditModal && (
+            {/* {showEditModal && (
                 <EditBranch 
                     branch={activeDataObj}
                     show={showEditModal}
                     toggleModal={toggleEditModal}
                 />
-            )}
+            )} */}
                 
         </div>
         </>

@@ -343,7 +343,7 @@ const Calendar = ():JSX.Element => {
                         mutation={DELETE_EVENT}
                         handleModalToggle={toggleDeleteModal}
                         showModal={showDeleteModal}
-                        parameterKey="eventId"
+                        parameterKey="childId"
                         recordId={activeId}
                         addAlert={addAlert}
                     />

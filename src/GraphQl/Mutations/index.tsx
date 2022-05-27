@@ -143,6 +143,13 @@ export const EDIT_ROLE =gql`
     }
   }
 `;
+export const CHANGE_ADMIN_ROLE =gql`
+  mutation updateadmin($adminId:String! $input: AdminInput!){
+    updateadmin(adminId:$adminId input:$input){
+      id
+    }
+  }
+`;
 
 export const ACTIVATE_ADMIN =gql`
   mutation activateAdmin($adminID: String!){
@@ -733,8 +740,8 @@ mutation updateChildEvent($childId : childId $input:  ChildEventInput! ) {
 }
 `;
 export const DELETE_EVENT =gql`
-  mutation deleteEvent($eventId: String!) {
-    deleteEvent(eventId: $eventId) {
+  mutation deleteEvent($childId: String!) {
+    deleteEvent(childId: $childId) {
       msg
     }
   }

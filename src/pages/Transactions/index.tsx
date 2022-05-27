@@ -41,8 +41,8 @@ const theme = createTheme({
       primary: purple,
     },
 });
-  
-
+let now = new Date();
+now.setDate(now.getDate() - 7);
 const Transactions = ():JSX.Element => {
     const initialState = {
         listView: true,
@@ -53,7 +53,8 @@ const Transactions = ():JSX.Element => {
         activeReportComponent: 0,
         openChart: false,
         searchData:{
-            date:null,
+            startDdate: now,
+            endDate: new Date(),
             status: '',
             paymentMethod: '',
             paymentType: '',
@@ -123,6 +124,8 @@ const Transactions = ():JSX.Element => {
                         status:  searchData?.status,
                         paymentMethod: searchData?.paymentMethod,
                         paymentType: searchData?.paymentType,
+                        startDdate: searchData?.startDdate,
+                        endDate: searchData?.endDate
                     }
                 });
          if(apiData.data){
@@ -150,7 +153,15 @@ const Transactions = ():JSX.Element => {
         setState({
             searchData: {
                 ...searchData,
-                date: e
+                startDdate: e
+            },
+        });
+    };
+    const handleEndDateChange = (e:Date) => {
+        setState({
+            searchData: {
+                ...searchData,
+                endDate: e
             },
         });
     };
@@ -354,7 +365,7 @@ const Transactions = ():JSX.Element => {
                         <DatePicker
                             variant="inline"
                             inputVariant="outlined"
-                            value={searchData?.date}
+                            value={searchData?.startDdate}
                             // @ts-ignore
                             onChange={handleDateChange}
                             size='small'
@@ -373,9 +384,9 @@ const Transactions = ():JSX.Element => {
                         <DatePicker
                             variant="inline"
                             inputVariant="outlined"
-                            value={searchData?.date}
+                            value={searchData?.endDate}
                             // @ts-ignore
-                            onChange={handleDateChange}
+                            onChange={handleEndDateChange}
                             size='small'
                             format="MM/dd/yyyy"
                             autoOk
