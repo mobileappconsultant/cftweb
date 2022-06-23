@@ -55,54 +55,6 @@ export const getUrlParams = (url = window.location.href) => {
     return params;
 };
 
-// /**
-//  * Return file extension
-//  * @param {string} fileName file name
-//  * 
-//  * @returns {string} Empty string or file extension
-//  */
-// export const getFileExtenion = (fileName) => {
-//     if(!fileName){
-//         return '';
-//     } 
-//     return fileName.substring(fileName.lastIndexOf('.')+1, fileName.length) || '';
-
-// };
-
-// /**
-//  * Return bool
-//  * @param {string} stringPiece String Piece
-//  * @param {string} fullString Full Piece
-//  * 
-//  * @returns {boolean} true or false
-//  */
-// export const checkIfStringStartWith = (stringPiece, fullString) => {
-//     return fullString.startsWith(stringPiece);
-
-// };
-
-// /**
-//  * Pick an array of keys from a given object
-//  * @param {Object} targetObj Object to remove propeties from
-//  * @param {Array} props Array of object properties to be deleted
-//  * @returns {Object} A new object that has the specified properties
-//  */
-// export const pick = (targetObj, props) => {
-//     const picked = {};
-
-//     if (!Array.isArray(props)) {
-//         return;
-//     }
-
-//     props.forEach(prop => {
-//         if (targetObj.hasOwnProperty(prop)) {
-//             (picked[prop] = targetObj[prop]);
-//         }
-//     });
-
-//     return picked;
-// };
-
 /**
  * Checks if an object has no set properties
  * @param {*} obj The object to test
@@ -111,74 +63,6 @@ export const getUrlParams = (url = window.location.href) => {
 export const isObjectEmpty = (obj = {}) =>
     !obj || Object.keys(obj).length === 0;
 
-// /**
-//  * Return a user-friendly format for a number
-//  * @param {Number} number Passed number
-//  * @returns {String} Formatted number string
-//  */
-// export const formatNumber = number => {
-//     if ((!number && number !== 0) || isNaN(number)) {
-//         return '';
-//     }
-
-//     return number.toLocaleString();
-// };
-
-// /**
-//  * Return a user-friendly format for a number forcing a decimal place
-//  * @param {Number} number Passed number
-//  * @returns {String} Formatted number string
-//  */
-// export const formatFloat = number => {
-//     if ((!number && number !== 0) || isNaN(number)) {
-//         return '';
-//     }
-
-//     const floatVal = parseFloat(number);
-//     const decimalVal = floatVal % 1 === 0 ? `${floatVal}.0` : floatVal;
-
-//     return decimalVal.toLocaleString();
-// };
-
-// /**
-//  * Format a given number to a currency format
-//  * NOTE: If we ever need to format for different currencies, this is be a good place to do that :)
-//  * @param {Number} price The given price
-//  * @returns {String} Formatted price
-//  */
-// export const formatMoney = price => {
-//     if (!price && price !== 0) {
-//         return '';
-//     }
-
-//     return (
-//         <>
-//             {/* Resetting the font-family for the naira icon ensures that the
-//         Naira symbol renders correctly as some font don't render it properly
-//         (e.g. system-ui on Mac) */}
-//             <span
-//                 style={{
-//                     fontFamily: 'sans-serif',
-//                     marginRight: '1px',
-//                 }}
-//             >
-//                 &#x20A6;
-//             </span>
-//             {formatNumber(price)}
-//         </>
-//     );
-// };
-
-// /**
-//  * Format a money string to a currency format
-//  * @param {String} price The given price
-//  * @returns {String} Formatted price
-//  */
-// export const formatMoneyString = price => {
-//     const priceNumber = parseFloat(price.replace(/[, ]+/g, '').trim());
-
-//     return formatMoney(priceNumber);
-// };
 
 // /**
 //  * Ensure that a given string matches the character count and ellipsized at that point
@@ -197,38 +81,6 @@ export const truncateMultilineText = (text:string, numChars:number) => {
         ? text
         : `${text.trim().substring(0, maxStringLength)}...`;
 };
-
-// /**
-//  * Helper function to prevent default event handling and call a specified handler
-//  * @param {A} event The DOM event
-//  * @param {A} handler The callback to handle the event
-//  * @returns {*} undefined
-//  */
-// export const handleDOMEvent = (event, handler) => {
-//     event.preventDefault();
-//     event.stopPropagation();
-
-//     if (typeof handler === 'function') handler(event);
-// };
-
-// /**
-//  * Building query parameters based on injected query object;
-//  * object of format { "phone": "09091234321", "category_id": 1234  } is converted
-//  * to string of the following format 'phone: "09091234321", category_id: 1234'
-//  * @param {object} queryObj The object to format
-//  * @returns {*} The formatted object
-//  */
-// export const stripBraces = queryObj => {
-//     //STEP 1: Removing '"' around object keys in the json string
-//     let _queryObj = JSON.stringify(queryObj).replace(/"\w*":/g, str => {
-//         return str.replace(/"+/g, '');
-//     });
-
-//     //STEP 2: removing '{' and '}' around the json string
-//     _queryObj = _queryObj.replace(/(^[{])/, '').replace(/(}(?=[^}]*$))/, '');
-
-//     return _queryObj;
-// };
 
 /**
  * Function that does nothing:
@@ -255,85 +107,6 @@ export const extractErrorMessage = (err: any): string => {
 
     return errorMessage;
 };
-
-// /**
-//  * Method to extract error message from error response object
-//  * @returns {*} The error messgae
-//  */
-// export const extractSurveyError = (err) => {
-//     let error = [];
-//     const errorObj = {};
-//     if(err.response){
-//         if(err.response.data){
-//             error = err.response.data.errors; 
-//         }
-//     }
-//     for (let index = 0; index < error.length; index++) {
-//         const element = error[index];
-//         const object = {...element};
-//         for (const key in object) {
-//             if (Object.hasOwnProperty.call(object, key)) {
-//                 const el = object[key];
-//                 errorObj[key] = el;      
-//             }
-//         }
-//     }
-
-//     return errorObj;
-
-// };
-
-// /**
-//  * Method to Extract initials from Full name
-//  * @param {string} name name
-//  * @returns {string} initials
-//  */
-// export const getInitials = name => {
-//     const fullName = name.split(' '),
-//         initials = fullName[0].substring(0, 1).toUpperCase();
-
-//     if (fullName.length > 1) {
-//         initials.concat(fullName[fullName.length - 1].substring(0, 1).toUpperCase());
-//     }
-
-//     return initials;
-// };
-
-// /**
-//  * convert isoDate to human readable date
-//  * @param {*} date date
-//  * @returns {string} date
-//  */
-// export const humanReadableDate = (date, separator='/') => {
-//     if (date === '') return '';
-//     var d = new Date(date),
-//         month = '' + (d.getMonth() + 1),
-//         day = '' + d.getDate(),
-//         year = d.getFullYear();
-//     if (month.length < 2) month = '0' + month;
-//     if (day.length < 2) day = '0' + day;
-
-//     return `${[day, month, year].join(separator)}`;
-// };
-
-// export const humanReadableTime = date => {
-//     date = new Date(date);
-//     return date.toLocaleTimeString();
-// }
-
-// /**
-//  * 
-//  * @param {*} link 
-//  */
-// export const determineActiveMenu = (link) => {
-//     return window.location.pathname.includes(link) ? 'active' : '';
-// };
-
-
-// export const checkIfArray = (param) => {
-//     return Array.isArray(param);
-// }
-
 // /**
 //  * 
 //  */
@@ -351,6 +124,19 @@ export const scrollDown = () => {
     });
 };
 
+export const parseTime = (time = '1:00 am') => {
+    var startTime = new Date();
+    var parts = time.match(/(\d+):(\d+) (am|pm)/);
+    if (parts) {
+        var hours = parseInt(parts[1]),
+            minutes = parseInt(parts[2]),
+            tt = parts[3];
+        if (tt === 'pm' && hours < 12) hours += 12;
+        startTime.setHours(hours, minutes, 0, 0);
+    }
+    return startTime;
+};
+
 export const formatDate = (date: Date) => {
     if (!date) return '';
     const d = new Date(date);
@@ -365,9 +151,6 @@ export const formatDate2 = (date: Date) => {
 
 export const formatInitialDateValue = (data: Date) => {
     return moment(data).fromNow();
-   
-        // return moment(data, 'YYYY-MM-DD');
-        
 }
 
 export const getMomentAgo = (data: Date) => {
@@ -390,17 +173,6 @@ export const capiitalizeFirstLetter2 = (string = '') => {
 
 //      return string;
    
-// }
-
-// export const randomlySelectColor = () => {
-//     const arr = [
-//             {backgroundColor:'#7467c3', color:'white'},
-//             {backgroundColor:'#e74c4d', color:'white'},
-//             {backgroundColor:'#368055', color:'white'},
-//             {backgroundColor:'#efb931', color:'white'},
-//     ];
-//     return arr[Math.floor(Math.random() * arr.length)];
-
 // }
 
 // export const trimString = (string) => {

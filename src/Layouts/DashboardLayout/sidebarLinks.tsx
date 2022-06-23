@@ -11,7 +11,8 @@ import {
     Settings,
     User,
     GitBranch,
-    ArrowsMinimize
+    ArrowsMinimize,
+    UserCheck
  } from 'tabler-icons-react';
 export const sideBarRoutes = [
     {
@@ -52,12 +53,12 @@ export const sideBarRoutes = [
     {
         title: 'UPDATE SECTIONS',
         children:[
-            // {
-            //     text: 'Announcements',
-            //     icon: < Writing />,
-            //     path:'/announcements',
-            //     match:/^\/announcements/,
-            // },
+            {
+                text: 'Appointments',
+                icon: < UserCheck />,
+                path:'/appointments',
+                match:/^\/appointments/,
+            },
             {
                 text: 'Publications',
                 icon: <Table />,

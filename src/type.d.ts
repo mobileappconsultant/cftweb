@@ -1,4 +1,5 @@
 interface LoggedInUserObject {
+    _id?: string | undefined
     code?: string 
     createdAt?: string
     email?: string

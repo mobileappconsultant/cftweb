@@ -672,3 +672,71 @@ export const GET_ALL_TRANSACTIONS = gql`
     }
   }
 `;
+// Appointment module
+export const GET_ALL_APPOINTMENTS = gql`
+  query PaginatedAppointmentDTO($adminId: String! $flag: String! $page: Float! $limit: Float!){
+    getAppointments(adminId:$adminId flag:$flag page:$page limit:$limit ){
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs{
+        _id
+        name
+        email
+        slot{
+            _id
+            startDate
+            endDate
+            startTime
+            endTime
+            adminID
+            available
+            createdAt
+            updatedAt
+        }
+        agendaDescription
+        adminID
+        status
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+// Time slots
+export const GET_ALL_TIME_SLOTS = gql`
+  query SlotDTO($adminId: String!){
+    getSlots(adminId:$adminId){
+      _id
+      startDate
+      endDate
+      startTime
+      endTime
+      adminID
+      available
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const GET_SINGLE_TIME_SLOT = gql`
+  query SlotDTO($id: String!){
+    getSlot(id:$id){
+      _id
+      startDate
+      endDate
+      startTime
+      endTime
+      adminID
+      available
+      createdAt
+      updatedAt
+    }
+  }
+`;

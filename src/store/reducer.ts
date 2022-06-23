@@ -20,7 +20,7 @@ const reducer = (
             role: action?.userObject?.role,
             status: action?.userObject?.status,
             updatedAt: action?.userObject?.updatedAt,
-            id: action?.userObject?.id,
+            id: action?.userObject?._id,
             avatar: action?.userObject?.avatar,
         }
         return {

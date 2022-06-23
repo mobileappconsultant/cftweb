@@ -12,7 +12,6 @@ import Administrators from 'pages/Administrators';
 import Branches from 'pages/Branches';
 import Groups from 'pages/Groups';
 import Settings from 'pages/Settings';
-import Announcement from 'pages/Announcement';
 import SingleAnnouncement from 'pages/Announcement/ViewAnnouncement';
 import CreateAnnouncement from 'pages/Announcement/CreateAnnouncement';
 import Calendar from 'pages/Calendar';
@@ -23,6 +22,7 @@ import Transactions from 'pages/Transactions';
 import Terms from 'pages/Legal/Terms';
 import Support from 'pages/Legal/Support';
 import ViewCalenderEvent from 'pages/Calendar/ViewCalenderEvent';
+import Appointments from 'pages/Appointments';
 
 export const authRoutes = [
 	{path: '/', component: () => <Redirect to="/login" />},
@@ -49,7 +49,7 @@ export const privateRoutes = [
 	{path: "/branches", component: Branches},
 	{path: "/groups", component: Groups},
 	{path: "/settings", component: Settings},
-	{path:"/announcements", exact: true, component: Announcement},
+	{path:"/appointments", exact: true, component: Appointments},
 	{path:"/announcements/create", exact: true, component: CreateAnnouncement},
 	{path:"/announcements/:id", exact: true, component: SingleAnnouncement},
 	{path:"/calendar/event/:id", exact: true, component: CreateCalendarEvent},

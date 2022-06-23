@@ -18,7 +18,7 @@ import ViewSingleMember from './ViewSingleMember';
 const Members = ():JSX.Element => {
     const initialState = {
         listView: true,
-        rowsPerPage:20,
+        rowsPerPage:40,
         page:0,
         alertMessage:{},
         dataArr:[],

@@ -15,3 +15,8 @@
     letter-spacing: 0.05em;
     text-align: center;
 };
+@media (max-width: 900px) {
+    .welcome-header{
+        font-size: 26px;
+    };
+}

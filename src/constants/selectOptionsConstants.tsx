@@ -27,3 +27,8 @@ export const publishOptions = [
     {value:true, label: 'Published'},
     {value:false, label: 'Not Published'},
 ];
+export const appointmentOptions = [
+    {value:'null', label: 'All'},
+    {value:true, label: 'Approved'},
+    {value:false, label: 'Pending'},
+];

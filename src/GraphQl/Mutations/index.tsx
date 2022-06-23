@@ -26,17 +26,17 @@ export const LOGIN = gql`
     login(creds: $creds ) {
       token
       admin{
-        id
+        _id
         email
         phone
         full_name
         code
         avatar
         role{
-            id
+            _id
             name
             permissions{
-              id
+              _id
               name
               description
               module
@@ -748,4 +748,60 @@ export const DELETE_EVENT =gql`
     }
   }
 `;
+// appointments
+export const CREATE_NEW_TIME_SLOT =gql`
+  mutation createNewTimeSlot($input: SlotInput!) {
+    createNewTimeSlot(input: $input) {
+      _id
+      startDate
+      endDate
+      startTime
+      endTime
+      adminID
+      available
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const UPDATE_TIME_SLOT =gql`
+  mutation updateTimeSlot($id: String! $input: SlotInput!) {
+    updateTimeSlot(id:$id  input: $input) {
+      _id
+      startDate
+      endDate
+      startTime
+      endTime
+      adminID
+      available
+      createdAt
+      updatedAt
+    }
+  }
+`;
 
+export const UPDATE_APPOINTMENT =gql`
+  mutation updateAppointment($id: String! $status: String!) {
+    updateAppointment(id:$id  status: $status) {
+      _id
+      name
+      email
+      slot{
+          _id
+          startDate
+          endDate
+          startTime
+          endTime
+          adminID
+          available
+          createdAt
+          updatedAt
+      }
+      agendaDescription
+      adminID
+      status
+      createdAt
+      updatedAt
+    }
+  }
+`;
