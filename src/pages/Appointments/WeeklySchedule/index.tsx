@@ -145,34 +145,12 @@ const WeeklySchedule =(props: any) => {
         })
     };
     
-    // const handleDateSelect = (selectInfo: DateSelectArg) => {
-    //     let title = prompt('Please enter a new title for your event')
-    //     let calendarApi = selectInfo.view.calendar
-    
-    //     calendarApi.unselect() // clear date selection
-    
-    //     if (title) {
-    //       calendarApi.addEvent({
-    //         id: createEventId(),
-    //         title,
-    //         start: selectInfo.startStr,
-    //         end: selectInfo.endStr,
-    //         allDay: selectInfo.allDay
-    //       })
-    //     }
-    // };
-    
     const handleEventClick = (clickInfo: EventClickArg) => {
-        console.log(clickInfo?.event?._def?.extendedProps);
         setState({
             activeAppointment: clickInfo?.event?._def?.extendedProps,
             showViewModal: true
         })
-        // eslint-disable-next-line no-restricted-globals
-        // if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-        //     clickInfo.event.remove();
-        // }
-      };
+    };
     
     const handleEvents = (events: EventApi[]) => {
         setState({

@@ -40,7 +40,13 @@ const CreateApostleMessage = (props: any):JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const [createNewMessage] = useMutation(CREATE_MESSAGE); 
-    const adminDataQuery = useQuery(GET_ALL_ADMINS); 
+    const adminDataQuery = useQuery(GET_ALL_ADMINS, {
+        variables: {
+            page: 0,
+            limit: 10000,
+            query: ''
+        },
+    });
     const {formData, isLoading, alertMessage, errors, preview, adminData,  bibleVerseData} = state;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
@@ -200,7 +206,7 @@ const CreateApostleMessage = (props: any):JSX.Element => {
     useEffect(() => {
         
         if(adminDataQuery.data){
-            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin));
+            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin?.docs));
             for (let index = 0; index < adminList.length; index++) {
                 const element = adminList[index];
                 element.label = element?.full_name;

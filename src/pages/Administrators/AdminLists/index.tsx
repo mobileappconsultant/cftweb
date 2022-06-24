@@ -14,46 +14,66 @@ import CircularLoader from 'utilComponents/Loader';
 import { ACTIVATE_ADMIN, DEACTIVATE_ADMIN } from 'GraphQl/Mutations';
 import ViewSingleMember from './ViewSingleAdmin';
 import userIcon from 'assets/images/user.png';
+import SearchInput from 'utilComponents/SearchInput';
 
 const AdministratorsList = ():JSX.Element => {
     const initialState = {
         listView: true,
-        rowsPerPage:10,
-        page:0,
+        pagination:{
+            rowsPerPage: 10,
+            page:0,
+            totalRecords: 10,
+        },
         alertMessage:{},
         dataArr:[],
         rolesArr: [],
         isLoading:true,
         viewSingle: false,
         userId: null,
+        search: "",
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr, rolesArr, viewSingle, userId} = state;
-    const { fetchMore }  = useQuery(GET_ALL_ADMINS);
-    const rolesRequest = useQuery(GET_ALL_ROLES);
+    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr, rolesArr, viewSingle, userId, search, pagination} = state;
+    const { fetchMore } = useQuery(GET_ALL_ADMINS, {
+        variables: {
+            page: 0,
+            limit: 10,
+            query: search,
+        },
+    });
+    const rolesRequest = useQuery(GET_ALL_ROLES, {
+        variables: {
+            page: 0,
+            limit: 10000,
+        },
+    });
     const [activateAdmin] = useMutation(ACTIVATE_ADMIN);
     const [deactivateAdmin] = useMutation(DEACTIVATE_ADMIN);
 
-    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
+    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => { 
+        const newPagination = {
+            ...pagination,
+            page: newPage,
+        };
         setState({
             page: newPage,
         });
+        fetchData(newPagination);
+        
     };
   
     const handleChangeRowsPerPage = (event: any): void => {
-
-        const splicedIndex = page * rowsPerPage;
-        let spilceStop = rowsPerPage+ splicedIndex;
-        
-        if(spilceStop >= dataArr.length){
-            return;
-        }
+        const newPagination = {
+            ...pagination,
+            rowsPerPage: event?.target?.value,
+        };
         setState({
             rowsPerPage: event?.target?.value,
         });
-      
+        fetchData(newPagination);
     };
+    
     const handleAlertClose = () => {
         setState({
             alertMessage:{},
@@ -65,14 +85,27 @@ const AdministratorsList = ():JSX.Element => {
             alertMessage: alertObj,
         });
     };
-    const fetchData = async() => {
+    const fetchData =  async (paginationArgs = pagination) => {
         try {
              
-            const apiData : any = await fetchMore({variables:{}});
+            const searchItem = search?? ' ';
+            const apiData : any = 
+                    await fetchMore({
+                        variables:{
+                            query: searchItem,
+                            page: paginationArgs?.page + 1,
+                            limit: paginationArgs?.rowsPerPage 
+                        }
+                    });
             const {data, loading, error} = apiData;
             if(data){
                 setState({
-                    dataArr: data?.getAllAdmin,
+                    dataArr: data?.getAllAdmin?.docs,
+                    pagination:{
+                        rowsPerPage: apiData?.data?.getAllAdmin?.limit,
+                        page: apiData?.data?.getAllAdmin?.page - 1,
+                        totalRecords: apiData?.data?.getAllAdmin?.totalDocs,
+                    },
                 });
             };
             if(!loading){
@@ -96,11 +129,16 @@ const AdministratorsList = ():JSX.Element => {
         setState({
             isLoading:true,
         });
-        const apiData : any = await rolesRequest?.fetchMore({variables:{}});
+        const apiData : any = await rolesRequest?.fetchMore({
+            variables:{
+                page: 0,
+                limit: 10000
+            }
+        });
        
          if(apiData.data){
             setState({
-                rolesArr: apiData?.data?.getRoles,
+                rolesArr: apiData?.data?.getRoles?.docs,
             }); 
         };
 
@@ -157,19 +195,17 @@ const AdministratorsList = ():JSX.Element => {
             viewSingle: !viewSingle,
             userId: id,
         });
-};
-    
-    const paginatedData = (dataArr:any) => {
-        const splicedIndex = page * rowsPerPage;
-        let spilceStop = rowsPerPage+ splicedIndex;
-        const newArr = dataArr.slice(splicedIndex, spilceStop);
-        
-        return newArr;
-
     };
-    const paginateData = paginatedData(dataArr);
+    
+    const handleSearchData = (searchVal= '') => {
+        setState({
+            ...state,
+            search: searchVal,
+        });
+    };
 
-    return(
+
+return(
         <>
        
         {alertMessage?.text && (
@@ -185,9 +221,8 @@ const AdministratorsList = ():JSX.Element => {
         {!viewSingle? (
             <>
                 <div className="row  pt-4 px-4 justify-content-end">
-                    <div className='col-md-3'>
-                        <Filter
-                            text="Status" />
+                    <div className='col-md-5 mb-4 mt-3'>
+                        <SearchInput  handleSearchData={handleSearchData} fetchData={fetchData} value={search}/>
                     </div>
                 </div>
 
@@ -198,7 +233,7 @@ const AdministratorsList = ():JSX.Element => {
                 ) : (
                     <>
                         <div className="row  py-4 px-4 overflow-y-auto ">
-                            {paginateData.map((datum: any, _i: number) => {
+                            {dataArr.map((datum: any, _i: number) => {
 
                                 return (
                                     <>
@@ -211,7 +246,7 @@ const AdministratorsList = ():JSX.Element => {
                                                         time={'22/03/2022'}
                                                         avatar={datum?.avatar?datum?.avatar : userIcon}
                                                         active={datum?.status}
-                                                        id={datum.id}
+                                                        id={datum._id}
                                                         disableAccount={deactivateAdministrator}
                                                         activateAccount={activateAdministrator}
                                                         viewProfile={viewUserProfile} />
@@ -228,9 +263,9 @@ const AdministratorsList = ():JSX.Element => {
                     </>
                 )}
                 <Pagination
-                    count={dataArr.length ?? 0}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
+                    count={pagination?.totalRecords}
+                    page={pagination?.page}
+                    rowsPerPage={pagination?.rowsPerPage}
                     onPageChange={handleChangePage}
                     handleChangeRowsPerPage={handleChangeRowsPerPage} 
                 />
@@ -238,6 +273,7 @@ const AdministratorsList = ():JSX.Element => {
 
                     <InviteAdmin
                         addAlert={addAlert} 
+                        roles={rolesArr}
                     />
                 </div>
             </>

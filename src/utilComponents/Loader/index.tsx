@@ -16,7 +16,7 @@ export default function CircularLoader() {
     // </div>
     <div className=" div-loader text-center">
         {/* <Box sx={{ display: 'flex' }}> */}
-          <div className='mt-5  mb-5 pt-3' />
+          <div className='pt-5  mb-5 pt-3' />
             <CircularProgress 
                 className="mt-5 mb-5"
                 size={70}

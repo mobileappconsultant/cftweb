@@ -48,7 +48,13 @@ const EditSermon = (props: any):JSX.Element => {
     const { fetchMore } = useQuery(GET_SINGLE_PASTORS_FORUM_MESSAGE, {
         variables: { id: props?.messageId}
     }); 
-    const adminDataQuery = useQuery(GET_ALL_ADMINS);
+    const adminDataQuery = useQuery(GET_ALL_ADMINS, {
+        variables: {
+            page: 0,
+            limit: 10000,
+            query: ''
+        },
+    });
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -251,7 +257,7 @@ const EditSermon = (props: any):JSX.Element => {
     useEffect(() => {
         
         if(adminDataQuery.data){
-            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin)) ;
+            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin?.docs));
             for (let index = 0; index < adminList.length; index++) {
                 const element = adminList[index];
                 element.label = element?.full_name;
@@ -261,10 +267,10 @@ const EditSermon = (props: any):JSX.Element => {
                 adminData: adminList,
             });
         };
-        
+
         if(adminDataQuery.error){
             setState({
-                alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
+                alertMessage:processAlertError(extractErrorMessage(adminDataQuery.error)),
             })
         }
         fetchData();

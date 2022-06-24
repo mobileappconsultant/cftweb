@@ -181,21 +181,18 @@ export const ACTIVATE_ADMIN =gql`
 export const DEACTIVATE_ADMIN =gql`
   mutation deactivateAdmin($adminID: String!){
     deactivateAdmin(adminID:$adminID){
-      id
+      _id
       email
       phone
       full_name
       code
       role{
-        id
+        _id
         name
-        permissions{
-          id
-          name
-          description
-          module
+        createdAt
+        updatedAt
         }
-      }
+      avatar
       status
       createdAt
       updatedAt

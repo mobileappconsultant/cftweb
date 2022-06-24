@@ -110,26 +110,37 @@ export const GET_SINGLE_GROUP = gql`
 
 // Admins
 export const GET_ALL_ADMINS = gql`
-  query AdminDTO{
-    getAllAdmin{
-      id
-      email
-      phone
-      full_name
-      avatar
-      role{
-        id
-        name
-        permissions{
-          id
+  query PaginatedAdminDTO($page: Float! $limit: Float! $query: String!){
+    getAllAdmin(page:$page limit:$limit query:$query){
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs {
+        status
+        createdAt
+        updatedAt
+        _id
+        email
+        phone
+        full_name
+        code
+        role {
+          _id
           name
-          description
-          module
+          createdAt
+          updatedAt
         }
+        avatar
+        status
+        createdAt
+        updatedAt
       }
-      status
-      createdAt
-      updatedAt
     }
   }
 `;
@@ -137,16 +148,16 @@ export const GET_ALL_ADMINS = gql`
 export const GET_SINGLE_ADMIN = gql`
   query AdminDTO($id: String!){
     getAdmin(id:$id){
-      id
+      _id
       email
       phone
       full_name
       avatar
       role{
-        id
+        _id
         name
         permissions{
-          id
+          _id
           name
           description
           module
@@ -161,34 +172,59 @@ export const GET_SINGLE_ADMIN = gql`
 
 // Admins
 export const GET_ALL_INVITED_ADMINS = gql`
-  query AdminDTO{
-    getAllInvitedAdmin{
+query PaginatedAdminDTO($page: Float! $limit: Float! $query: String!){
+  getAllInvitedAdmin(page:$page limit:$limit query:$query){
+    totalDocs
+    limit
+    totalPages
+    page
+    pagingCounter
+    hasPrevPage
+    hasNextPage
+    prevPage
+    nextPage
+    docs {
+      status
+      createdAt
+      updatedAt
+      _id
       email
       phone
       full_name
-      role{
-        id
+      code
+      role {
+        _id
         name
-        permissions{
-          id
-          name
-          description
-          module
-        }
+        createdAt
+        updatedAt
       }
+      avatar
       status
       createdAt
       updatedAt
     }
   }
+}
 `;
 
 // Roles
 export const GET_ALL_ROLES = gql`
-  query RoleDTO{
-    getRoles{
-      id
-      name
+  query PaginatedRoleDTO($page: Float! $limit: Float!){
+    getRoles(page:$page limit:$limit ){
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs{
+        _id
+        name
+      }
+      
     }
   }
 `;

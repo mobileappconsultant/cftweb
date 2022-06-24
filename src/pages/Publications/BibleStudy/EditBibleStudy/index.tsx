@@ -37,7 +37,13 @@ const EditBibleStudy= (props: any):JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const [updateBibleStudy, { data, loading, error }] = useMutation(UPDATE_BIBLE_STUDY); 
-    const  adminDataQuery = useQuery(GET_ALL_ADMINS);
+    const adminDataQuery = useQuery(GET_ALL_ADMINS, {
+        variables: {
+            page: 0,
+            limit: 10000,
+            query: ''
+        },
+    });
     const {fetchMore} = useQuery(GET_SINGLE_BIBLE_STUDY_CONTENT, {
         variables: { bibleStudyContentId: props?.bibleStudyId}
     });
@@ -223,9 +229,9 @@ const EditBibleStudy= (props: any):JSX.Element => {
     }
 
     useEffect(() => {
-    
+        
         if(adminDataQuery.data){
-            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin));
+            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin?.docs));
             for (let index = 0; index < adminList.length; index++) {
                 const element = adminList[index];
                 element.label = element?.full_name;
@@ -238,8 +244,8 @@ const EditBibleStudy= (props: any):JSX.Element => {
 
         if(adminDataQuery.error){
             setState({
-                alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
-            });
+                alertMessage:processAlertError(extractErrorMessage(adminDataQuery.error)),
+            })
         }
         fetchData();
         // Cleanup method

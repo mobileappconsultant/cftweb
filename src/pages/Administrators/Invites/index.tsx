@@ -22,33 +22,55 @@ import Badges from 'utilComponents/Badges';
 const Invites = ():JSX.Element => {
     const initialState = {
         listView: true,
-        rowsPerPage:10,
-        page:0,
+        pagination:{
+            rowsPerPage: 10,
+            page:0,
+            totalRecords: 10,
+        },
         alertMessage:{},
         activeReportComponent: 0,
         dataArr:[], 
-        isLoading:true,   
+        isLoading:true,  
+        search: "", 
     };
    
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {
-        listView, 
-        page, 
-        rowsPerPage, 
+    const { 
         isLoading, 
         alertMessage, 
         dataArr,
+        search, 
+        pagination
     } = state;
-    const { fetchMore } = useQuery(GET_ALL_INVITED_ADMINS);
+    const { fetchMore } = useQuery(GET_ALL_INVITED_ADMINS, {
+        variables: {
+            page: 0,
+            limit: 10,
+            query: search,
+        },
+    });
 
-
-    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-      
+    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => { 
+        const newPagination = {
+            ...pagination,
+            page: newPage,
+        };
+        setState({
+            page: newPage,
+        });
+        fetchData(newPagination);
     };
-    
-    const handleChangeRowsPerPage = (event: React.SyntheticEvent): void => {
-        
+
+    const handleChangeRowsPerPage = (event: any): void => {
+        const newPagination = {
+            ...pagination,
+            rowsPerPage: event?.target?.value,
+        };
+        setState({
+            rowsPerPage: event?.target?.value,
+        });
+        fetchData(newPagination);
     };
     const handleAlertClose = () => {
         setState({
@@ -57,15 +79,28 @@ const Invites = ():JSX.Element => {
     };
 
 
-    const fetchData =  async () => {
+    const fetchData =  async (paginationArgs = pagination) => {
         setState({
             isLoading:true,
         });
-        const apiData : any = await fetchMore({variables:{}});
+        const searchItem = search?? ' ';
+            const apiData : any = 
+                    await fetchMore({
+                        variables:{
+                            query: searchItem,
+                            page: paginationArgs?.page + 1,
+                            limit: paginationArgs?.rowsPerPage 
+                        }
+                    });
        
          if(apiData.data){
             setState({
-                dataArr: apiData?.data?.getAllInvitedAdmin,
+                dataArr: apiData?.data?.getAllInvitedAdmin?.docs,
+                pagination:{
+                    rowsPerPage: apiData?.data?.getAllAdmin?.limit,
+                    page: apiData?.data?.getAllAdmin?.page - 1,
+                    totalRecords: apiData?.data?.getAllAdmin?.totalDocs,
+                },
             }); 
         };
 

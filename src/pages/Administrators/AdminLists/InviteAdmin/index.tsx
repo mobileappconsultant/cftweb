@@ -9,7 +9,6 @@ import FormGroupInput from 'utilComponents/FormGroupInput';
 import FormGroupSelect from 'utilComponents/FormGroupSelect';
 import { useMutation, useQuery } from '@apollo/client';
 import { INVITE_ADMIN } from 'GraphQl/Mutations';
-import { GET_ALL_ROLES } from 'GraphQl/Queries';
 
 const InviteAdmin = (props: any):JSX.Element => {
     const initialState = {
@@ -28,7 +27,6 @@ const InviteAdmin = (props: any):JSX.Element => {
     const {formData, isLoading, alertMessage, errors, showModal, roleOptions} = state;
     // Graphql
     const [inviteNewAdmin, { data, loading, error }] = useMutation(INVITE_ADMIN); 
-    const getAllRoles = useQuery(GET_ALL_ROLES);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
         const {name, value} = e.target;
@@ -135,9 +133,8 @@ const InviteAdmin = (props: any):JSX.Element => {
     };
 
     useEffect(() => {
-        
-        if(getAllRoles.data){
-            const roleList:any = JSON.parse(JSON.stringify(getAllRoles.data.getRoles));
+        if(props?.roles){
+            const roleList:any = JSON.parse(JSON.stringify(props?.roles));
             for (let index = 0; index < roleList.length; index++) {
                 const element = roleList[index];
                 element.label = element?.name;
@@ -148,18 +145,6 @@ const InviteAdmin = (props: any):JSX.Element => {
             });
            
         };
-        if(!getAllRoles.loading){
-            setState({
-                isLoading: false,
-            });
-        };
-
-        if(getAllRoles.error){
-            
-            setState({
-                alertMessage :processAlertError(extractErrorMessage(getAllRoles.error)),
-            });
-        }
 
         // Cleanup method
         return () => {
@@ -167,7 +152,7 @@ const InviteAdmin = (props: any):JSX.Element => {
                 ...initialState,
             });
         };
-    }, [getAllRoles.data]);
+    }, [props?.roles]);
 
     return(
         <>

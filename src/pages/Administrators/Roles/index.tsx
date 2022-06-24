@@ -1,9 +1,6 @@
 import React, {useReducer, useEffect} from 'react';
-import { Link } from 'react-router-dom';
 import AlertComponent from 'components/AlertComponent';
 import Pagination from 'utilComponents/TablePagination';
-import { ApiRequestClient } from 'apiClient';
-import { apiRoutes } from 'constants/index';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -25,8 +22,11 @@ import ViewRole from './ViewRole';
 const Roles = ():JSX.Element => {
     const initialState = {
         listView: true,
-        rowsPerPage:10,
-        page:0,
+        pagination:{
+            rowsPerPage: 20,
+            page:0,
+            totalRecords: 20,
+        },
         alertMessage:{},
         activeReportComponent: 0,
         dataArr:[], 
@@ -42,7 +42,7 @@ const Roles = ():JSX.Element => {
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {
         listView, 
-        page, 
+        pagination, 
         rowsPerPage, 
         isLoading, 
         alertMessage, 
@@ -53,7 +53,12 @@ const Roles = ():JSX.Element => {
         showViewSingleRole,   
         activeId,
     } = state;
-    const { fetchMore } = useQuery(GET_ALL_ROLES);
+    const { fetchMore } = useQuery(GET_ALL_ROLES, {
+        variables: {
+            page: 0,
+            limit: 20
+        },
+    });
 
     const defaultView = (refresh= null) => {
         setState({
@@ -68,13 +73,29 @@ const Roles = ():JSX.Element => {
         }
     };
 
-    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-      
-    };
-    
-    const handleChangeRowsPerPage = (event: React.SyntheticEvent): void => {
+    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => { 
+        const newPagination = {
+            ...pagination,
+            page: newPage,
+        };
+        setState({
+            page: newPage,
+        });
+        fetchData(newPagination);
         
     };
+  
+    const handleChangeRowsPerPage = (event: any): void => {
+        const newPagination = {
+            ...pagination,
+            rowsPerPage: event?.target?.value,
+        };
+        setState({
+            rowsPerPage: event?.target?.value,
+        });
+        fetchData(newPagination);
+    };
+    
     const handleAlertClose = () => {
         setState({
             alertMessage:{},
@@ -87,15 +108,25 @@ const Roles = ():JSX.Element => {
         });
     };
 
-    const fetchData =  async () => {
+    const fetchData =  async (paginationArgs = pagination) => {
         setState({
             isLoading:true,
         });
-        const apiData : any = await fetchMore({variables:{}});
+        const apiData : any = await fetchMore({
+            variables:{
+                page: paginationArgs?.page + 1,
+                limit: paginationArgs?.rowsPerPage
+            }
+        });
        
          if(apiData.data){
             setState({
-                dataArr: apiData?.data?.getRoles,
+                dataArr: apiData?.data?.getRoles?.docs,
+                pagination:{
+                    rowsPerPage: apiData?.data?.getRoles?.limit,
+                    page: apiData?.data?.getRoles?.page - 1,
+                    totalRecords: apiData?.data?.getRoles?.totalDocs,
+                },
             }); 
         };
 
@@ -123,7 +154,6 @@ const Roles = ():JSX.Element => {
         };
     }, []);
 
-   
     return(
         <>
         
@@ -182,7 +212,7 @@ const Roles = ():JSX.Element => {
                                                                         showCreateForm: false,
                                                                         showEditForm: false,
                                                                         showViewSingleRole: true,
-                                                                        activeId:row?.id,
+                                                                        activeId:row?._id,
                                                                     })
                                                                 }}
                                                             />
@@ -193,7 +223,7 @@ const Roles = ():JSX.Element => {
                                                                 className='pointer mx-2'
                                                                 onClick={()=>{
                                                                     setState({
-                                                                        activeId:row?.id,
+                                                                        activeId:row?._id,
                                                                         showEditForm:true,
                                                                         showAllRoles:false,
                                                                         showCreateForm: false,

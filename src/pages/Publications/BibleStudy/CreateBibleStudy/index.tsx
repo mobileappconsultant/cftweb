@@ -36,7 +36,13 @@ const CreateBibleStudy = (props: any):JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const [createNewBibleStudy, { data, loading, error }] = useMutation(CREATE_BIBLE_STUDY); 
-    const  adminDataQuery = useQuery(GET_ALL_ADMINS);
+    const adminDataQuery = useQuery(GET_ALL_ADMINS, {
+        variables: {
+            page: 0,
+            limit: 10000,
+            query: ''
+        },
+    });
     const {formData, isLoading, alertMessage, errors, preview, adminData,  bibleVerseData} = state;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
@@ -102,21 +108,6 @@ const CreateBibleStudy = (props: any):JSX.Element => {
             }
         });
     };
-
-    const handlePrayerPointChange = (data: any) => {
-        setState({
-            formData:{
-                ...formData,
-                prayer_point: data,
-            },
-            errors:{
-                ...state.errors,
-                prayer_point: '',
-            }
-        });
-    };
-
-
     
     const validateFormData = async () => {
         const newFormData = {...formData};
@@ -206,9 +197,9 @@ const CreateBibleStudy = (props: any):JSX.Element => {
     };
 
     useEffect(() => {
-    
+        
         if(adminDataQuery.data){
-            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin));
+            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin?.docs));
             for (let index = 0; index < adminList.length; index++) {
                 const element = adminList[index];
                 element.label = element?.full_name;
@@ -221,8 +212,8 @@ const CreateBibleStudy = (props: any):JSX.Element => {
 
         if(adminDataQuery.error){
             setState({
-                alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
-            });
+                alertMessage:processAlertError(extractErrorMessage(adminDataQuery.error)),
+            })
         }
         // Cleanup method
         return () => {
