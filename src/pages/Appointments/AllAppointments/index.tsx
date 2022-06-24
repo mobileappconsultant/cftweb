@@ -14,7 +14,7 @@ import { appointmentOptions } from 'constants/index';
 import AlertComponent from 'components/AlertComponent';
 import DeleteModal from 'utilComponents/DeleteModal';
 import SearchInput from 'utilComponents/SearchInput';
-import { CalendarTime, Checks, Settings, FriendsOff } from 'tabler-icons-react';
+import { CalendarTime, Checks, Settings, FriendsOff, CalendarOff } from 'tabler-icons-react';
 import { connect } from 'react-redux';
 import AllTimeSlots from '../TimeSlots';              
 import { mockdata } from '../mockdata';
@@ -212,6 +212,18 @@ const AllAppointments =(props: any) => {
             fetchData();
         }
     };
+
+    const cancelAppointment = async(id = null) => {
+        // eslint-disable-next-line no-restricted-globals
+        if(confirm("This action will cancel the selected appointment, click ok to continue")){
+            await changeAppointmentStatus({variables:{id: id, status: 'Declined'}});
+            setState({
+                alertMessage : processAlertSuccess('Appointment cancelled'),
+                isLoading: false,
+            });
+            fetchData();
+        }
+    };
     return (
 
         <>
@@ -285,10 +297,16 @@ const AllAppointments =(props: any) => {
                                                             type="success"
                                                         />
                                                     )}
-                                                    {datum?.status === "Not accepted"&&(
+                                                    {datum?.status === "Declined"&&(
+                                                        <Badges
+                                                            text="Cancelled"
+                                                            type="error"
+                                                        />
+                                                    )}
+                                                    {datum?.status ===  "Not accepted" &&(
                                                         <Badges
                                                             text="Declined"
-                                                            type="error"
+                                                            type="grey"
                                                         />
                                                     )}
                                                     {datum?.status === "Pending" &&(
@@ -300,31 +318,37 @@ const AllAppointments =(props: any) => {
                                                 </td>
                                                 <td>
                                                 <div className='d-flex gap-3'>
-                                                    {datum?.status !== "Accepted" && (
-                                                        <>
-                                                            {datum?.status !== "Not accepted" && (
-                                                                <Tooltip title="Approve appointment" placement="right-start" arrow className='mx-1'>
-                                                                    <span className='pointer' onClick={()=> acceptAppointment(datum?._id)}>
-                                                                        <Checks
-                                                                            size={28}
-                                                                            strokeWidth={2}
-                                                                            color={'black'}
-                                                                        />
-                                                                    </span>
-                                                                </Tooltip>
-                                                            )}
-                                                        </>
-                                                        
+                                                    {datum?.status === "Pending" && (
+                                                        <Tooltip title="Approve appointment" placement="right-start" arrow className='mx-1'>
+                                                            <span className='pointer' onClick={()=> acceptAppointment(datum?._id)}>
+                                                                <Checks
+                                                                    size={28}
+                                                                    strokeWidth={2}
+                                                                    color={'black'}
+                                                                />
+                                                            </span>
+                                                        </Tooltip>
                                                     )}
-                                                    {datum?.status !== "Not accepted" && (
-                                                        <Tooltip title="Decline appointment" placement="right-start" arrow className='mx-1'>
-                                                        <span className='pointer' onClick={()=> declineAppointment(datum?._id)}>
-                                                            <FriendsOff
-                                                                size={28}
-                                                                strokeWidth={2}
-                                                                color={'black'}
-                                                            />
-                                                        </span>
+                                                    {datum?.status === "Pending" && (
+                                                        <Tooltip title="Reject appointment" placement="right-start" arrow className='mx-1'>
+                                                            <span className='pointer' onClick={()=> declineAppointment(datum?._id)}>
+                                                                <FriendsOff
+                                                                    size={28}
+                                                                    strokeWidth={2}
+                                                                    color={'grey'}
+                                                                />
+                                                            </span>
+                                                    </Tooltip>
+                                                    )}
+                                                    {datum?.status === "Accepted" && (
+                                                        <Tooltip title="Cancel appointment" placement="right-start" arrow className='mx-1'>
+                                                            <span className='pointer' onClick={()=> cancelAppointment(datum?._id)}>
+                                                                <CalendarOff
+                                                                    size={28}
+                                                                    strokeWidth={2}
+                                                                    color={'red'}
+                                                                />
+                                                            </span>
                                                     </Tooltip>
                                                     )}
                                                     </div>
