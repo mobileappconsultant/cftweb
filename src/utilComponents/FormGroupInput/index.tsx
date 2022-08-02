@@ -20,6 +20,7 @@ const FormGroupInput = (props: propInterface): JSX.Element => {
                 {icon && (
                     <img alt="icon" src={icon} />
                 )}
+                <label>{placeholder}</label>
                 <input 
                     type="text"
                     className={`form-control ${showError? 'border border-danger text-danger' : ''}`} 

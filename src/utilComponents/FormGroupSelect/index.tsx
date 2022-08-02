@@ -2,7 +2,7 @@ import { isNotEmptyArray } from 'utils';
 import React from 'react';
 // import FormSelect from '../FormSelect';
 import Select from 'react-select';
-// import './FormGroupSelect.scss';
+import './formgroupselect.scss';
 interface propInterface {
     errorMessage?: string;
     extraClass?: string;
@@ -69,7 +69,7 @@ const FormGroupSelect = ({
     }
 
     return (
-        <div className={` ${errorMessage ? 'formError' : ''} ${extraClass}`}>
+        <div className={`form-group-select ${errorMessage ? 'formError' : ''} ${extraClass}`}>
             {label && <label className={labelClass}>{label}</label>}
             <Select
                 className={selectClass}

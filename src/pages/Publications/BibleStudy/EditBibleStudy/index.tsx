@@ -324,6 +324,7 @@ const EditBibleStudy= (props: any):JSX.Element => {
                                 <div className="col-md-6 mb-1">
                                     <FormGroupSelect
                                         placeholder="Select minister"
+                                        label="Select minister"
                                         onChange={(e: object)=>handleSelectChange(e, 'minister')}
                                         name="minister"
                                         showError={errors.minister}
@@ -334,6 +335,7 @@ const EditBibleStudy= (props: any):JSX.Element => {
                                 </div>
                                 
                                 <div className="col-md-6 mb-4">
+                                    <label>Select a date</label>
                                     <CustomDatePicker
                                         value={formData?.date}
                                         //@ts-ignore

@@ -17,7 +17,7 @@ const DashboardLayout = (props: any): JSX.Element => {
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {showModal} = state;
     const {user} = props;
-    
+    console.log(user);
     const handleModalToggle = () => {
         setState({showModal: !showModal});
     };

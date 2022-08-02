@@ -262,6 +262,7 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                             <div className="col-md-6 mb-4">
                                 <FormGroupSelect
                                     placeholder="Select author"
+                                    label="Select author"
                                     onChange={(e: object)=>handleSelectChange(e, 'author')}
                                     name="author"
                                     showError={errors.author}
@@ -270,7 +271,7 @@ const CreateApostlePrayer = (props: any):JSX.Element => {
                                 />
                             </div>
                             <div className="col-md-6 mb-3">
-                                
+                                <label>Pick a date (Publish date)</label>
                                 <CustomDatePicker
                                     value={formData?.date}
                                     //@ts-ignore

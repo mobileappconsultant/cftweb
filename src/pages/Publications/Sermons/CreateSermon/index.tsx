@@ -271,6 +271,7 @@ const CreateSermon = (props: any):JSX.Element => {
                             </div>
                            
                             <div className="col-md-6 mb-4">
+                                <label>Type bible verse and press enter</label>
                                 <ReactTagInput 
                                     tags={formData?.bibleReading} 
                                     onChange={(newTags) => setTags(newTags)}
@@ -288,6 +289,7 @@ const CreateSermon = (props: any):JSX.Element => {
                             <div className="col-md-6 mb-4">
                                 <FormGroupSelect
                                     placeholder="Select minister"
+                                    label="Select minister"
                                     onChange={(e: object)=>handleSelectChange(e, 'minister')}
                                     name="minister"
                                     showError={errors.minister}

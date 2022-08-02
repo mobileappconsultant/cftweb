@@ -357,6 +357,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                                         
                                         <FormGroupSelect
                                             placeholder="Select category"
+                                            label="Select category"
                                             onChange={(e: object)=>handleSelectChange(e, 'category')}
                                             name="category"
                                             showError={errors.category}
@@ -366,6 +367,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                                         />
                                     </div>
                                     <div className="col-md-6 mb-4">
+                                        <label className='form-label'>Type bible verse and press enter</label>
                                         <ReactTagInput 
                                             tags={formData?.bibleReading} 
                                             onChange={(newTags) => setTags(newTags)}
@@ -383,6 +385,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                                     <div className="col-md-6 mb-4">
                                         <FormGroupSelect
                                             placeholder="Select minister"
+                                            label="Select minister"
                                             onChange={(e: object)=>handleSelectChange(e, 'minister')}
                                             name="minister"
                                             showError={errors.minister}
@@ -392,7 +395,7 @@ const EditApostleMessage = (props: any):JSX.Element => {
                                         />
                                     </div>
                                     <div className="col-md-12 mb-4">
-                                    
+                                        <h6 className='mb-2'>Type message</h6>
                                         <TextEditor
                                             //@ts-ignore
                                             text={formData?.message}
