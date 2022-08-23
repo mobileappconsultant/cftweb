@@ -13,7 +13,9 @@ import DateFnsUtils from '@date-io/date-fns';
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 
 import { Filter } from 'tabler-icons-react';
-const startDate = moment(new Date()).format("YYYY-MM-DDTHH:mm:ss.SSS");
+let lastweek = new Date();
+lastweek.setDate(lastweek.getDate() - 7);
+const startDate = moment(lastweek).format("YYYY-MM-DDTHH:mm:ss.SSS");
 const endDate = moment(new Date()).format("YYYY-MM-DDTHH:mm:ss.SSS");
 
 const Home = ():JSX.Element => {
@@ -29,8 +31,8 @@ const Home = ():JSX.Element => {
             totalWelfare: 0
         },
         searchData:{
-            endDate: null,
-            startDate: null,
+            endDate: endDate,
+            startDate: startDate,
         },
         isLoading: false,
         alertMessage:{},
@@ -91,7 +93,6 @@ const Home = ():JSX.Element => {
       };
 
     const fetchRevenue = async (searchData: any) => {
-
         try {
             setState({
                 chartLoading: true,
@@ -138,6 +139,7 @@ const Home = ():JSX.Element => {
         
         // Cleanup method
         fetchData();
+        fetchRevenue(searchData);
         return () => {
             setState({
                 ...initialState,

@@ -258,7 +258,7 @@ const Transactions = ():JSX.Element => {
                         )}
                           
                       </TableCell>
-                    <TableCell align="left">{row.amount}</TableCell>
+                    <TableCell align="left">{row.currency} {row.amount}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

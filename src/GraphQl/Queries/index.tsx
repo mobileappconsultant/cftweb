@@ -702,6 +702,7 @@ export const GET_ALL_TRANSACTIONS = gql`
       paymentType
       transactionId
       amount
+      currency
       paymentPlatform
       transactionDate
       status
