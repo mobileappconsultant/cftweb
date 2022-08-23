@@ -74,6 +74,8 @@ const Transactions = ():JSX.Element => {
           status:  searchData?.status,
           paymentMethod: searchData?.paymentMethod,
           paymentType: searchData?.paymentType,
+          startDdate: searchData?.startDdate,
+          endDate: searchData?.endDate
         },
     });
     const openCharts = () => {
