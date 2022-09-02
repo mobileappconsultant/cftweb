@@ -151,12 +151,6 @@ const Members = ():JSX.Element => {
         <div className="col-md-6">
             <PageTitle text='Members' />
         </div>
-        <div className="col-md-6 d-flex justify-content-end">
-            <TableListView
-                isActive={listView}
-                actionEvent={changeListView}
-            />
-        </div>
         </div>
         {alertMessage?.text && (
             <>
@@ -176,14 +170,7 @@ const Members = ():JSX.Element => {
                                 text="Status"
                             />
                         </div>
-                        <div className='col-md-1 text-right row justify-content-end'> 
-                            <Printer
-                                size={34}
-                                strokeWidth={2}
-                                color={'#000000'}
-                                className='pointer'
-                            />
-                        </div>
+                        
                         <div className='col-md-12'>
                             <PageTitle text='Members List' />
                         </div>

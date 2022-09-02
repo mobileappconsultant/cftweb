@@ -138,7 +138,7 @@ const InviteAdmin = (props: any):JSX.Element => {
             for (let index = 0; index < roleList.length; index++) {
                 const element = roleList[index];
                 element.label = element?.name;
-                element.value = element?.id;
+                element.value = element?._id;
             };
             setState({
                 roleOptions: roleList,
