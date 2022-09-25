@@ -3,13 +3,11 @@ import UserCard from 'components/UserCard';
 import React, {useReducer, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AlertComponent from 'components/AlertComponent';
-import TableListView from 'utilComponents/TableListView';
 import Pagination from 'utilComponents/TablePagination';
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_ALL_MEMBERS } from 'GraphQl/Queries';
 import { extractErrorMessage, formatDate2, processAlertError, processAlertSuccess } from 'utils';
 import Filter from 'components/Filter';
-import { Printer } from 'tabler-icons-react';
 import CircularLoader from 'utilComponents/Loader';
 import userIcon from 'assets/images/user.png';
 import { ACTIVATE_USER, DEACTIVATE_USER } from 'GraphQl/Mutations';
@@ -18,8 +16,11 @@ import ViewSingleMember from './ViewSingleMember';
 const Members = ():JSX.Element => {
     const initialState = {
         listView: true,
-        rowsPerPage:40,
-        page:0,
+        pagination:{
+            rowsPerPage: 10,
+            page:0,
+            totalRecords: 10,
+        },
         alertMessage:{},
         dataArr:[],
         isLoading:true,
@@ -28,7 +29,7 @@ const Members = ():JSX.Element => {
     };
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr, viewSingle, userId} = state;
+    const {listView, page, rowsPerPage, isLoading, alertMessage, dataArr, viewSingle, userId, pagination} = state;
     const { fetchMore }  = useQuery(GET_ALL_MEMBERS, {
         variables: {
           page: 0,
@@ -53,37 +54,50 @@ const Members = ():JSX.Element => {
     };
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-        
+        const newPagination = {
+            ...pagination,
+            page: newPage,
+        };
         setState({
             page: newPage,
         });
-        fetchData();
+        fetchData(newPagination);
         
     };
   
     const handleChangeRowsPerPage = (event: any): void => {
+        const newPagination = {
+            ...pagination,
+            rowsPerPage: event?.target?.value,
+        };
         
         setState({
             rowsPerPage: event?.target?.value,
         });
-        fetchData();
+        fetchData(newPagination);
+        
     };
 
-    const fetchData = async() => {
+    const fetchData = async(paginationArgs = pagination) => {
         try {
              
             const apiData : any =  await fetchMore({
                 variables:{
-                    page: page? page: 0,
-                    limit: rowsPerPage? rowsPerPage : 20,
+                    page: paginationArgs?.page + 1,
+                    limit: paginationArgs?.rowsPerPage,
                     // flag: flag,
                 }
             });
-            // console.log(apiData);
             const {data, loading, error} = apiData;
             if(data){
                 setState({
-                    dataArr: data?.getAllUser,
+                    dataArr: data?.getAllUser?.docs,
+                    totalRecords: data?.getAllUser?.totalDocs,
+                    pagination:{
+                        rowsPerPage: data?.getAllUser?.limit,
+                        page: data?.getAllUser?.page - 1,
+                        totalRecords: data?.getAllUser?.totalDocs,
+                    },
                 });
             };
             if(!loading){
@@ -112,7 +126,7 @@ const Members = ():JSX.Element => {
                 ...initialState,
             });
         };
-    }, [page, rowsPerPage]);
+    }, []);
 
     const deactivateMemberAccount = async(id:number) => {
         // eslint-disable-next-line no-restricted-globals
@@ -211,13 +225,19 @@ const Members = ():JSX.Element => {
                                 </div>
                             </>
                         )}
-                        <Pagination
-                            count={dataArr.length?? 0}
-                            page={page}
-                            rowsPerPage={rowsPerPage}
-                            onPageChange={handleChangePage}
-                            handleChangeRowsPerPage={handleChangeRowsPerPage}
-                        />
+                        {dataArr.length !== 0 && (
+                            <>
+                                <div>
+                                    <Pagination
+                                        count={pagination?.totalRecords}
+                                        page={pagination?.page}
+                                        rowsPerPage={pagination?.rowsPerPage}
+                                        onPageChange={handleChangePage}
+                                        handleChangeRowsPerPage={handleChangeRowsPerPage}
+                                    />
+                                </div>
+                            </>
+                        )}
                 </>
             ):(
                 <>

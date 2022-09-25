@@ -11,6 +11,14 @@ const reducer = (
    
     switch (action.type) {
       case actionTypes.LOGIN_SUCCESSFUL:
+        const obj:any ={};
+
+        for (let i =0; i < action?.userObject?.role?.permissions.length; i++){
+            const element =action?.userObject?.role?.permissions[i];
+            let elName = element.description.toUpperCase();
+            elName = elName.replace(/ /g,"_");
+            obj[elName] = element.description;
+        };
         const loginData: LoggedInUserObject = {
             code: action?.userObject?.code,
             createdAt: action?.userObject?.createdAt,
@@ -22,6 +30,7 @@ const reducer = (
             updatedAt: action?.userObject?.updatedAt,
             id: action?.userObject?._id,
             avatar: action?.userObject?.avatar,
+            permissionsObject: obj
         }
         return {
           ...state,

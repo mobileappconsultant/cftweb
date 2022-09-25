@@ -1,13 +1,11 @@
+import permissionsObj from 'constants/permissionConstants';
 import React from 'react';
 import { 
     Dashboard, 
     Users, 
-    BellPlus,
     CurrencyDollar,
-    Writing,
     Table,
     Calendar,
-    Archive,
     Settings,
     User,
     GitBranch,
@@ -29,6 +27,7 @@ export const sideBarRoutes = [
                 icon: <Users />,
                 path:'/members',
                 match:/^\/members/,
+                permission: permissionsObj.VIEW_USERS
             },
             // {
             //     text: 'Requests',
@@ -41,12 +40,14 @@ export const sideBarRoutes = [
                 icon: <CurrencyDollar />,
                 path:'/transactions',
                 match:/^\/transactions/,
+                // permission: permissionsObj.VIEW_
             },
             {
                 text: 'Administrators',
                 icon: <User />,
                 path:'/administrators',
                 match:/^\/administrators/,
+                permission: permissionsObj.VIEW_ADMIN
             },
         ],
     },
@@ -58,6 +59,7 @@ export const sideBarRoutes = [
                 icon: < UserCheck />,
                 path:'/appointments',
                 match:/^\/appointments/,
+                permission: permissionsObj.VIEW_APPOINTMENT
             },
             {
                 text: 'Publications',
@@ -69,7 +71,7 @@ export const sideBarRoutes = [
                 text: 'Calendar',
                 icon: <Calendar />,
                 path:'/calendar',
-                match:/^\/calendar/,
+                match:/^\/calendar/
             }
         ],
     },
@@ -81,12 +83,14 @@ export const sideBarRoutes = [
                 icon: <GitBranch />,
                 path:'/branches',
                 match:/^\/branches/,
+                permission: permissionsObj.VIEW_BRANCH
             },
             {
                 text: 'Group',
                 icon: <ArrowsMinimize />,
                 path:'/groups',
                 match:/^\/groups/,
+                permission: permissionsObj.VIEW_GROUP
             }
         ],
     },

@@ -17,6 +17,7 @@ import CircularLoader from 'utilComponents/Loader';
 import Badges from 'utilComponents/Badges';
 import { useQuery } from '@apollo/client';
 import { GET_ALL_BRANCHES } from 'GraphQl/Queries';
+import ViewBranch from './ViewBranch';
 
 
 const Branches = ():JSX.Element => {
@@ -34,6 +35,7 @@ const Branches = ():JSX.Element => {
             page:0,
             totalRecords: 10,
         },
+        search: ''
     };
    
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
@@ -301,12 +303,6 @@ const Branches = ():JSX.Element => {
                     </div>
                     <div className="my-3">
                         <InfoDivHeader
-                            label="PHONE NUMBER"
-                            text="09067980987"
-                        />
-                    </div>
-                    <div className="my-3">
-                        <InfoDivHeader
                             label="ADDRESS"
                             text="32a Charlseton Close, off Priya Road"
                         />
@@ -318,9 +314,9 @@ const Branches = ():JSX.Element => {
                         />
                     </div>
 
-                    {/* <ViewBranch
+                    <ViewBranch
                         branch={activeDataObj}
-                    /> */}
+                    />
                 </div>
                     </>
                 ):(

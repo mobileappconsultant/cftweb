@@ -9,6 +9,7 @@ import {Animated} from "react-animated-css";
 import { history } from 'helpers';
 import { connect } from 'react-redux';
 import userIcon from 'assets/images/user.png';
+import PermissionWrapper from 'utilComponents/PermissionWrapper';
 
 const DashboardLayout = (props: any): JSX.Element => {
     const initialState = {
@@ -17,7 +18,7 @@ const DashboardLayout = (props: any): JSX.Element => {
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const {showModal} = state;
     const {user} = props;
-    console.log(user);
+
     const handleModalToggle = () => {
         setState({showModal: !showModal});
     };
@@ -89,13 +90,17 @@ const DashboardLayout = (props: any): JSX.Element => {
                         {route?.title}
                     </div>
                     {route.children.map((routeChild, _i) => {
+                        
                         return(
                             <>
                             {user?.full_name && (
                                 <div className="w-100 sidebar-section-link py-2 px-2 ">
-                                    <Link to={routeChild.path} className={`sidebar-navlink ${getMatch(routeChild?.match)? 'text-primary': ''}`}>
-                                        {routeChild?.icon}  {routeChild?.text}
-                                    </Link>
+                                    <PermissionWrapper permission={routeChild?.permission}>
+                                        <Link to={routeChild.path} className={`sidebar-navlink ${getMatch(routeChild?.match)? 'text-primary': ''}`}>
+                                            {routeChild?.icon}  {routeChild?.text}
+                                        </Link>
+                                    </PermissionWrapper>
+                                   
                                 </div>
                             )}
 

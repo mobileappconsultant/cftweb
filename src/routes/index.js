@@ -23,6 +23,7 @@ import Terms from 'pages/Legal/Terms';
 import Support from 'pages/Legal/Support';
 import ViewCalenderEvent from 'pages/Calendar/ViewCalenderEvent';
 import Appointments from 'pages/Appointments';
+import permissionsObj from 'constants/permissionConstants';
 
 export const authRoutes = [
 	{path: '/', component: () => <Redirect to="/login" />},
@@ -43,13 +44,13 @@ export const publicRoutes = [
 
 export const privateRoutes = [
 	{ path: "/home", component: Home },
-	{ path: "/members", component: Members },
+	{ path: "/members", component: Members, permission: permissionsObj.VIEW_USERS },
 	{ path: "/requests", component: Requests },
-	{path: "/administrators", component: Administrators},
-	{path: "/branches", component: Branches},
-	{path: "/groups", component: Groups},
+	{path: "/administrators", component: Administrators, permission: permissionsObj.VIEW_ADMIN},
+	{path: "/branches", component: Branches, permission: permissionsObj.VIEW_BRANCH},
+	{path: "/groups", component: Groups, permission: permissionsObj.VIEW_GROUP},
 	{path: "/settings", component: Settings},
-	{path:"/appointments", exact: true, component: Appointments},
+	{path:"/appointments", exact: true, component: Appointments, permission: permissionsObj.VIEW_APPOINTMENT},
 	{path:"/announcements/create", exact: true, component: CreateAnnouncement},
 	{path:"/announcements/:id", exact: true, component: SingleAnnouncement},
 	{path:"/calendar/event/:id", exact: true, component: CreateCalendarEvent},

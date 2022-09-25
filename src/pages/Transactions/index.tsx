@@ -46,8 +46,11 @@ now.setDate(now.getDate() - 7);
 const Transactions = ():JSX.Element => {
     const initialState = {
         listView: true,
-        rowsPerPage: 10,
-        page:0,
+        pagination:{
+            rowsPerPage: 100,
+            page:0,
+            totalRecords: 10,
+        },
         alertMessage:{},
         dataArr:[],
         activeReportComponent: 0,
@@ -65,12 +68,12 @@ const Transactions = ():JSX.Element => {
    
 
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
-    const {listView, page, rowsPerPage, activeReportComponent, openChart, alertMessage, dataArr, searchData, isLoading} = state;
+    const {listView, page, rowsPerPage, activeReportComponent, pagination, openChart, alertMessage, dataArr, searchData, isLoading} = state;
 
     const { fetchMore } = useQuery(GET_ALL_TRANSACTIONS, {
         variables: {
-          page: 0,
-          limit: 10,
+          page: 1,
+          limit: 100,
           status:  searchData?.status,
           paymentMethod: searchData?.paymentMethod,
           paymentType: searchData?.paymentType,
@@ -98,31 +101,39 @@ const Transactions = ():JSX.Element => {
     };
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number): void => {
-        
+        const newPagination = {
+            ...pagination,
+            page: newPage,
+        };
         setState({
             page: newPage,
         });
-        fetchData();
+        fetchData(newPagination);
         
     };
   
     const handleChangeRowsPerPage = (event: any): void => {
+        const newPagination = {
+            ...pagination,
+            rowsPerPage: event?.target?.value,
+        };
         
         setState({
             rowsPerPage: event?.target?.value,
         });
-        fetchData();
+        fetchData(newPagination);
+        
     };
 
-    const fetchData =  async () => {
+    const fetchData =  async (paginationArgs = pagination) => {
         setState({
             isLoading:true,
         });
         const apiData : any = 
         await fetchMore({
                     variables:{
-                        page: page? page: 0,
-                        limit: rowsPerPage? rowsPerPage : 10,
+                        page: paginationArgs?.page + 1,
+                        limit: paginationArgs?.rowsPerPage,
                         status:  searchData?.status,
                         paymentMethod: searchData?.paymentMethod,
                         paymentType: searchData?.paymentType,
@@ -131,8 +142,9 @@ const Transactions = ():JSX.Element => {
                     }
                 });
          if(apiData.data){
+            console.log(apiData.data);
             setState({
-                dataArr: apiData?.data?.getAllTransactions,
+                // dataArr: apiData?.data?.getAllTransactions,
                 isLoading: false,
             }); 
         };
@@ -414,13 +426,19 @@ const Transactions = ():JSX.Element => {
                 <div className={`${openChart? 'col-md-7': 'col-md-11'} openchart bg-white d-flex justify-content-between px-0 `}>
                     <div className="py-3 px-2 w-96">
                         {transactionTable()}
-                        <Pagination
-                            count={dataArr.length?? 0}
-                            page={0}
-                            rowsPerPage={10}
-                            onPageChange={handleChangePage}
-                            handleChangeRowsPerPage={handleChangeRowsPerPage}
-                        />
+                        {dataArr.length !== 0 && (
+                            <>
+                                <div>
+                                    <Pagination
+                                        count={pagination?.totalRecords}
+                                        page={pagination?.page}
+                                        rowsPerPage={pagination?.rowsPerPage}
+                                        onPageChange={handleChangePage}
+                                        handleChangeRowsPerPage={handleChangeRowsPerPage}
+                                    />
+                                </div>
+                            </>
+                        )}
                     </div>
                     <div className=" table-toggle  px-2 d-flex align-items-center pointer w-4" onClick={()=> openCharts()}>
                         <img src={`${openChart? arrowRightIcon : arrowLeftIcon}`} className={`flip`}/>

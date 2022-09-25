@@ -19,6 +19,7 @@ const App = () :JSX.Element => {
                     layout={DashboardLayout}
                     component={route.component}
                     key={idx}
+                    permission={route?.permission}
                     isAuthProtected={true}
                     exact={true}
                   />

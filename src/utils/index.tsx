@@ -165,6 +165,9 @@ export const capiitalizeFirstLetter = (string = '') => {
 export const capiitalizeFirstLetter2 = (string = '') => {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
+export const changeStringToLowerCase = (string = '') => {
+    return  string.toLowerCase();
+}
 
 // export const extractFirstLetter = (string = '') => {
 //     if(string){

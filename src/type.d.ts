@@ -5,12 +5,13 @@ interface LoggedInUserObject {
     email?: string
     full_name?: string
     phone?: string
-    role?: string
+    role?: any
     status?: boolean
     updatedAt?: boolean
     __v?: number
     id?: string,
-    avatar?: string
+    avatar?: string,
+    permissionsObject?: any
   }
   
   type AuthState = {

@@ -9,7 +9,7 @@ import './viewsingleuser.scss';
 import { DivLoader } from 'utilComponents/Loader';
 
 const ViewSingleMember = (props : any) => {
-    const {userId, close, listingReload} = props; 
+    const {userId, close, listingReload} = props;
     const initialState = {
         userObject: {
             avartar: "",

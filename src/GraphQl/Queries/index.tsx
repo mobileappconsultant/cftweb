@@ -38,6 +38,38 @@ export const GET_ALL_BRANCHES = gql`
     }
   }
 `;
+
+export const GET_ALL_USERS_IN_BRANCH = gql`
+  query PaginatedUserDTO($branchName: String! $page: Float! $limit: Float!){
+    getUsersInBranch(branchName:$branchName page:$page limit:$limit ){
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs{
+        email
+        phone
+        full_name
+        church_group
+        code
+        avartar
+        branch
+        country
+        account_verification
+        reset_password
+        status
+        createdAt
+        updatedAt
+      }
+
+    }
+  }
+`;
 // Dashboard
 export const DASHBOARD_USER_COUNT = gql`
   query DashboardUserCountDTO {
@@ -258,22 +290,33 @@ export const GET_ALL_PERMISSIONS = gql`
 
 // Members
 export const GET_ALL_MEMBERS = gql`
-  query UserDTO($page: Float! $limit: Float!){
+  query PaginatedUserDTO($page: Float! $limit: Float!){
     getAllUser(page:$page limit:$limit ){
-      _id
-      email
-      phone
-      full_name
-      church_group
-      code
-      avartar
-      branch
-      country
-      account_verification
-      reset_password
-      status
-      createdAt
-      updatedAt
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs{
+          _id
+          email
+          phone
+          full_name
+          church_group
+          code
+          avartar
+          branch
+          country
+          account_verification
+          reset_password
+          status
+          createdAt
+          updatedAt
+      }
     }
   }
 `;
@@ -696,16 +739,27 @@ export const GET_SINGLE_EVENT = gql`
 
 // Transactions
 export const GET_ALL_TRANSACTIONS = gql`
-  query TransactionDTO($page: Float! $limit: Float!  $status: String! $paymentMethod: String! $paymentType: String! $startDdate: String! $endDate: String!){
+  query PaginatedTransactionDTO($page: Float! $limit: Float!  $status: String! $paymentMethod: String! $paymentType: String! $startDdate: String! $endDate: String!){
     getAllTransactions(page:$page limit:$limit  status:$status paymentMethod: $paymentMethod paymentType: $paymentType startDdate:$startDdate endDate:$endDate){
-      _id
-      paymentType
-      transactionId
-      amount
-      currency
-      paymentPlatform
-      transactionDate
-      status
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs{
+        _id
+        paymentType
+        transactionId
+        amount
+        currency
+        paymentPlatform
+        transactionDate
+        status
+      }
     }
   }
 `;
