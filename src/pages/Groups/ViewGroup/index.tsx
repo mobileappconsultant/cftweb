@@ -93,7 +93,7 @@ const ViewGroup = (props: any): JSX.Element => {
           // flag: flag,
         },
       });
-      console.log(apiData, "uio");
+      // console.log(apiData, "uio");
       const { data, loading, error } = apiData;
       // console.log(data);
       if (data) {

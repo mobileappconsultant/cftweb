@@ -148,7 +148,7 @@ const AllAppointments = (props: any) => {
         // query: searchItem,
       },
     });
-    console.log(apiData);
+    // console.log(apiData);
     if (apiData.data) {
       setState({
         dataArr: apiData?.data?.getAppointments?.docs,

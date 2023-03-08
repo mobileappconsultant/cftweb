@@ -74,10 +74,10 @@ const ViewBranch = (props: any): JSX.Element => {
           // flag: flag,
         },
       });
-      console.log(apiData, "uio");
+      // console.log(apiData, "uio");
       const { data, loading, error } = apiData;
       if (data) {
-        props.setBranchMembers(data?.getUsersInBranch?.totalDocs)
+        props.setBranchMembers(data?.getUsersInBranch?.totalDocs);
         setState({
           dataArr: data?.getUsersInBranch?.docs,
           totalRecords: data?.getUsersInBranch?.totalDocs,

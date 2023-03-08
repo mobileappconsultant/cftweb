@@ -159,7 +159,7 @@ const Transactions = (): JSX.Element => {
       },
     });
     if (apiData.data) {
-      console.log(apiData.data.getAllTransactions.docs);
+      // console.log(apiData.data.getAllTransactions.docs);
       setState({
         dataArr: apiData?.data?.getAllTransactions?.docs,
         isLoading: false,

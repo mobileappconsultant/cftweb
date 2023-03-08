@@ -57,7 +57,7 @@ class TotalRevenue extends React.Component {
       },
     ];
     // @ts-ignore
-    console.log(this.props.data);
+    // console.log(this.props.data);
     return (
       <div id="chart" className="bg-white">
         {/* @ts-ignore */}

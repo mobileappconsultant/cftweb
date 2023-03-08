@@ -144,7 +144,7 @@ const Messages = () => {
         },
       });
     }
-    console.log(apiData);
+    // console.log(apiData);
     if (!apiData.loading) {
       setState({
         isLoading: false,

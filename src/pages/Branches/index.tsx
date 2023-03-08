@@ -42,7 +42,7 @@ const Branches = (): JSX.Element => {
     search: "",
   };
 
-  const [branchMembers, setBranchMembers] = useState(0)
+  const [branchMembers, setBranchMembers] = useState(0);
   const [state, setState] = useReducer(
     (state: any, newState: any) => ({ ...state, ...newState }),
     initialState
@@ -123,7 +123,7 @@ const Branches = (): JSX.Element => {
         limit: paginationArgs?.rowsPerPage,
       },
     });
-    console.log(apiData);
+    // console.log(apiData);
     if (apiData.data) {
       setState({
         dataArr: apiData?.data?.getAllBranch?.docs,
@@ -332,9 +332,9 @@ const Branches = (): JSX.Element => {
                         />
                       </div>
 
-                      <ViewBranch 
-                      branch={activeDataObj} 
-                      setBranchMembers={setBranchMembers}
+                      <ViewBranch
+                        branch={activeDataObj}
+                        setBranchMembers={setBranchMembers}
                       />
                     </div>
                   </>

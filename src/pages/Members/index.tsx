@@ -117,7 +117,7 @@ const Members = (): JSX.Element => {
       // console.log(apiData);
       const { data, loading, error } = apiData;
       if (data) {
-        console.log(data?.getAllUser?.docs);
+        // console.log(data?.getAllUser?.docs);
         setState({
           dataArr: data?.getAllUser?.docs,
           // flag: data?.getAllUser?.docs?.filter((x: any) => status === x.status),

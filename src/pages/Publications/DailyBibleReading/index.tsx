@@ -132,7 +132,7 @@ const DailyBibleReading = () => {
         flag: flag,
       },
     });
-    console.log(apiData);
+    // console.log(apiData);
     if (apiData.data) {
       setState({
         dataArr: apiData?.data?.getAllDailyBibleContent,
