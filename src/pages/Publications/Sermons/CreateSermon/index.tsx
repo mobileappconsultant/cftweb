@@ -39,7 +39,13 @@ const CreateSermon = (props: any):JSX.Element => {
     };
     const [state, setState] = useReducer((state:any, newState: any) => ({ ...state, ...newState }), initialState);
     const [createNewSermon, { data, loading, error }] = useMutation(CREATE_SERMON); 
-    const adminDataQuery = useQuery(GET_ALL_ADMINS); 
+    const adminDataQuery = useQuery(GET_ALL_ADMINS, {
+        variables: {
+            page: 0,
+            limit: 10000,
+            query: ''
+        },
+    });
     const {formData, isLoading, alertMessage, errors, preview, adminData,  bibleVerseData} = state;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) :void  => {
@@ -201,24 +207,26 @@ const CreateSermon = (props: any):JSX.Element => {
     }
 
     useEffect(() => {
+        console.log("xx")
         
         if(adminDataQuery.data){
-            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin));
+            console.log("zz")
+
+            const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin?.docs));
             for (let index = 0; index < adminList.length; index++) {
                 const element = adminList[index];
                 element.label = element?.full_name;
                 element.value = element?.full_name;
             };
+            console.log(adminList)
             setState({
                 adminData: adminList,
-            
             });
-        
         };
 
         if(adminDataQuery.error){
             setState({
-                alertMessage :processAlertError(extractErrorMessage(adminDataQuery.error)),
+                alertMessage:processAlertError(extractErrorMessage(adminDataQuery.error)),
             })
         }
         // Cleanup method
@@ -287,14 +295,15 @@ const CreateSermon = (props: any):JSX.Element => {
 
                             
                             <div className="col-md-6 mb-4">
-                                <FormGroupSelect
+                            <FormGroupSelect
                                     placeholder="Select minister"
-                                    label="Select minister"
+                                    label='Select minister'
                                     onChange={(e: object)=>handleSelectChange(e, 'minister')}
                                     name="minister"
                                     showError={errors.minister}
                                     errorMessage={errors.minister} 
                                     selectOptions={adminData}
+                                    defaultValue={formData?.minister? {label: formData?.minister, value:formData?.minister}: ''}
                                 />
                             </div>
                             <div className="col-md-12 mb-4">

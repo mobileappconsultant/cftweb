@@ -68,6 +68,7 @@ class MapComponent extends React.Component <any> {
 
 
 const EditBranch = (props: any):JSX.Element => {
+            console.log(props?.branch?.branch_address)
     const initialState = {
         formData: {
             name: props?.branch?.name || '',
@@ -76,7 +77,7 @@ const EditBranch = (props: any):JSX.Element => {
         geoPoints:{
             lat: props?.branch?.geo_point?.lat? Number(props?.branch?.geo_point?.lat) : 18.5204,
             lng: props?.branch?.geo_point?.long? Number(props?.branch?.geo_point?.long) : 73.8567,
-            address: props?.branch?.address || '',
+            address: props?.branch?.branch_address? props?.branch?.branch_address : '',
         },
         errors:{},
         isLoading: false,
@@ -136,6 +137,7 @@ const EditBranch = (props: any):JSX.Element => {
             'name.required': 'Branch name is required',
             'branch_president.required': 'Branch president is required',
         };
+        console.log(geoPoints)
         const data = {
             ...formData,
             address: geoPoints?.address
@@ -191,6 +193,7 @@ const EditBranch = (props: any):JSX.Element => {
                 // props.refresh();
                 handleModalToggle();
             };
+            props.action()
             setState({
                 isLoading: false,
             }); 
@@ -220,7 +223,7 @@ const EditBranch = (props: any):JSX.Element => {
             geoPoints:{
                 lat: props?.branch?.geo_point?.lat? Number(props?.branch?.geo_point?.lat) : 18.5204,
                 lng: props?.branch?.geo_point?.long? Number(props?.branch?.geo_point?.long) : 73.8567,
-                address: props?.branch?.address || '',
+                address: props?.branch?.branch_address? props?.branch?.branch_address : '',
             },
             // isLoading: false,
             // pageLoading: false
