@@ -1,5 +1,4 @@
-import { gql } from '@apollo/client';
-
+import { gql } from "@apollo/client";
 
 export const GET_ALL_BIBLE_VERSIONS = gql`
   query VersionDTO {
@@ -9,9 +8,8 @@ export const GET_ALL_BIBLE_VERSIONS = gql`
   }
 `;
 export const GET_ALL_BRANCHES = gql`
-  query PaginatedBranchDTO ($query: String! $page: Float! $limit: Float!){
-    getAllBranch (query:$query page:$page limit:$limit ){
-
+  query PaginatedBranchDTO($query: String!, $page: Float!, $limit: Float!) {
+    getAllBranch(query: $query, page: $page, limit: $limit) {
       totalDocs
       limit
       totalPages
@@ -21,11 +19,11 @@ export const GET_ALL_BRANCHES = gql`
       hasNextPage
       prevPage
       nextPage
-      docs{
+      docs {
         _id
         name
         branch_president
-        geo_point{
+        geo_point {
           lat
           long
         }
@@ -34,14 +32,13 @@ export const GET_ALL_BRANCHES = gql`
         createdAt
         updatedAt
       }
-
     }
   }
 `;
 
 export const GET_ALL_USERS_IN_BRANCH = gql`
-  query PaginatedUserDTO($branchName: String! $page: Float! $limit: Float!){
-    getUsersInBranch(branchName:$branchName page:$page limit:$limit ){
+  query PaginatedUserDTO($branchName: String!, $page: Float!, $limit: Float!) {
+    getUsersInBranch(branchName: $branchName, page: $page, limit: $limit) {
       totalDocs
       limit
       totalPages
@@ -51,7 +48,7 @@ export const GET_ALL_USERS_IN_BRANCH = gql`
       hasNextPage
       prevPage
       nextPage
-      docs{
+      docs {
         email
         phone
         full_name
@@ -66,7 +63,36 @@ export const GET_ALL_USERS_IN_BRANCH = gql`
         createdAt
         updatedAt
       }
-
+    }
+  }
+`;
+export const GET_ALL_USERS_IN_GROUP = gql`
+  query PaginatedUserDTO($groupName: String!, $page: Float!, $limit: Float!) {
+    getUsersInGroup(groupName: $groupName, page: $page, limit: $limit) {
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs {
+        email
+        phone
+        full_name
+        church_group
+        code
+        avartar
+        branch
+        country
+        account_verification
+        reset_password
+        status
+        createdAt
+        updatedAt
+      }
     }
   }
 `;
@@ -82,23 +108,24 @@ export const DASHBOARD_USER_COUNT = gql`
 `;
 
 export const DASHBOARD_GET_REVENUE = gql`
-  query DashboardGraphDTO ($startDate: String! $endDate: String!) {
-    dashBoardGraph(startDate:$startDate endDate:$endDate) {
+  query DashboardGraphDTO($startDate: String!, $endDate: String!) {
+    dashBoardGraph(startDate: $startDate, endDate: $endDate) {
       totalDonations
       totalOfferings
       totalWelfare
+      totalTithe
     }
   }
 `;
 
 // Groups
 export const GET_ALL_GROUPS = gql`
-  query GroupDTO {
-    getAllGroups {
+  query GroupDTO($query: String!) {
+    getAllGroups(query: $query) {
       _id
       name
       group_head
-      members{
+      members {
         email
         _id
         phone
@@ -117,12 +144,12 @@ export const GET_ALL_GROUPS = gql`
 `;
 
 export const GET_SINGLE_GROUP = gql`
-  query GroupDTO ($groupId: String!) {
+  query GroupDTO($groupId: String!) {
     getGroup(groupId: $groupId) {
       _id
       name
       group_head
-      members{
+      members {
         email
         _id
         phone
@@ -142,8 +169,8 @@ export const GET_SINGLE_GROUP = gql`
 
 // Admins
 export const GET_ALL_ADMINS = gql`
-  query PaginatedAdminDTO($page: Float! $limit: Float! $query: String!){
-    getAllAdmin(page:$page limit:$limit query:$query){
+  query PaginatedAdminDTO($page: Float!, $limit: Float!, $query: String!) {
+    getAllAdmin(page: $page, limit: $limit, query: $query) {
       totalDocs
       limit
       totalPages
@@ -178,17 +205,17 @@ export const GET_ALL_ADMINS = gql`
 `;
 
 export const GET_SINGLE_ADMIN = gql`
-  query AdminDTO($id: String!){
-    getAdmin(id:$id){
+  query AdminDTO($id: String!) {
+    getAdmin(id: $id) {
       _id
       email
       phone
       full_name
       avatar
-      role{
+      role {
         _id
         name
-        permissions{
+        permissions {
           _id
           name
           description
@@ -204,45 +231,8 @@ export const GET_SINGLE_ADMIN = gql`
 
 // Admins
 export const GET_ALL_INVITED_ADMINS = gql`
-query PaginatedAdminDTO($page: Float! $limit: Float! $query: String!){
-  getAllInvitedAdmin(page:$page limit:$limit query:$query){
-    totalDocs
-    limit
-    totalPages
-    page
-    pagingCounter
-    hasPrevPage
-    hasNextPage
-    prevPage
-    nextPage
-    docs {
-      status
-      createdAt
-      updatedAt
-      _id
-      email
-      phone
-      full_name
-      code
-      role {
-        _id
-        name
-        createdAt
-        updatedAt
-      }
-      avatar
-      status
-      createdAt
-      updatedAt
-    }
-  }
-}
-`;
-
-// Roles
-export const GET_ALL_ROLES = gql`
-  query PaginatedRoleDTO($page: Float! $limit: Float!){
-    getRoles(page:$page limit:$limit ){
+  query PaginatedAdminDTO($page: Float!, $limit: Float!, $query: String!) {
+    getAllInvitedAdmin(page: $page, limit: $limit, query: $query) {
       totalDocs
       limit
       totalPages
@@ -252,20 +242,56 @@ export const GET_ALL_ROLES = gql`
       hasNextPage
       prevPage
       nextPage
-      docs{
+      docs {
+        status
+        createdAt
+        updatedAt
+        _id
+        email
+        phone
+        full_name
+        code
+        role {
+          _id
+          name
+          createdAt
+          updatedAt
+        }
+        avatar
+        status
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
+// Roles
+export const GET_ALL_ROLES = gql`
+  query PaginatedRoleDTO($page: Float!, $limit: Float!) {
+    getRoles(page: $page, limit: $limit) {
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs {
         _id
         name
       }
-      
     }
   }
 `;
 export const GET_SINGLE_ROLE = gql`
-  query RoleDTO($id: String!){
-    getRole(id:$id){
+  query RoleDTO($id: String!) {
+    getRole(id: $id) {
       id
       name
-      permissions{
+      permissions {
         id
         name
         description
@@ -277,8 +303,8 @@ export const GET_SINGLE_ROLE = gql`
 `;
 
 export const GET_ALL_PERMISSIONS = gql`
-  query PermissionDTO{
-    getPermissions{
+  query PermissionDTO {
+    getPermissions {
       id
       name
       description
@@ -290,8 +316,8 @@ export const GET_ALL_PERMISSIONS = gql`
 
 // Members
 export const GET_ALL_MEMBERS = gql`
-  query PaginatedUserDTO($page: Float! $limit: Float!){
-    getAllUser(page:$page limit:$limit ){
+  query PaginatedUserDTO($page: Float!, $status: String!, $limit: Float!) {
+    getAllUser(page: $page, limit: $limit, status: $status) {
       totalDocs
       limit
       totalPages
@@ -301,28 +327,28 @@ export const GET_ALL_MEMBERS = gql`
       hasNextPage
       prevPage
       nextPage
-      docs{
-          _id
-          email
-          phone
-          full_name
-          church_group
-          code
-          avartar
-          branch
-          country
-          account_verification
-          reset_password
-          status
-          createdAt
-          updatedAt
+      docs {
+        _id
+        email
+        phone
+        full_name
+        church_group
+        code
+        avartar
+        branch
+        country
+        account_verification
+        reset_password
+        status
+        createdAt
+        updatedAt
       }
     }
   }
 `;
 export const GET_SINGLE_MEMBER = gql`
-  query UserDTO($userID: String!){
-    getUser(userID: $userID){
+  query UserDTO($userID: String!) {
+    getUser(userID: $userID) {
       _id
       email
       phone
@@ -343,8 +369,13 @@ export const GET_SINGLE_MEMBER = gql`
 
 // Messages
 export const GET_ALL_MESSAGES = gql`
-  query  PaginatedApostleDeskDTO ($query: String! $flag: String! $page: Float! $limit: Float!){
-    getAllMessages(query:$query flag:$flag page:$page limit:$limit ){
+  query PaginatedApostleDeskDTO(
+    $query: String!
+    $flag: String!
+    $page: Float!
+    $limit: Float!
+  ) {
+    getAllMessages(query: $query, flag: $flag, page: $page, limit: $limit) {
       totalDocs
       limit
       totalPages
@@ -354,35 +385,35 @@ export const GET_ALL_MESSAGES = gql`
       hasNextPage
       prevPage
       nextPage
-      docs{
-          _id
-          title
-          minister
-          image
-          bibleReading{
-            text
-            refrence
-          }
-          message
-          prayer_point
-          category
-          published
-          minuteRead
-          createdAt
-          updatedAt
+      docs {
+        _id
+        title
+        minister
+        image
+        bibleReading {
+          text
+          refrence
+        }
+        message
+        prayer_point
+        category
+        published
+        minuteRead
+        createdAt
+        updatedAt
       }
     }
   }
 `;
 
 export const GET_SINGLE_MESSAGE = gql`
-  query MessageDTO ($messageId: String!) {
+  query MessageDTO($messageId: String!) {
     getMessage(messageId: $messageId) {
       _id
       title
       minister
       image
-      bibleReading{
+      bibleReading {
         text
         refrence
       }
@@ -395,8 +426,18 @@ export const GET_SINGLE_MESSAGE = gql`
 `;
 
 export const GET_BIBLE_PASSAGE = gql`
-  query VerseDTO ($verse: String! $chapter: String! $book: String! $version:String!) {
-    getBibleBookVerse(verse: $verse chapter:$chapter book:$book version:$version) {
+  query VerseDTO(
+    $verse: String!
+    $chapter: String!
+    $book: String!
+    $version: String!
+  ) {
+    getBibleBookVerse(
+      verse: $verse
+      chapter: $chapter
+      book: $book
+      version: $version
+    ) {
       num
       text
     }
@@ -404,12 +445,12 @@ export const GET_BIBLE_PASSAGE = gql`
 `;
 
 export const GET_BIBLE_FULL_CHAPTER = gql`
-  query ChapterDTO ($chapter: String! $book: String! $version:String!) {
-    getBibleBookChapter( chapter:$chapter book:$book version:$version) {
-      verse{
+  query ChapterDTO($chapter: String!, $book: String!, $version: String!) {
+    getBibleBookChapter(chapter: $chapter, book: $book, version: $version) {
+      verse {
         num
         text
-        }
+      }
       num
     }
   }
@@ -417,25 +458,30 @@ export const GET_BIBLE_FULL_CHAPTER = gql`
 
 // Prayers
 export const GET_ALL_PRAYERS = gql`
-query PrayerDTO ($query: String! $flag: String! $page: Float! $limit: Float!){
-  getAllPrayers (query:$query flag:$flag page:$page limit:$limit ){
-    totalDocs
-    limit
-    totalPages
-    page
-    pagingCounter
-    hasPrevPage
-    hasNextPage
-    prevPage
-    nextPage
-    docs{
+  query PrayerDTO(
+    $query: String!
+    $flag: String!
+    $page: Float!
+    $limit: Float!
+  ) {
+    getAllPrayers(query: $query, flag: $flag, page: $page, limit: $limit) {
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs {
         _id
         title
         subtitle
         preface
         image
         author
-        dailyPrayers{
+        dailyPrayers {
           _id
           day
           subtitle
@@ -445,7 +491,7 @@ query PrayerDTO ($query: String! $flag: String! $page: Float! $limit: Float!){
           }
           heading
           content
-          supportingVerse{
+          supportingVerse {
             text
             refrence
           }
@@ -458,20 +504,20 @@ query PrayerDTO ($query: String! $flag: String! $page: Float! $limit: Float!){
         published
         createdAt
         updatedAt
-        }
+      }
     }
-}
+  }
 `;
 
 export const GET_SINGLE_PRAYER = gql`
-query PrayerDTO  ($prayerId: String!) {
-  getPrayer(prayerId: $prayerId) {
-    _id
-    title
-    subtitle
-    author
-    preface
-    dailyPrayers{
+  query PrayerDTO($prayerId: String!) {
+    getPrayer(prayerId: $prayerId) {
+      _id
+      title
+      subtitle
+      author
+      preface
+      dailyPrayers {
         _id
         day
         subtitle
@@ -481,7 +527,7 @@ query PrayerDTO  ($prayerId: String!) {
         }
         heading
         content
-        supportingVerse{
+        supportingVerse {
           text
           refrence
         }
@@ -490,17 +536,27 @@ query PrayerDTO  ($prayerId: String!) {
         published
         createdAt
         updatedAt
+      }
+      publishedAt
+      createdAt
     }
-    publishedAt
-    createdAt
   }
-}
 `;
 
 // BIBLE STUDY
 export const GET_ALL_BIBLE_STUDY_CONTENT = gql`
-query PaginatedBibleStudyDTO($query: String! $flag: String! $page: Float! $limit: Float!){
-  getAllBibleStudyContent(query:$query flag:$flag page:$page limit:$limit ){
+  query PaginatedBibleStudyDTO(
+    $query: String!
+    $flag: String!
+    $page: Float!
+    $limit: Float!
+  ) {
+    getAllBibleStudyContent(
+      query: $query
+      flag: $flag
+      page: $page
+      limit: $limit
+    ) {
       totalDocs
       limit
       totalPages
@@ -510,11 +566,11 @@ query PaginatedBibleStudyDTO($query: String! $flag: String! $page: Float! $limit
       hasNextPage
       prevPage
       nextPage
-      docs{
+      docs {
         _id
         topic
         minister
-        memoryVerse{
+        memoryVerse {
           text
           refrence
         }
@@ -533,7 +589,7 @@ export const GET_SINGLE_BIBLE_STUDY_CONTENT = gql`
       _id
       topic
       minister
-      memoryVerse{
+      memoryVerse {
         text
         refrence
       }
@@ -545,149 +601,14 @@ export const GET_SINGLE_BIBLE_STUDY_CONTENT = gql`
 `;
 
 // SERMONS
-export const  GET_ALL_SERMONS = gql`
-query SermonDTO($query: String! $flag: String! $page: Float! $limit: Float!){
-  getAllSermons(query:$query flag:$flag page:$page limit:$limit ){
-    totalDocs
-    limit
-    totalPages
-    page
-    pagingCounter
-    hasPrevPage
-    hasNextPage
-    prevPage
-    nextPage
-    docs{
-      _id
-      title
-      minister
-      image
-      bibleReading{
-        text
-        refrence
-      }
-      message
-      prayer_point
-      published
-      minuteRead
-      createdAt
-      updatedAt
-    }
-  }
-}
-`;
-
-export const  GET_SINGLE_SERMON = gql`
-query SermonDTO($messageId: String!) {
-  getSermon(messageId: $messageId) {
-    _id
-    title
-    minister
-    image
-    bibleReading{
-      text
-      refrence
-    }
-    message
-    prayer_point
-    published
-    minuteRead
-    createdAt
-    updatedAt
-  }
-}
-`;
-// Pastors forum
-export const  GET_ALL_PASTORS_FORUM_MESSAGES = gql`
-query PaginatedPastorForumDTO($query: String! $flag: String! $page: Float! $limit: Float!){
-  getAllMessagesFromPastorForum(query:$query flag:$flag page:$page limit:$limit ){
-
-    totalDocs
-    limit
-    totalPages
-    page
-    pagingCounter
-    hasPrevPage
-    hasNextPage
-    prevPage
-    nextPage
-    docs{
-      _id
-      title
-      minister
-      image
-      bibleReading{
-        text
-        refrence
-      }
-      message
-      prayer_point
-      published
-      minuteRead
-      createdAt
-      updatedAt
-    }
-
-  }
-}
-`;
-
-export const  GET_SINGLE_PASTORS_FORUM_MESSAGE = gql`
-query PastorForumDTO($id: String!){
-  getMessageDetailFromPastorForum(id:$id ){
-    _id
-    title
-    minister
-    image
-    bibleReading{
-      text
-      refrence
-    }
-    message
-    prayer_point
-    published
-    minuteRead
-    createdAt
-    updatedAt
-    
-  }
-}
-`;
-// Daily bible reading
-
-export const  GET_ALL_DAILY_BIBLE_READING = gql`
-query DailyBibleReadingDTO($query: String! $flag: String! $page: Float! $limit: Float!){
-  getAllDailyBibleContent(query:$query flag:$flag page:$page limit:$limit ){
-    _id
-    verseContent
-    verseOfTheDayText
-    bibleText
-    published
-    publishedAt
-    createdAt
-    updatedAt
-  }
-}
-`;
-
-export const  GET_SINGLE_DAILY_BIBLE_READING = gql`
-query DailyBibleReadingDTO($biibleReadingContentId: String!){
-  getDailyBibleContent(biibleReadingContentId:$biibleReadingContentId ){
-    _id
-    verseContent
-    verseOfTheDayText
-    bibleText
-    published
-    publishedAt
-    createdAt
-    updatedAt
-  }
-}
-`;
-// Calendar/events
-export const GET_ALL_EVENTS = gql`
-  query PaginateEventDTO($query: String! $date: String! $page: Float! $limit: Float!){
-    getEvents(query:$query date:$date page:$page limit:$limit ){
+export const GET_ALL_SERMONS = gql`
+  query SermonDTO(
+    $query: String!
+    $flag: String!
+    $page: Float!
+    $limit: Float!
+  ) {
+    getAllSermons(query: $query, flag: $flag, page: $page, limit: $limit) {
       totalDocs
       limit
       totalPages
@@ -697,7 +618,169 @@ export const GET_ALL_EVENTS = gql`
       hasNextPage
       prevPage
       nextPage
-      docs{
+      docs {
+        _id
+        title
+        minister
+        image
+        bibleReading {
+          text
+          refrence
+        }
+        message
+        prayer_point
+        published
+        minuteRead
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
+export const GET_SINGLE_SERMON = gql`
+  query SermonDTO($messageId: String!) {
+    getSermon(messageId: $messageId) {
+      _id
+      title
+      minister
+      image
+      bibleReading {
+        text
+        refrence
+      }
+      message
+      prayer_point
+      published
+      minuteRead
+      createdAt
+      updatedAt
+    }
+  }
+`;
+// Pastors forum
+export const GET_ALL_PASTORS_FORUM_MESSAGES = gql`
+  query PaginatedPastorForumDTO(
+    $query: String!
+    $flag: String!
+    $page: Float!
+    $limit: Float!
+  ) {
+    getAllMessagesFromPastorForum(
+      query: $query
+      flag: $flag
+      page: $page
+      limit: $limit
+    ) {
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs {
+        _id
+        title
+        minister
+        image
+        bibleReading {
+          text
+          refrence
+        }
+        message
+        prayer_point
+        published
+        minuteRead
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
+export const GET_SINGLE_PASTORS_FORUM_MESSAGE = gql`
+  query PastorForumDTO($id: String!) {
+    getMessageDetailFromPastorForum(id: $id) {
+      _id
+      title
+      minister
+      image
+      bibleReading {
+        text
+        refrence
+      }
+      message
+      prayer_point
+      published
+      minuteRead
+      createdAt
+      updatedAt
+    }
+  }
+`;
+// Daily bible reading
+
+export const GET_ALL_DAILY_BIBLE_READING = gql`
+  query DailyBibleReadingDTO(
+    $query: String!
+    $flag: String!
+    $page: Float!
+    $limit: Float!
+  ) {
+    getAllDailyBibleContent(
+      query: $query
+      flag: $flag
+      page: $page
+      limit: $limit
+    ) {
+      _id
+      verseContent
+      verseOfTheDayText
+      bibleText
+      published
+      publishedAt
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const GET_SINGLE_DAILY_BIBLE_READING = gql`
+  query DailyBibleReadingDTO($biibleReadingContentId: String!) {
+    getDailyBibleContent(biibleReadingContentId: $biibleReadingContentId) {
+      _id
+      verseContent
+      verseOfTheDayText
+      bibleText
+      published
+      publishedAt
+      createdAt
+      updatedAt
+    }
+  }
+`;
+// Calendar/events
+export const GET_ALL_EVENTS = gql`
+  query PaginateEventDTO(
+    $query: String!
+    $date: String!
+    $page: Float!
+    $limit: Float!
+  ) {
+    getEvents(query: $query, date: $date, page: $page, limit: $limit) {
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs {
         _id
         eventName
         startDate
@@ -713,8 +796,8 @@ export const GET_ALL_EVENTS = gql`
 `;
 
 export const GET_SINGLE_EVENT = gql`
-  query EventDTO($eventID: String!){
-    getEvent(eventID:$eventID ){
+  query EventDTO($eventID: String!) {
+    getEvent(eventID: $eventID) {
       _id
       eventName
       startDate
@@ -722,7 +805,7 @@ export const GET_SINGLE_EVENT = gql`
       time
       repeat
       repeatId
-      childEvents{
+      childEvents {
         _id
         eventTheme
         day
@@ -730,7 +813,7 @@ export const GET_SINGLE_EVENT = gql`
         eventId
         createdAt
         updatedAt
-        }
+      }
       createdAt
       updatedAt
     }
@@ -739,8 +822,24 @@ export const GET_SINGLE_EVENT = gql`
 
 // Transactions
 export const GET_ALL_TRANSACTIONS = gql`
-  query PaginatedTransactionDTO($page: Float! $limit: Float!  $status: String! $paymentMethod: String! $paymentType: String! $startDdate: String! $endDate: String!){
-    getAllTransactions(page:$page limit:$limit  status:$status paymentMethod: $paymentMethod paymentType: $paymentType startDdate:$startDdate endDate:$endDate){
+  query PaginatedTransactionDTO(
+    $page: Float!
+    $limit: Float!
+    $status: String!
+    $paymentMethod: String!
+    $paymentType: String!
+    $startDdate: String!
+    $endDate: String!
+  ) {
+    getAllTransactions(
+      page: $page
+      limit: $limit
+      status: $status
+      paymentMethod: $paymentMethod
+      paymentType: $paymentType
+      startDdate: $startDdate
+      endDate: $endDate
+    ) {
       totalDocs
       limit
       totalPages
@@ -750,7 +849,7 @@ export const GET_ALL_TRANSACTIONS = gql`
       hasNextPage
       prevPage
       nextPage
-      docs{
+      docs {
         _id
         paymentType
         transactionId
@@ -765,8 +864,18 @@ export const GET_ALL_TRANSACTIONS = gql`
 `;
 // Appointment module
 export const GET_ALL_APPOINTMENTS = gql`
-  query PaginatedAppointmentDTO($adminId: String! $flag: String! $page: Float! $limit: Float!){
-    getAppointments(adminId:$adminId flag:$flag page:$page limit:$limit ){
+  query PaginatedAppointmentDTO(
+    $adminId: String!
+    $flag: String!
+    $page: Float!
+    $limit: Float!
+  ) {
+    getAppointments(
+      adminId: $adminId
+      flag: $flag
+      page: $page
+      limit: $limit
+    ) {
       totalDocs
       limit
       totalPages
@@ -776,20 +885,66 @@ export const GET_ALL_APPOINTMENTS = gql`
       hasNextPage
       prevPage
       nextPage
-      docs{
+      docs {
         _id
         name
         email
-        slot{
-            _id
-            startDate
-            endDate
-            startTime
-            endTime
-            adminID
-            available
-            createdAt
-            updatedAt
+        slot {
+          _id
+          startDate
+          endDate
+          startTime
+          endTime
+          adminID
+          available
+          createdAt
+          updatedAt
+        }
+        agendaDescription
+        adminID
+        status
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+export const SEARCH_ALL_APPOINTMENTS = gql`
+  query PaginatedAppointmentDTO(
+    $adminId: String!
+    $query: String!
+    $page: Float!
+    $limit: Float!
+  ) {
+    searchAppointments(
+      adminId: $adminId
+      query: $query
+      page: $page
+      limit: $limit
+    ) {
+      totalDocs
+      limit
+      totalPages
+      page
+      pagingCounter
+      hasPrevPage
+      hasNextPage
+      prevPage
+      nextPage
+      docs {
+        _id
+        name
+        email
+        slot {
+          _id
+          startDate
+          endDate
+          startTime
+          endTime
+          adminID
+          available
+          createdAt
+          updatedAt
         }
         agendaDescription
         adminID
@@ -802,8 +957,8 @@ export const GET_ALL_APPOINTMENTS = gql`
 `;
 // Time slots
 export const GET_ALL_TIME_SLOTS = gql`
-  query SlotDTO($adminId: String!){
-    getSlots(adminId:$adminId){
+  query SlotDTO($adminId: String!) {
+    getSlots(adminId: $adminId) {
       _id
       startDate
       endDate
@@ -817,8 +972,8 @@ export const GET_ALL_TIME_SLOTS = gql`
   }
 `;
 export const GET_SINGLE_TIME_SLOT = gql`
-  query SlotDTO($id: String!){
-    getSlot(id:$id){
+  query SlotDTO($id: String!) {
+    getSlot(id: $id) {
       _id
       startDate
       endDate

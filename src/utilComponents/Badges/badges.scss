@@ -1,32 +1,37 @@
-.custom-badge{
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 16px;
-    .badge-pending{
-        text-align: center;
-        /* Warning/Default */
-        color: #F3BB1C;
-        border: 1px solid #F3BB1C;
-    }
-    .badge-success{
-        text-align: center;
-        /* Warning/Default */
-        color: #3CC13B;
-        border: 1px solid #3CC13B;
-    }
-    .badge-error{
-        text-align: center;
-        /* Warning/Default */
-        color:  #F03738;;
-        border: 1px solid  #F03738;
-    }
-    .badge-grey{
-        text-align: center;
-        /* Warning/Default */
-        color:  #6c757d;
-        border: 1px solid  #6c757d;
-    }
-};
-.pointer{
-    cursor: pointer;
+.custom-badge {
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  .badge-pending {
+    text-align: center;
+    /* Warning/Default */
+    color: #f3bb1c;
+    // border: 1px solid ;
+    // color: #1daf05;
+    // border: 1px solid #3CC13B;
+    background: #fff8e1;
+  }
+  .badge-success {
+    text-align: center;
+    /* Warning/Default */
+    color: #1daf05;
+    // border: 1px solid #3CC13B;
+    background: #e1fcec;
+  }
+  .badge-error {
+    text-align: center;
+    /* Warning/Default */
+    color: #f03738;
+    // border: 1px solid #f03738;
+    background: #ffe5e5;
+  }
+  .badge-grey {
+    text-align: center;
+    /* Warning/Default */
+    color: #6c757d;
+    border: 1px solid #6c757d;
+  }
+}
+.pointer {
+  cursor: pointer;
 }

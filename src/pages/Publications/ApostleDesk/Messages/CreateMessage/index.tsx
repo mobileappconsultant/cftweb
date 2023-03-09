@@ -204,14 +204,18 @@ const CreateApostleMessage = (props: any):JSX.Element => {
     };
 
     useEffect(() => {
+        console.log("xx")
         
         if(adminDataQuery.data){
+            console.log("zz")
+
             const adminList:any = JSON.parse(JSON.stringify(adminDataQuery.data.getAllAdmin?.docs));
             for (let index = 0; index < adminList.length; index++) {
                 const element = adminList[index];
                 element.label = element?.full_name;
                 element.value = element?.full_name;
             };
+            console.log(adminList)
             setState({
                 adminData: adminList,
             });
