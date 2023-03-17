@@ -488,7 +488,9 @@ const AllAppointments = (props: any) => {
                           <td>{datum?.email}</td>
                           {/* <td>{datum?.agendaDescription}</td> */}
                           <td>
-                            {moment(datum?.slot?.date).format("DD/MM/YYYY")}
+                            {moment(datum?.slot?.startDate).format(
+                              "DD/MM/YYYY"
+                            )}{" "}
                           </td>
                           <td>
                             {datum?.slot?.startTime} - {datum?.slot?.endTime}
