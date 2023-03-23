@@ -35,5 +35,5 @@ export const appointmentOptions = [
   { value: "null", label: "All" },
   { value: "Accepted", label: "Accepted" },
   { value: "Pending", label: "Pending" },
-  { value: "Declined", label: "Declined" },
+  { value: "Declined", label: "Cancelled" },
 ];
