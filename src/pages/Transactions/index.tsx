@@ -8,13 +8,15 @@ import { DatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
 // Old MUI //
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 import arrowLeftIcon from "assets/images/arrow-left.png";
 import arrowRightIcon from "assets/images/arrow-right.png";
 import donationsIcon from "assets/images/donations.png";
@@ -248,7 +250,11 @@ const Transactions = (): JSX.Element => {
   const transactionTable = (): JSX.Element => {
     return (
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <Table
+          className="table mt-4"
+          sx={{ minWidth: 300 }}
+          aria-label="simple table"
+        >
           <TableHead>
             <TableRow>
               <TableCell className="table-th">Transaction ID</TableCell>
@@ -285,37 +291,38 @@ const Transactions = (): JSX.Element => {
                 </h1>
               </div>
             )}
-            {dataArr.map((row: any) => (
-              <TableRow
-                //   key={row.name}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {row.transactionId}
-                </TableCell>
-                <TableCell align="left">
-                  {capiitalizeFirstLetter(row.paymentType)}
-                </TableCell>
-                <TableCell align="left">
-                  {capiitalizeFirstLetter(row.paymentPlatform)}
-                </TableCell>
-                <TableCell align="left">
-                  {moment(row.transactionDate).format(
-                    "MMMM Do YYYY, h:mm:ss a"
-                  )}
-                </TableCell>
-                <TableCell align="left">
-                  {row.status === "Successful" ? (
-                    <Badges text="Successful" type="success" />
-                  ) : (
-                    <Badges text="Failed" type="error" />
-                  )}
-                </TableCell>
-                <TableCell align="left">
-                  {row.currency} {row.amount}
-                </TableCell>
-              </TableRow>
-            ))}
+            {dataArr.map((row: any) => {
+              return (
+                <TableRow
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    {row.transactionId}
+                  </TableCell>
+                  <TableCell align="left">
+                    {capiitalizeFirstLetter(row.paymentType)}
+                  </TableCell>
+                  <TableCell align="left">
+                    {capiitalizeFirstLetter(row.paymentPlatform)}
+                  </TableCell>
+                  <TableCell align="left">
+                    {moment(row.transactionDate).format(
+                      "MMMM Do YYYY, h:mm:ss a"
+                    )}
+                  </TableCell>
+                  <TableCell align="left">
+                    {row.status === "Successful" ? (
+                      <Badges text="Successful" type="success" />
+                    ) : (
+                      <Badges text="Failed" type="error" />
+                    )}
+                  </TableCell>
+                  <TableCell align="left">
+                    {row.currency} {row.amount}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
@@ -472,7 +479,7 @@ const Transactions = (): JSX.Element => {
             </button>
           </div>
         </div>
-        <div className="d-flex justify-content-between py-3 ">
+        {/* <div className="d-flex transaction-table justify-content-between py-3 ">
           <div
             className={`${
               openChart ? "col-md-7" : "col-md-11"
@@ -504,6 +511,22 @@ const Transactions = (): JSX.Element => {
               />
             </div>
           </div>
+        </div> */}
+        <div className="py-3 transaction-mobile w-100">
+          {transactionTable()}
+          {dataArr.length !== 0 && (
+            <>
+              <div>
+                <Pagination
+                  count={pagination?.totalRecords}
+                  page={pagination?.page}
+                  rowsPerPage={pagination?.rowsPerPage}
+                  onPageChange={handleChangePage}
+                  handleChangeRowsPerPage={handleChangeRowsPerPage}
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </>

@@ -1,8 +1,9 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useRef, useState } from "react";
 import logo from "assets/images/logo.png";
+import gold from "assets/images/black.png";
 import "./dashboardLayout.scss";
 import { sideBarRoutes } from "./sidebarLinks";
-import { BellRinging, Logout, X } from "tabler-icons-react";
+import { BellRinging, Logout, X, Menu2 } from "tabler-icons-react";
 import { Link } from "react-router-dom";
 import Modal from "utilComponents/Modal";
 import { Animated } from "react-animated-css";
@@ -12,6 +13,8 @@ import userIcon from "assets/images/user.png";
 import PermissionWrapper from "utilComponents/PermissionWrapper";
 
 const DashboardLayout = (props: any): JSX.Element => {
+  const [sidebarOpen, setSideBarOpen] = useState(false);
+  const sidebarRef = useRef();
   const initialState = {
     showModal: false,
   };
@@ -66,7 +69,17 @@ const DashboardLayout = (props: any): JSX.Element => {
           </div>
         </>
       </Modal>
-      <div className="sidebar">
+      {/* {sidebarOpen && ( */}
+      <div
+        className="sidebar"
+        style={{
+          transform: sidebarOpen ? "translateX(0)" : "translateX(-120%)",
+        }}
+      >
+        {/* <div className="cancel-container"> */}
+        {/* {sidebarOpen === true && <div className="cancel">hello</div>} */}
+        {/* </div> */}
+
         <div className="logo-details">
           <div className="px-2">
             <img src={logo} />
@@ -159,13 +172,34 @@ const DashboardLayout = (props: any): JSX.Element => {
           </div>
         </div>
       </div>
+      {/* )} */}
+
       <section className="home-section">
         <nav
           style={{ backgroundColor: "white" }}
           className="navbar navbar-expand-lg navbar-light  py-3 px-3"
         >
-          <div className="d-flex justify-content-end w-100">
-            <BellRinging size={30} strokeWidth={1} color={"#000000"} />
+          <div className="d-flex justify-content-between w-100">
+            <Menu2
+              onClick={() => setSideBarOpen(!sidebarOpen)}
+              size={30}
+              strokeWidth={2}
+              color={"black"}
+              style={{ cursor: "pointer" }}
+            />
+            {sidebarOpen === true ? (
+              <X
+                onClick={() => setSideBarOpen(!sidebarOpen)}
+                size={30}
+                strokeWidth={1}
+                color={"#000000"}
+                style={{ cursor: "pointer" }}
+              />
+            ) : (
+              <>
+                <img src={gold} style={{ objectFit: "cover" }} alt="" />
+              </>
+            )}
           </div>
         </nav>
         <div className="mt-5 px-4">{props.children}</div>

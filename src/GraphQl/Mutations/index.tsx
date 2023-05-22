@@ -135,14 +135,14 @@ export const INVITE_ADMIN = gql`
 export const CREATE_ROLE = gql`
   mutation createRole($permissions: [String!]!, $name: String!) {
     createRole(permissions: $permissions, name: $name) {
-      id
+      _id
     }
   }
 `;
 export const EDIT_ROLE = gql`
   mutation updateRole($permissions: [String!]!, $id: String!, $name: String!) {
     updateRole(permissions: $permissions, id: $id, name: $name) {
-      id
+      _id
     }
   }
 `;
@@ -815,7 +815,13 @@ export const UPDATE_TIME_SLOT = gql`
     }
   }
 `;
-
+export const DELETE_TIME_SLOT = gql`
+  mutation deleteTImeSlot($id: String!) {
+    deleteTImeSlot(id: $id) {
+      msg
+    }
+  }
+`;
 export const UPDATE_APPOINTMENT = gql`
   mutation updateAppointment($id: String!, $status: String!) {
     updateAppointment(id: $id, status: $status) {

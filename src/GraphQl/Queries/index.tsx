@@ -66,6 +66,13 @@ export const GET_ALL_USERS_IN_BRANCH = gql`
     }
   }
 `;
+export const DELETE_TIME_SLOT = gql`
+  query deleteTImeSlot($id: String!) {
+    deleteTImeSlot(id: $id) {
+      msg
+    }
+  }
+`;
 export const GET_ALL_USERS_IN_GROUP = gql`
   query PaginatedUserDTO($groupName: String!, $page: Float!, $limit: Float!) {
     getUsersInGroup(groupName: $groupName, page: $page, limit: $limit) {
@@ -289,10 +296,10 @@ export const GET_ALL_ROLES = gql`
 export const GET_SINGLE_ROLE = gql`
   query RoleDTO($id: String!) {
     getRole(id: $id) {
-      id
+      _id
       name
       permissions {
-        id
+        _id
         name
         description
         module

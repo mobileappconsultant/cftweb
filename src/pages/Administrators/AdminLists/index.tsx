@@ -116,6 +116,7 @@ const AdministratorsList = (): JSX.Element => {
         },
       });
       const { data, loading, error } = apiData;
+      console.log(data);
       if (data) {
         setState({
           dataArr: data?.getAllAdmin?.docs,

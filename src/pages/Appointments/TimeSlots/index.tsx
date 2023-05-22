@@ -20,6 +20,18 @@ import CloseButton from "components/CloseButton";
 import PageTitle from "components/PageTitle";
 import EditTimeSlot from "./EditTimeSlot";
 import ActionButton from "utilComponents/ActionButton";
+import DeleteModal from "utilComponents/DeleteModal";
+import { DELETE_TIME_SLOT } from "GraphQl/Mutations";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+import { Tab } from "@material-ui/core";
 
 const AllTimeSlots = (props: any) => {
   const { user } = props;
@@ -116,10 +128,12 @@ const AllTimeSlots = (props: any) => {
       });
     };
   }, []);
-  const toggleDeleteModal = () => {
+  const toggleDeleteModal = (id = null) => {
     setState({
       showDeleteModal: !showDeleteModal,
+      activeId: id,
     });
+    console.log(id);
   };
   const handleAlertClose = () => {
     setState({
@@ -172,76 +186,93 @@ const AllTimeSlots = (props: any) => {
                 />
               </div>
             )}
-
-            <table className="table mt-4">
-              <thead>
-                <tr>
-                  <th>Administrator</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Status</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {dataArr.map((datum: any, _i: number) => {
-                  return (
-                    <tr>
-                      <td>{user?.full_name}</td>
-                      <td>{moment(datum?.startDate).format("DD/MM/YYYY")}</td>
-                      <td>
-                        {datum?.startTime} - {datum?.endTime}
-                      </td>
-                      <td>
-                        {datum?.available ? (
-                          <Badges text="Available" type="success" />
-                        ) : (
-                          <Badges text="Not available" type="pending" />
-                        )}
-                      </td>
-                      <td>
-                        {datum?.available && (
-                          <div className="d-flex gap-3">
-                            <span
-                              className="pointer"
-                              onClick={() =>
-                                toggleEditTimeSlotModal(datum?._id)
-                              }
-                            >
-                              <Edit size={28} strokeWidth={2} color={"black"} />
-                            </span>
-                            <span className="pointer">
-                              <Trash
+            <TableContainer component={Paper}>
+              <Table
+                sx={{ minWidth: 300 }}
+                aria-label="simple table"
+                className="table mt-4"
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableCell className="table-th">Administrator</TableCell>
+                    <TableCell align="left">Date</TableCell>
+                    <TableCell align="left">Time</TableCell>
+                    <TableCell align="left">Status</TableCell>
+                    <TableCell />
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {dataArr.map((datum: any, _i: number) => {
+                    return (
+                      <TableRow
+                        sx={{
+                          "&:last-child TableCell, &:last-child th": {
+                            border: 0,
+                          },
+                        }}
+                      >
+                        <TableCell>{user?.full_name}</TableCell>
+                        <TableCell>
+                          {moment(datum?.starTableCellate).format("DD/MM/YYYY")}
+                        </TableCell>
+                        <TableCell>
+                          {datum?.startTime} - {datum?.endTime}
+                        </TableCell>
+                        <TableCell>
+                          {datum?.available ? (
+                            <Badges text="Available" type="success" />
+                          ) : (
+                            <Badges text="Not available" type="pending" />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {datum?.available && (
+                            <div className="d-flex gap-3">
+                              <span
+                                className="pointer"
+                                onClick={() =>
+                                  toggleEditTimeSlotModal(datum?._id)
+                                }
+                              >
+                                <Edit
+                                  size={28}
+                                  strokeWidth={2}
+                                  color={"black"}
+                                />
+                              </span>
+                              <span className="pointer">
+                                {/* <Trash
                                 size={28}
                                 strokeWidth={2}
                                 color={"black"}
-                              />
-
-                              {/* <ActionButton
-                                text={
-                                  <Trash
-                                    size={28}
-                                    strokeWidth={2}
-                                    color={"black"}
-                                  />
-                                }
-                                // className="edit-action "
-                                actionEvent={() => {
-                                  setState({
-                                    showDeleteModal: true,
-                                    activeId: datum?._id,
-                                  });
-                                }}
                               /> */}
-                            </span>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+
+                                <ActionButton
+                                  text={
+                                    <Trash
+                                      size={28}
+                                      strokeWidth={2}
+                                      color={"black"}
+                                    />
+                                  }
+                                  // className="edit-action "
+                                  actionEvent={() => {
+                                    setState({
+                                      showDeleteModal: true,
+                                      activeId: datum?._id,
+                                    });
+                                  }}
+                                />
+                              </span>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </>
         )}
       </div>
@@ -268,6 +299,17 @@ const AllTimeSlots = (props: any) => {
           toggleModal={toggleEditTimeSlotModal}
           show={showEditTimeSlotModal}
           slotId={activeId}
+          addAlert={addAlert}
+        />
+      )}
+      {showDeleteModal && (
+        <DeleteModal
+          refresh={fetchData}
+          mutation={DELETE_TIME_SLOT}
+          handleModalToggle={toggleDeleteModal}
+          showModal={showDeleteModal}
+          parameterKey="id"
+          recordId={activeId}
           addAlert={addAlert}
         />
       )}

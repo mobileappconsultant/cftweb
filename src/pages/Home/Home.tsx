@@ -150,9 +150,7 @@ const Home = (): JSX.Element => {
     // console.log(amountGeneratedData.totalDonations);
     setCurrencyCode(event.target.value);
     if (event.target.value === "NGN") {
-      setConvertedAmount(
-        parseFloat(amountGeneratedData.totalDonations) * 450
-      );
+      setConvertedAmount(parseFloat(amountGeneratedData.totalDonations) * 450);
     } else if (event.target.value === "GBP") {
       setConvertedAmount(amountGeneratedData.totalDonations);
     }
@@ -178,8 +176,11 @@ const Home = (): JSX.Element => {
         <div className="col-md-12 mt-4">
           <div className="card p-3">
             <CardHeader text="User statistics" />
-            <div className="row mt-3">
-              <div className="col-md-4">
+            <div
+              // style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}
+              className="row-dash  mt-3"
+            >
+              <div className="c">
                 <DashboardCard
                   text="Administrators"
                   icon={
@@ -195,7 +196,7 @@ const Home = (): JSX.Element => {
                   className="yellow"
                 />
               </div>
-              <div className="col-md-4">
+              <div className="c">
                 <DashboardCard
                   text="Registered Users"
                   icon={
@@ -211,7 +212,7 @@ const Home = (): JSX.Element => {
                   className="green"
                 />
               </div>
-              <div className="col-md-4">
+              <div className="c">
                 <DashboardCard
                   text="Inactive users"
                   icon={

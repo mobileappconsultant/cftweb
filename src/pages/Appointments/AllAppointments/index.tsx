@@ -31,7 +31,16 @@ import {
 import { connect } from "react-redux";
 import AllTimeSlots from "../TimeSlots";
 import { mockdata } from "../mockdata";
-import { Tooltip } from "@mui/material";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+} from "@mui/material";
 
 const AllAppointments = (props: any) => {
   const { user } = props;
@@ -468,119 +477,133 @@ const AllAppointments = (props: any) => {
                     <CalendarTime strokeWidth={1.2} /> Manage time slots
                   </span>
                 </div>
-                <table className="table mt-4">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Email</th>
-                      {/* <th>Message</th> */}
-                      <th>Date</th>
-                      <th>Time</th>
-                      <th>Status</th>
-                      <th />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dataArr.map((datum: any, index: number) => {
-                      return (
-                        <tr>
-                          <td>{capiitalizeFirstLetter(datum?.name)}</td>
-                          <td>{datum?.email}</td>
-                          {/* <td>{datum?.agendaDescription}</td> */}
-                          <td>
-                            {moment(datum?.slot?.startDate).format(
-                              "DD/MM/YYYY"
-                            )}{" "}
-                          </td>
-                          <td>
-                            {datum?.slot?.startTime} - {datum?.slot?.endTime}
-                          </td>
-                          <td>
-                            {datum?.status === "Accepted" && (
-                              <Badges text="Accepted" type="success" />
-                            )}
-                            {datum?.status === "Declined" && (
-                              <Badges text="Cancelled" type="error" />
-                            )}
-                            {datum?.status === "Not accepted" && (
-                              <Badges text="Declined" type="grey" />
-                            )}
-                            {datum?.status === "Pending" && (
-                              <Badges text="Pending" type="pending" />
-                            )}
-                          </td>
-                          <td>
-                            <div className="d-flex gap-3">
-                              {datum?.status === "Pending" && (
-                                <Tooltip
-                                  title="Approve appointment"
-                                  placement="right-start"
-                                  arrow
-                                  className="mx-1"
-                                >
-                                  <span
-                                    className="pointer"
-                                    onClick={() =>
-                                      acceptAppointment(datum?._id)
-                                    }
-                                  >
-                                    <Checks
-                                      size={28}
-                                      strokeWidth={2}
-                                      color={"black"}
-                                    />
-                                  </span>
-                                </Tooltip>
-                              )}
-                              {datum?.status === "Pending" && (
-                                <Tooltip
-                                  title="Reject appointment"
-                                  placement="right-start"
-                                  arrow
-                                  className="mx-1"
-                                >
-                                  <span
-                                    className="pointer"
-                                    onClick={() =>
-                                      declineAppointment(datum?._id)
-                                    }
-                                  >
-                                    <FriendsOff
-                                      size={28}
-                                      strokeWidth={2}
-                                      color={"grey"}
-                                    />
-                                  </span>
-                                </Tooltip>
-                              )}
+                <TableContainer component={Paper}>
+                  <Table
+                    sx={{ minWidth: 300 }}
+                    aria-label="simple table"
+                    className="table mt-4"
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell className="table-th">Name</TableCell>
+                        <TableCell align="left">Email</TableCell>
+                        {/* <TableCell>Message</TableCell> */}
+                        <TableCell align="left">Date</TableCell>
+                        <TableCell align="left">Time</TableCell>
+                        <TableCell align="left">Status</TableCell>
+                        <TableCell />
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {dataArr.map((datum: any, index: number) => {
+                        return (
+                          <TableRow
+                            sx={{
+                              "&:last-child td, &:last-child th": {
+                                border: 0,
+                              },
+                            }}
+                          >
+                            <TableCell>
+                              {capiitalizeFirstLetter(datum?.name)}
+                            </TableCell>
+                            <TableCell>{datum?.email}</TableCell>
+                            {/* <TableCell>{datum?.agendaDescription}</TableCell> */}
+                            <TableCell>
+                              {moment(datum?.slot?.starTableCellate).format(
+                                "DD/MM/YYYY"
+                              )}{" "}
+                            </TableCell>
+                            <TableCell>
+                              {datum?.slot?.startTime} - {datum?.slot?.endTime}
+                            </TableCell>
+                            <TableCell>
                               {datum?.status === "Accepted" && (
-                                <Tooltip
-                                  title="Cancel appointment"
-                                  placement="right-start"
-                                  arrow
-                                  className="mx-1"
-                                >
-                                  <span
-                                    className="pointer"
-                                    onClick={() =>
-                                      cancelAppointment(datum?._id)
-                                    }
-                                  >
-                                    <CalendarOff
-                                      size={28}
-                                      strokeWidth={2}
-                                      color={"red"}
-                                    />
-                                  </span>
-                                </Tooltip>
+                                <Badges text="Accepted" type="success" />
                               )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                              {datum?.status === "Declined" && (
+                                <Badges text="Cancelled" type="error" />
+                              )}
+                              {datum?.status === "Not accepted" && (
+                                <Badges text="Declined" type="grey" />
+                              )}
+                              {datum?.status === "Pending" && (
+                                <Badges text="Pending" type="pending" />
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="d-flex gap-3">
+                                {datum?.status === "Pending" && (
+                                  <Tooltip
+                                    title="Approve appointment"
+                                    placement="right-start"
+                                    arrow
+                                    className="mx-1"
+                                  >
+                                    <span
+                                      className="pointer"
+                                      onClick={() =>
+                                        acceptAppointment(datum?._id)
+                                      }
+                                    >
+                                      <Checks
+                                        size={28}
+                                        strokeWidth={2}
+                                        color={"black"}
+                                      />
+                                    </span>
+                                  </Tooltip>
+                                )}
+                                {datum?.status === "Pending" && (
+                                  <Tooltip
+                                    title="Reject appointment"
+                                    placement="right-start"
+                                    arrow
+                                    className="mx-1"
+                                  >
+                                    <span
+                                      className="pointer"
+                                      onClick={() =>
+                                        declineAppointment(datum?._id)
+                                      }
+                                    >
+                                      <FriendsOff
+                                        size={28}
+                                        strokeWidth={2}
+                                        color={"grey"}
+                                      />
+                                    </span>
+                                  </Tooltip>
+                                )}
+                                {datum?.status === "Accepted" && (
+                                  <Tooltip
+                                    title="Cancel appointment"
+                                    placement="right-start"
+                                    arrow
+                                    className="mx-1"
+                                  >
+                                    <span
+                                      className="pointer"
+                                      onClick={() =>
+                                        cancelAppointment(datum?._id)
+                                      }
+                                    >
+                                      <CalendarOff
+                                        size={28}
+                                        strokeWidth={2}
+                                        color={"red"}
+                                      />
+                                    </span>
+                                  </Tooltip>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </>
             )}
           </div>
